@@ -19,9 +19,22 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation group: 'org.mariadb.jdbc', name: 'mariadb-java-client', version: '3.3.3'
+    implementation 'org.springframework.boot:spring-boot-devtools:3.2.4'
+    implementation 'org.hibernate:hibernate-validator:8.0.1.Final'
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.security:spring-security-test'
+    /*=============================================lombok dependencies=============================================*/
+    compileOnly 'org.projectlombok:lombok:1.18.32'
+    annotationProcessor 'org.projectlombok:lombok:1.18.32'
+    testCompileOnly 'org.projectlombok:lombok:1.18.32'
+    testAnnotationProcessor 'org.projectlombok:lombok:1.18.32'
+/*=================================================================================================================*/
+
+    implementation 'org.hibernate:hibernate-core:6.3.2.Final'
+
+
 }
 
 tasks.named('test') {
