@@ -8,7 +8,6 @@ import java.time.LocalDate;
 
 @Data
 public class UserBaseDetailsInDto {
-    private static final String DATE_FORMAT = "";
 
     @NotBlank(message = "First name can not be empty")
     private String firstName;
@@ -23,4 +22,5 @@ public class UserBaseDetailsInDto {
     private int roleId;
 
     private String pictureUrl;
+
 }

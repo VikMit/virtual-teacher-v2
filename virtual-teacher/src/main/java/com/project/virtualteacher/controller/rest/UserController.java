@@ -1,9 +1,9 @@
 package com.project.virtualteacher.controller.rest;
 
 
+import com.project.virtualteacher.dto.UserBaseDetailsInDto;
 import com.project.virtualteacher.dto.UserFullDetailsInDto;
 import com.project.virtualteacher.dto.UserOutDto;
-import com.project.virtualteacher.dto.UserBaseDetailsInDto;
 import com.project.virtualteacher.entity.User;
 import com.project.virtualteacher.exception_handling.exceptions.IncorrectInputException;
 import com.project.virtualteacher.service.UserService;
@@ -45,16 +45,28 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<UserOutDto> getUser(@PathVariable(name = "id") int id,Authentication authentication) {
-
-        User userDb = userService.getUserById(id,authentication);
+    public ResponseEntity<UserOutDto> getUser(@PathVariable(name = "id") int id,Authentication loggedUser) {
+        User userDb = userService.getUserById(id,loggedUser);
         UserOutDto userToReturn = mapper.userToUserOutDto(userDb);
         return new ResponseEntity<>(userToReturn, HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")
-    public void deleteUser(@PathVariable(name = "id") int id) {
-        userService.delete(id);
+    public ResponseEntity<String> deleteUser(@PathVariable(name = "id") int id,Authentication loggedUser) {
+        userService.delete(id,loggedUser);
+        return new ResponseEntity<>("User with ID: " + id + " was deleted",HttpStatus.OK);
+    }
+
+    @PutMapping("/{id}/block")
+    public ResponseEntity<String> block(@PathVariable(name = "id") int id,Authentication loggedUser){
+        userService.blockUser(id,loggedUser);
+        return new ResponseEntity<>("User with ID: "+id+" was blocked",HttpStatus.OK);
+    }
+
+    @PutMapping("/{id}/unblock")
+    public ResponseEntity<String> unblock(@PathVariable(name = "id") int id,Authentication loggedUser){
+        userService.blockUser(id,loggedUser);
+        return new ResponseEntity<>("User with ID: "+id+" was unblocked",HttpStatus.OK);
     }
 
     //TODO

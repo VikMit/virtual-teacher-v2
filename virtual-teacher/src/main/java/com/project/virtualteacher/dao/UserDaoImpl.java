@@ -2,9 +2,9 @@ package com.project.virtualteacher.dao;
 
 
 import com.project.virtualteacher.entity.User;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.NoResultException;
-import jakarta.persistence.TypedQuery;
+import com.project.virtualteacher.exception_handling.error_message.ErrorMessage;
+import com.project.virtualteacher.exception_handling.exceptions.UserNotFoundException;
+import jakarta.persistence.*;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
@@ -69,7 +69,27 @@ public class UserDaoImpl implements UserDao {
         TypedQuery<Long> query = em.createQuery("SELECT COUNT(*) FROM User WHERE username=:username", Long.class);
         query.setParameter("username", username);
         Long i = query.getSingleResult();
-        return i>0;
+        return i > 0;
+    }
+
+    @Override
+    public void blockUser(int userId) {
+        Query query = em.createQuery("UPDATE  User u SET u.isBlocked = true WHERE id=:userId");
+        query.setParameter("userId", userId);
+        int result= query.executeUpdate();
+        if (result<1){
+            throw new UserNotFoundException(ErrorMessage.USER_NOT_FOUND,userId);
+        }
+    }
+
+    @Override
+    public void unBlockUser(int userId) {
+        Query query = em.createQuery("UPDATE  User u SET u.isBlocked = false WHERE id=:userId");
+        query.setParameter("userId", userId);
+        int result= query.executeUpdate();
+        if (result<1){
+            throw new UserNotFoundException(ErrorMessage.USER_NOT_FOUND,userId);
+        }
     }
 
     @Override

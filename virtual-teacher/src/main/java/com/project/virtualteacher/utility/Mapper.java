@@ -15,14 +15,11 @@ import java.time.format.DateTimeFormatter;
 @Component
 public final class Mapper {
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-
-
     private final RoleDao roleDao;
-    private final UserDao userDao;
+
 
     public Mapper(RoleDao roleDao, UserDao userDao) {
         this.roleDao = roleDao;
-        this.userDao = userDao;
     }
 
     public User userFullDetailsInDtoToUser(UserFullDetailsInDto userDetailedInDto) {
@@ -37,6 +34,12 @@ public final class Mapper {
         user.setLastName(userDetailedInDto.getLastName());
         user.setPictureUrl(userDetailedInDto.getPictureUrl());
         user.setRole(role);
+        if (user.getPictureUrl()==null){
+            user.setPictureUrl("Default picture URL");
+        }
+        else{
+            user.setPictureUrl(userDetailedInDto.getPictureUrl());
+        }
         return user;
     }
 

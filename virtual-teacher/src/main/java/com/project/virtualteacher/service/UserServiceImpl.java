@@ -3,6 +3,7 @@ package com.project.virtualteacher.service;
 import com.project.virtualteacher.dao.RoleDao;
 import com.project.virtualteacher.dao.UserDao;
 import com.project.virtualteacher.entity.User;
+import com.project.virtualteacher.exception_handling.error_message.ErrorMessage;
 import com.project.virtualteacher.exception_handling.exceptions.EmailExistException;
 import com.project.virtualteacher.exception_handling.exceptions.UnAuthorizeException;
 import com.project.virtualteacher.exception_handling.exceptions.UserNotFoundException;
@@ -36,7 +37,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public User getUserById(int userId, Authentication loggedUser) throws EntityNotFoundException {
         User userDb = userDao.getById(userId).orElseThrow(() -> new UserNotFoundException(USER_NOT_FOUND, userId));
-        if (isTeacherOrAdmin(loggedUser) || isResourceOwner(loggedUser, userDb)) {
+        if (isTeacherOrAdmin(loggedUser) || isUsersMatch(loggedUser, userDb)) {
             return userDb;
         }
         throw new UnAuthorizeException("Only owner of the account, 'Teacher' or 'Admin' has access to this resource");
@@ -48,17 +49,19 @@ public class UserServiceImpl implements UserService {
     public void createUser(User user) {
         validateUsernameAndEmailNotExist(user);
         user.setRequestedRole(user.getRole());
-        user.setRole(roleDao.getRoleById(1));
-
+        user.setRole(roleDao.getRoleByName("Student"));
         user.setPassword(encoder.encode(user.getPassword()));
+        user.setBlocked(false);
         userDao.create(user);
     }
 
-
     @Override
     @Transactional
-    public void delete(int id) {
+    public void delete(int id, Authentication loggedUser) {
         User userToDelete = userDao.getById(id).orElseThrow(() -> new UserNotFoundException(USER_NOT_FOUND, id));
+        if (!isUsersMatch(loggedUser, userToDelete)) {
+            throw new UnAuthorizeException(ErrorMessage.USER_NOT_RESOURCE_OWNER);
+        }
         userDao.delete(userToDelete);
     }
 
@@ -76,6 +79,26 @@ public class UserServiceImpl implements UserService {
 
         return userDao.update(userToUpdate);
 
+    }
+
+    @Override
+    @Transactional
+    public void blockUser(int id, Authentication loggedUser) {
+        if (isAdmin(loggedUser)) {
+            userDao.blockUser(id);
+        } else {
+            throw new UnAuthorizeException("Only ADMIN can block users");
+        }
+    }
+
+    @Override
+    @Transactional
+    public void unBlockUser(int id, Authentication loggedUser) {
+        if (isAdmin(loggedUser)) {
+            userDao.unBlockUser(id);
+        } else {
+            throw new UnAuthorizeException("Only ADMIN can unblock users");
+        }
     }
 
     //TODO
@@ -103,14 +126,14 @@ public class UserServiceImpl implements UserService {
         return loggedUser
                 .getAuthorities()
                 .stream()
-                .anyMatch(e -> e.getAuthority().equalsIgnoreCase("Admin"));
+                .anyMatch(e -> e.getAuthority().equalsIgnoreCase("ADMIN"));
     }
 
     private boolean isTeacherOrAdmin(Authentication loggedUser) {
         return (isAdmin(loggedUser) || isTeacher(loggedUser));
     }
 
-    private boolean isResourceOwner(Authentication loggedUser, User requestedUser) {
+    private boolean isUsersMatch(Authentication loggedUser, User requestedUser) {
         return loggedUser.getName().equals(requestedUser.getUsername());
     }
 }

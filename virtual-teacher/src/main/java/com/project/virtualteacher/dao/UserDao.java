@@ -21,4 +21,8 @@ public interface UserDao {
     boolean isEmailExist(String email);
 
     boolean isUsernameExist(String username);
+
+    void blockUser(int userId);
+
+    void unBlockUser(int id);
 }

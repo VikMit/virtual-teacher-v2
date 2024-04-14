@@ -51,6 +51,9 @@ public class User {
     @JoinColumn(name = "requested_role_id")
     private Role requestedRole;
 
+    @Column(name = "blocked")
+    private boolean isBlocked;
+
 }
 
 
