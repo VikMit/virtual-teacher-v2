@@ -5,6 +5,7 @@ import com.project.virtualteacher.entity.User;
 import com.project.virtualteacher.exception_handling.error_message.ErrorMessage;
 import com.project.virtualteacher.exception_handling.exceptions.UserNotFoundException;
 import jakarta.persistence.*;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
@@ -13,6 +14,7 @@ import java.util.Optional;
 public class UserDaoImpl implements UserDao {
     private final EntityManager em;
 
+    @Autowired
     public UserDaoImpl(EntityManager em) {
         this.em = em;
     }
@@ -76,9 +78,9 @@ public class UserDaoImpl implements UserDao {
     public void blockUser(int userId) {
         Query query = em.createQuery("UPDATE  User u SET u.isBlocked = true WHERE id=:userId");
         query.setParameter("userId", userId);
-        int result= query.executeUpdate();
-        if (result<1){
-            throw new UserNotFoundException(ErrorMessage.USER_NOT_FOUND,userId);
+        int result = query.executeUpdate();
+        if (result < 1) {
+            throw new UserNotFoundException(ErrorMessage.USER_NOT_FOUND, userId);
         }
     }
 
@@ -86,9 +88,9 @@ public class UserDaoImpl implements UserDao {
     public void unBlockUser(int userId) {
         Query query = em.createQuery("UPDATE  User u SET u.isBlocked = false WHERE id=:userId");
         query.setParameter("userId", userId);
-        int result= query.executeUpdate();
-        if (result<1){
-            throw new UserNotFoundException(ErrorMessage.USER_NOT_FOUND,userId);
+        int result = query.executeUpdate();
+        if (result < 1) {
+            throw new UserNotFoundException(ErrorMessage.USER_NOT_FOUND, userId);
         }
     }
 

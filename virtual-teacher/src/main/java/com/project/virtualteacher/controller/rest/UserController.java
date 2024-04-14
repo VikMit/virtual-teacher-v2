@@ -65,7 +65,7 @@ public class UserController {
 
     @PutMapping("/{id}/unblock")
     public ResponseEntity<String> unblock(@PathVariable(name = "id") int id,Authentication loggedUser){
-        userService.blockUser(id,loggedUser);
+        userService.unBlockUser(id,loggedUser);
         return new ResponseEntity<>("User with ID: "+id+" was unblocked",HttpStatus.OK);
     }
 
