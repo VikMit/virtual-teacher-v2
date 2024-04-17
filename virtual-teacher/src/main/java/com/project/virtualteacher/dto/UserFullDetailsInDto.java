@@ -22,4 +22,9 @@ public class UserFullDetailsInDto extends UserBaseDetailsInDto {
     @Email(message = "Email should be valid")
     private String email;
 
+    @Min(value = 1, message = "Role ID must be positive")
+    private int roleId;
+
+    private String pictureUrl;
+
 }

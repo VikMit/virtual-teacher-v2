@@ -6,14 +6,16 @@ import org.springframework.security.core.Authentication;
 
 public interface UserService {
 
-    User getUserById(int userId,Authentication loggedUser);
+    User getUserById(int userId);
 
     void createUser(User user);
 
     void delete(int id,Authentication loggedUser);
 
-    User update(User userToUpdate,int userToUpdateId ,Authentication authentication);
+    void updateBaseUserDetails(User userToUpdate, int userToUpdateId , Authentication authentication);
 
     void blockUser(int id, Authentication loggedUser);
     void unBlockUser(int id, Authentication loggedUser);
+
+    void updateRole(int userId, int roleId);
 }

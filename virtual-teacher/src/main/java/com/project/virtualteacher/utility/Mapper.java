@@ -22,29 +22,25 @@ public final class Mapper {
         this.roleDao = roleDao;
     }
 
-    public User userFullDetailsInDtoToUser(UserFullDetailsInDto userDetailedInDto) {
-        User user = new User();
-        Role role = roleDao.getRoleById(userDetailedInDto.getRoleId());
-        LocalDate dob = LocalDate.parse(userDetailedInDto.getDob().format(DATE_FORMATTER));
-        user.setDob(dob);
-        user.setPassword(userDetailedInDto.getPassword());
-        user.setUsername(userDetailedInDto.getUsername());
-        user.setEmail(userDetailedInDto.getEmail());
-        user.setFirstName(userDetailedInDto.getFirstName());
-        user.setLastName(userDetailedInDto.getLastName());
-        user.setPictureUrl(userDetailedInDto.getPictureUrl());
+    public User userFullDetailsInDtoToUser(UserFullDetailsInDto detailedUserInDto) {
+        User user = userBaseDetailsInDtoToUser(detailedUserInDto);
+        Role role = roleDao.getRoleById(detailedUserInDto.getRoleId()).orElseThrow();
+        user.setUsername(detailedUserInDto.getUsername());
+        user.setPassword(detailedUserInDto.getPassword());
+        user.setEmail(detailedUserInDto.getEmail());
         user.setRole(role);
         if (user.getPictureUrl()==null){
             user.setPictureUrl("Default picture URL");
         }
         else{
-            user.setPictureUrl(userDetailedInDto.getPictureUrl());
+            user.setPictureUrl(detailedUserInDto.getPictureUrl());
         }
         return user;
     }
 
     public UserOutDto userToUserOutDto(User user) {
         UserOutDto userOutDto = new UserOutDto();
+        userOutDto.setUserId(user.getId());
         userOutDto.setUsername(user.getUsername());
         userOutDto.setEmail(user.getEmail());
         userOutDto.setFirstName(user.getFirstName());
@@ -58,8 +54,7 @@ public final class Mapper {
         User userToUpdate = new User();
         userToUpdate.setFirstName(userBaseDetailsInDto.getFirstName());
         userToUpdate.setLastName(userBaseDetailsInDto.getLastName());
-
-        userToUpdate.setPictureUrl(userBaseDetailsInDto.getPictureUrl());
+        userToUpdate.setDob(userBaseDetailsInDto.getDob());
         return userToUpdate;
     }
 }

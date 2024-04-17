@@ -6,6 +6,8 @@ import com.project.virtualteacher.exception_handling.exceptions.RoleNotFoundExce
 import jakarta.persistence.*;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+
 @Repository
 public class RoleDaoImpl implements RoleDao {
 
@@ -16,12 +18,13 @@ public class RoleDaoImpl implements RoleDao {
     }
 
     @Override
-    public Role getRoleById(int id) {
+    public Optional<Role> getRoleById(int id) {
         Role role = em.find(Role.class, id);
         if (role == null) {
-            throw new RoleNotFoundException(ErrorMessage.ROLE_ID_NOT_FOUND,id);
+            return Optional.empty();
+           // throw new RoleNotFoundException(ErrorMessage.ROLE_ID_NOT_FOUND,id);
         }
-        return role;
+        return Optional.of(role);
     }
 
     @Override

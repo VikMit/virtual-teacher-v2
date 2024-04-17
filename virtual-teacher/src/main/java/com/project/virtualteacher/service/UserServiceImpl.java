@@ -2,20 +2,16 @@ package com.project.virtualteacher.service;
 
 import com.project.virtualteacher.dao.RoleDao;
 import com.project.virtualteacher.dao.UserDao;
+import com.project.virtualteacher.entity.Role;
 import com.project.virtualteacher.entity.User;
 import com.project.virtualteacher.exception_handling.error_message.ErrorMessage;
-import com.project.virtualteacher.exception_handling.exceptions.EmailExistException;
-import com.project.virtualteacher.exception_handling.exceptions.UnAuthorizeException;
-import com.project.virtualteacher.exception_handling.exceptions.UserNotFoundException;
-import com.project.virtualteacher.exception_handling.exceptions.UsernameExistException;
+import com.project.virtualteacher.exception_handling.exceptions.*;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import java.security.Principal;
 
 import static com.project.virtualteacher.exception_handling.error_message.ErrorMessage.*;
 
@@ -35,21 +31,16 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User getUserById(int userId, Authentication loggedUser) throws EntityNotFoundException {
-        User userDb = userDao.getById(userId).orElseThrow(() -> new UserNotFoundException(USER_NOT_FOUND, userId));
-        if (isTeacherOrAdmin(loggedUser) || isUsersMatch(loggedUser, userDb)) {
-            return userDb;
-        }
-        throw new UnAuthorizeException("Only owner of the account, 'Teacher' or 'Admin' has access to this resource");
+    public User getUserById(int userId) throws EntityNotFoundException {
+        return userDao.getById(userId).orElseThrow(() -> new UserNotFoundException(USER_NOT_FOUND, userId));
     }
 
     @Override
     @Transactional
-    //TODO Think how to set Role of the user - using cache or invoke DB 
     public void createUser(User user) {
         validateUsernameAndEmailNotExist(user);
         user.setRequestedRole(user.getRole());
-        user.setRole(roleDao.getRoleByName("Student"));
+        user.setRole(roleDao.getRoleByName("ROLE_STUDENT"));
         user.setPassword(encoder.encode(user.getPassword()));
         user.setBlocked(false);
         userDao.create(user);
@@ -59,7 +50,7 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public void delete(int id, Authentication loggedUser) {
         User userToDelete = userDao.getById(id).orElseThrow(() -> new UserNotFoundException(USER_NOT_FOUND, id));
-        if (!isUsersMatch(loggedUser, userToDelete)) {
+        if (!isUsernamesMatch(loggedUser, userToDelete)) {
             throw new UnAuthorizeException(ErrorMessage.USER_NOT_RESOURCE_OWNER);
         }
         userDao.delete(userToDelete);
@@ -67,18 +58,14 @@ public class UserServiceImpl implements UserService {
 
     //TODO
     @Override
-    public User update(User userToUpdate, int userToUpdateId, Authentication authentication) {
-        Principal loggedUser = (Principal) authentication.getPrincipal();
+    @Transactional
+    public void updateBaseUserDetails(User userToUpdate, int userToUpdateId, Authentication loggedUser) {
         User userDb = userDao.getById(userToUpdateId).orElseThrow(() -> new UserNotFoundException(USER_NOT_FOUND, userToUpdateId));
-        if (!userToUpdate.getUsername().equals(loggedUser.getName())) {
-            throw new UnAuthorizeException("Only owner of the account can update it");
+        if (!isUsernamesMatch(loggedUser, userDb)){
+            throw new UnAuthorizeException(USER_NOT_RESOURCE_OWNER);
         }
-        if (!userDb.getEmail().equalsIgnoreCase(userToUpdate.getEmail())) {
-
-        }
-
-        return userDao.update(userToUpdate);
-
+        updateBaseDetails(userToUpdate,userDb);
+        userDao.update(userDb);
     }
 
     @Override
@@ -101,6 +88,15 @@ public class UserServiceImpl implements UserService {
         }
     }
 
+    @Override
+    @Transactional
+    public void updateRole(int userId, int roleId) {
+        User userDb = userDao.getById(userId).orElseThrow(()->new UserNotFoundException(USER_NOT_FOUND,userId));
+        Role role = roleDao.getRoleById(roleId).orElseThrow(()-> new RoleNotFoundException(ROLE_ID_NOT_FOUND,roleId));
+        userDb.setRole(role);
+        userDao.update(userDb);
+    }
+
     //TODO
     private void verifyFieldIsUniqueIfChanged() {
 
@@ -119,21 +115,27 @@ public class UserServiceImpl implements UserService {
         return loggedUser
                 .getAuthorities()
                 .stream()
-                .anyMatch(e -> e.getAuthority().equalsIgnoreCase("TEACHER"));
+                .anyMatch(e -> e.getAuthority().equalsIgnoreCase("ROLE_TEACHER"));
     }
 
     private boolean isAdmin(Authentication loggedUser) {
         return loggedUser
                 .getAuthorities()
                 .stream()
-                .anyMatch(e -> e.getAuthority().equalsIgnoreCase("ADMIN"));
+                .anyMatch(e -> e.getAuthority().equalsIgnoreCase("ROLE_ADMIN"));
     }
 
     private boolean isTeacherOrAdmin(Authentication loggedUser) {
         return (isAdmin(loggedUser) || isTeacher(loggedUser));
     }
 
-    private boolean isUsersMatch(Authentication loggedUser, User requestedUser) {
+    private boolean isUsernamesMatch(Authentication loggedUser, User requestedUser) {
         return loggedUser.getName().equals(requestedUser.getUsername());
+    }
+
+    private void updateBaseDetails(User userToUpdate, User userDb) {
+        userDb.setDob(userToUpdate.getDob());
+        userDb.setFirstName(userToUpdate.getFirstName());
+        userDb.setLastName(userToUpdate.getLastName());
     }
 }

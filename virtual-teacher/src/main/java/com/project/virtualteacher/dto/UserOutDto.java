@@ -6,6 +6,7 @@ import lombok.Data;
 @Data
 public class UserOutDto {
 
+    private int userId;
     private String username;
     private String email;
     private String firstName;

@@ -8,6 +8,7 @@ import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.JdbcUserDetailsManager;
@@ -16,8 +17,8 @@ import org.springframework.security.web.SecurityFilterChain;
 
 import javax.sql.DataSource;
 
-@EnableWebSecurity
 @Configuration
+@EnableWebSecurity
 public class SecurityConfig {
 
     private final VirtualTeacherUserDetails userDetails;
@@ -37,8 +38,14 @@ public class SecurityConfig {
         return http
                 .csrf(AbstractHttpConfigurer::disable).cors(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth.requestMatchers("/api/v1/user/register").permitAll()
-                        .requestMatchers("/api/v1/user/**").authenticated())
-                .httpBasic(Customizer.withDefaults())
+                        .requestMatchers("/api/v1/user/{id}"
+                                , "/api/v1/user/{id}/basic-details").authenticated()
+                        .requestMatchers("/api/v1/user/{id}/block"
+                                , "/api/v1/user/{id}/unblock"
+                                , "/api/v1/user/{userId}/role/{roleId}").hasRole("ADMIN")).
+                //.requestMatchers("/api/v1/user/{userId}/role/{roleId}").hasRole("ADMIN")
+                //.requestMatchers("/api/v1/user/**").hasRole("ADMIN"))
+                        httpBasic(Customizer.withDefaults())
                 //.formLogin(Customizer.withDefaults())
                 .build();
     }

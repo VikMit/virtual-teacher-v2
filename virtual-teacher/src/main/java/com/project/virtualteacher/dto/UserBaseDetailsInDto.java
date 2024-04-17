@@ -18,9 +18,6 @@ public class UserBaseDetailsInDto {
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
     private LocalDate dob;
 
-    @Min(value = 1, message = "Role ID must be positive")
-    private int roleId;
 
-    private String pictureUrl;
 
 }

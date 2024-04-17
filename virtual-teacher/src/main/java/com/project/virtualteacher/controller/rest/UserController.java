@@ -1,6 +1,5 @@
 package com.project.virtualteacher.controller.rest;
 
-
 import com.project.virtualteacher.dto.UserBaseDetailsInDto;
 import com.project.virtualteacher.dto.UserFullDetailsInDto;
 import com.project.virtualteacher.dto.UserOutDto;
@@ -31,7 +30,7 @@ public class UserController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<String> registerUser(@RequestBody @Valid UserFullDetailsInDto userDetailedInDto, BindingResult errors) {
+    public ResponseEntity<String> register(@RequestBody @Valid UserFullDetailsInDto userDetailedInDto, BindingResult errors) {
 
         if (errors.hasErrors()) {
             throw new IncorrectInputException(errors.getAllErrors().get(0).getDefaultMessage());
@@ -45,36 +44,42 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<UserOutDto> getUser(@PathVariable(name = "id") int id,Authentication loggedUser) {
-        User userDb = userService.getUserById(id,loggedUser);
+    public ResponseEntity<UserOutDto> getUser(@PathVariable(name = "id") int id) {
+        User userDb = userService.getUserById(id);
         UserOutDto userToReturn = mapper.userToUserOutDto(userDb);
         return new ResponseEntity<>(userToReturn, HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteUser(@PathVariable(name = "id") int id,Authentication loggedUser) {
-        userService.delete(id,loggedUser);
-        return new ResponseEntity<>("User with ID: " + id + " was deleted",HttpStatus.OK);
+    public ResponseEntity<String> delete(@PathVariable(name = "id") int id, Authentication loggedUser) {
+        userService.delete(id, loggedUser);
+        return new ResponseEntity<>("User with ID: " + id + " was deleted", HttpStatus.OK);
     }
 
     @PutMapping("/{id}/block")
-    public ResponseEntity<String> block(@PathVariable(name = "id") int id,Authentication loggedUser){
-        userService.blockUser(id,loggedUser);
-        return new ResponseEntity<>("User with ID: "+id+" was blocked",HttpStatus.OK);
+    public ResponseEntity<String> block(@PathVariable(name = "id") int id, Authentication loggedUser) {
+        userService.blockUser(id, loggedUser);
+        return new ResponseEntity<>("User with ID: " + id + " was blocked", HttpStatus.OK);
     }
 
     @PutMapping("/{id}/unblock")
-    public ResponseEntity<String> unblock(@PathVariable(name = "id") int id,Authentication loggedUser){
-        userService.unBlockUser(id,loggedUser);
-        return new ResponseEntity<>("User with ID: "+id+" was unblocked",HttpStatus.OK);
+    public ResponseEntity<String> unblock(@PathVariable(name = "id") int id, Authentication loggedUser) {
+        userService.unBlockUser(id, loggedUser);
+        return new ResponseEntity<>("User with ID: " + id + " was unblocked", HttpStatus.OK);
     }
 
-    //TODO
-    @PutMapping("/{id}")
-    public ResponseEntity<UserOutDto> update(@PathVariable(name = "id") int id, @RequestBody @Valid UserBaseDetailsInDto userBaseDetailsInDto, Authentication authentication) {
+    @PutMapping("/{id}/basic-details")
+    public ResponseEntity<String> updateBaseDetails(@PathVariable(name = "id") int id, @RequestBody @Valid UserBaseDetailsInDto userBaseDetailsInDto, Authentication loggedUser) {
         User userToUpdate = mapper.userBaseDetailsInDtoToUser(userBaseDetailsInDto);
-        User updatedUser = userService.update(userToUpdate,id ,authentication);
-        return null;
+        userService.updateBaseUserDetails(userToUpdate, id, loggedUser);
+        return new ResponseEntity<>("User with ID: " + id + " was updated", HttpStatus.OK);
+    }
+
+    @PutMapping("{userId}/role/{roleId}")
+    public ResponseEntity<String> updateRole(@PathVariable(name = "userId") int userId, @PathVariable(name = "roleId") int roleId) {
+        userService.updateRole(userId, roleId);
+        return new ResponseEntity<>("Role of the user with ID: " + userId + " was changed", HttpStatus.OK);
+
     }
 
 }
