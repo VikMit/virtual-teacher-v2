@@ -34,7 +34,7 @@ public class CourseController {
         return new ResponseEntity<>(course, HttpStatus.OK);
     }
 
-    @GetMapping()
+    @GetMapping("/title")
     public ResponseEntity<Course> courseByTitle(@RequestParam(name = "title") String title, Authentication loggedUser){
         Course course = courseService.getCourseByTitle(title,loggedUser);
         return new ResponseEntity<>(course,HttpStatus.OK);

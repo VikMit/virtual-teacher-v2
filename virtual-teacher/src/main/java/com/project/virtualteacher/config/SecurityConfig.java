@@ -39,14 +39,13 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable).cors(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth.requestMatchers("/api/v1/user/register").permitAll()
                         .requestMatchers("/api/v1/user/{id}"
-                                , "/api/v1/user/{id}/basic-details").authenticated()
+                                , "/api/v1/user/{id}/basic-details"
+                                , "/api/v1/course/title").authenticated()
                         .requestMatchers("/api/v1/user/{id}/block"
                                 , "/api/v1/user/{id}/unblock"
                                 , "/api/v1/user/{userId}/role/{roleId}").hasRole("ADMIN")
                         .requestMatchers("/api/v1/course").hasRole("TEACHER")
                         .requestMatchers("/api/v1/course/{courseId}").authenticated()).
-                //.requestMatchers("/api/v1/user/{userId}/role/{roleId}").hasRole("ADMIN")
-                //.requestMatchers("/api/v1/user/**").hasRole("ADMIN"))
                         httpBasic(Customizer.withDefaults())
                 //.formLogin(Customizer.withDefaults())
                 .build();
