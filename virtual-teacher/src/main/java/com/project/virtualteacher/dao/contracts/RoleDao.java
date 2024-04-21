@@ -1,4 +1,4 @@
-package com.project.virtualteacher.dao;
+package com.project.virtualteacher.dao.contracts;
 
 import com.project.virtualteacher.entity.Role;
 

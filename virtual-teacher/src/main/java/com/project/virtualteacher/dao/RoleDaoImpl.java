@@ -1,5 +1,6 @@
 package com.project.virtualteacher.dao;
 
+import com.project.virtualteacher.dao.contracts.RoleDao;
 import com.project.virtualteacher.entity.Role;
 import com.project.virtualteacher.exception_handling.error_message.ErrorMessage;
 import com.project.virtualteacher.exception_handling.exceptions.RoleNotFoundException;

@@ -1,15 +1,16 @@
 package com.project.virtualteacher.utility;
 
-import com.project.virtualteacher.dao.RoleDao;
-import com.project.virtualteacher.dao.UserDao;
+import com.project.virtualteacher.dao.contracts.RoleDao;
+import com.project.virtualteacher.dao.contracts.UserDao;
+import com.project.virtualteacher.dto.CourseDto;
 import com.project.virtualteacher.dto.UserFullDetailsInDto;
 import com.project.virtualteacher.dto.UserOutDto;
 import com.project.virtualteacher.dto.UserBaseDetailsInDto;
+import com.project.virtualteacher.entity.Course;
 import com.project.virtualteacher.entity.Role;
 import com.project.virtualteacher.entity.User;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
 @Component
@@ -56,5 +57,15 @@ public final class Mapper {
         userToUpdate.setLastName(userBaseDetailsInDto.getLastName());
         userToUpdate.setDob(userBaseDetailsInDto.getDob());
         return userToUpdate;
+    }
+    public Course courseDtoToCourse(CourseDto courseDto){
+        Course course = new Course();
+        course.setDescription(courseDto.getDescription());
+        course.setPublished(courseDto.isPublished());
+        course.setPassingGrade(courseDto.getPassingGrade());
+        course.setTitle(courseDto.getTitle());
+        course.setStartDate(courseDto.getStartDate());
+        course.setLectures(courseDto.getLectures());
+        return course;
     }
 }

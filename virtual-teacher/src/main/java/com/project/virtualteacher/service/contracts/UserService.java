@@ -1,4 +1,4 @@
-package com.project.virtualteacher.service;
+package com.project.virtualteacher.service.contracts;
 
 import com.project.virtualteacher.entity.User;
 import org.springframework.security.core.Authentication;

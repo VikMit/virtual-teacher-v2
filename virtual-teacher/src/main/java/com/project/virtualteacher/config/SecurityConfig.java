@@ -42,7 +42,9 @@ public class SecurityConfig {
                                 , "/api/v1/user/{id}/basic-details").authenticated()
                         .requestMatchers("/api/v1/user/{id}/block"
                                 , "/api/v1/user/{id}/unblock"
-                                , "/api/v1/user/{userId}/role/{roleId}").hasRole("ADMIN")).
+                                , "/api/v1/user/{userId}/role/{roleId}").hasRole("ADMIN")
+                        .requestMatchers("/api/v1/course").hasRole("TEACHER")
+                        .requestMatchers("/api/v1/course/{courseId}").authenticated()).
                 //.requestMatchers("/api/v1/user/{userId}/role/{roleId}").hasRole("ADMIN")
                 //.requestMatchers("/api/v1/user/**").hasRole("ADMIN"))
                         httpBasic(Customizer.withDefaults())

@@ -2,6 +2,7 @@ package com.project.virtualteacher.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.Cascade;
 
 import java.time.LocalDate;
 import java.util.Set;
@@ -23,19 +24,17 @@ public class Course {
     @Column(name = "start_date")
     private LocalDate startDate;
 
-
     @OneToMany()
+    @Cascade(org.hibernate.annotations.CascadeType.ALL)
     @JoinTable(name = "course_lecture", joinColumns = @JoinColumn(name = "course_id"), inverseJoinColumns = @JoinColumn(name = "lecture_id"))
     private Set<Lecture> lectures;
-
 
     @OneToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "course_topic", joinColumns = @JoinColumn(name = "course_id"), inverseJoinColumns = @JoinColumn(name = "topic_id"))
     private Set<Topic> topics;
 
-
     @ManyToOne()
-    @JoinColumn(name = "creator_id", insertable = false, updatable = false)
+    @JoinColumn(name = "creator_id")
     private User teacher;
 
     @Column(name = "is_published")

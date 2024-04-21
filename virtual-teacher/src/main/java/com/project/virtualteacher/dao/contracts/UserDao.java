@@ -1,4 +1,4 @@
-package com.project.virtualteacher.dao;
+package com.project.virtualteacher.dao.contracts;
 
 
 import com.project.virtualteacher.entity.User;
@@ -16,7 +16,7 @@ public interface UserDao {
 
     void delete(User user);
 
-    User update(User user);
+    void update(User user);
 
     boolean isEmailExist(String email);
 

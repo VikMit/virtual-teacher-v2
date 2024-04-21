@@ -5,7 +5,7 @@ import com.project.virtualteacher.dto.UserFullDetailsInDto;
 import com.project.virtualteacher.dto.UserOutDto;
 import com.project.virtualteacher.entity.User;
 import com.project.virtualteacher.exception_handling.exceptions.IncorrectInputException;
-import com.project.virtualteacher.service.UserService;
+import com.project.virtualteacher.service.contracts.UserService;
 import com.project.virtualteacher.utility.Mapper;
 import com.project.virtualteacher.utility.ValidatorHelper;
 import jakarta.validation.Valid;

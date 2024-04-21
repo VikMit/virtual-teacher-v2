@@ -1,6 +1,6 @@
 package com.project.virtualteacher.service;
 
-import com.project.virtualteacher.dao.UserDao;
+import com.project.virtualteacher.dao.contracts.UserDao;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;

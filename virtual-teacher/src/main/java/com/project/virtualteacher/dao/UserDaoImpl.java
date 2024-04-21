@@ -1,6 +1,7 @@
 package com.project.virtualteacher.dao;
 
 
+import com.project.virtualteacher.dao.contracts.UserDao;
 import com.project.virtualteacher.entity.User;
 import com.project.virtualteacher.exception_handling.error_message.ErrorMessage;
 import com.project.virtualteacher.exception_handling.exceptions.UserNotFoundException;
@@ -50,28 +51,24 @@ public class UserDaoImpl implements UserDao {
     }
 
     @Override
-    public User update(User user) {
-        return em.merge(user);
+    public void update(User user) {
+        em.merge(user);
     }
 
     @Override
     public boolean isEmailExist(String email) {
-        TypedQuery<User> query = em.createQuery("FROM User WHERE email=:email", User.class);
+        TypedQuery<Long> query = em.createQuery("SELECT COUNT(*) FROM User WHERE email=:email", Long.class);
         query.setParameter("email", email);
-        try {
-            query.getSingleResult();
-            return true;
-        } catch (NoResultException e) {
-            return false;
-        }
+        Long result = query.getSingleResult();
+        return result > 0;
     }
 
     @Override
     public boolean isUsernameExist(String username) {
         TypedQuery<Long> query = em.createQuery("SELECT COUNT(*) FROM User WHERE username=:username", Long.class);
         query.setParameter("username", username);
-        Long i = query.getSingleResult();
-        return i > 0;
+        Long result = query.getSingleResult();
+        return result > 0;
     }
 
     @Override
@@ -80,7 +77,7 @@ public class UserDaoImpl implements UserDao {
         query.setParameter("userId", userId);
         int result = query.executeUpdate();
         if (result < 1) {
-            throw new UserNotFoundException(ErrorMessage.USER_NOT_FOUND, userId);
+            throw new UserNotFoundException(ErrorMessage.USER_ID_NOT_FOUND, userId);
         }
     }
 
@@ -90,7 +87,7 @@ public class UserDaoImpl implements UserDao {
         query.setParameter("userId", userId);
         int result = query.executeUpdate();
         if (result < 1) {
-            throw new UserNotFoundException(ErrorMessage.USER_NOT_FOUND, userId);
+            throw new UserNotFoundException(ErrorMessage.USER_ID_NOT_FOUND, userId);
         }
     }
 
