@@ -1,7 +1,11 @@
 package com.project.virtualteacher.exception_handling.exceptions;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.http.HttpStatus;
 
+@Setter
+@Getter
 public abstract class VirtualTeacherCustomExceptions extends RuntimeException{
     private  HttpStatus httpStatus;
 
@@ -14,14 +18,6 @@ public abstract class VirtualTeacherCustomExceptions extends RuntimeException{
     }
     protected VirtualTeacherCustomExceptions(String message,int placeHolder) {
         super(String.format(message,placeHolder));
-    }
-
-    public HttpStatus getHttpStatus() {
-        return httpStatus;
-    }
-
-    public void setHttpStatus(HttpStatus httpStatus) {
-        this.httpStatus = httpStatus;
     }
 
 }

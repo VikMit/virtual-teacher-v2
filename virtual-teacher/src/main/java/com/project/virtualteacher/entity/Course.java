@@ -41,7 +41,7 @@ public class Course {
     private boolean isPublished;
 
     @Column(name = "passing_grade")
-    private double passingGrade;
+    private int passingGrade;
 
     @Column(name = "description")
     private String description;

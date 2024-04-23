@@ -2,10 +2,7 @@ package com.project.virtualteacher.utility;
 
 import com.project.virtualteacher.dao.contracts.RoleDao;
 import com.project.virtualteacher.dao.contracts.UserDao;
-import com.project.virtualteacher.dto.CourseDto;
-import com.project.virtualteacher.dto.UserFullDetailsInDto;
-import com.project.virtualteacher.dto.UserOutDto;
-import com.project.virtualteacher.dto.UserBaseDetailsInDto;
+import com.project.virtualteacher.dto.*;
 import com.project.virtualteacher.entity.Course;
 import com.project.virtualteacher.entity.Role;
 import com.project.virtualteacher.entity.User;
@@ -23,8 +20,8 @@ public final class Mapper {
         this.roleDao = roleDao;
     }
 
-    public User userFullDetailsInDtoToUser(UserFullDetailsInDto detailedUserInDto) {
-        User user = userBaseDetailsInDtoToUser(detailedUserInDto);
+    public User fromUserFullDetailsInDtoToUser(UserFullDetailsInDto detailedUserInDto) {
+        User user = fromUserBaseDetailsInDtoToUser(detailedUserInDto);
         Role role = roleDao.getRoleById(detailedUserInDto.getRoleId()).orElseThrow();
         user.setUsername(detailedUserInDto.getUsername());
         user.setPassword(detailedUserInDto.getPassword());
@@ -39,7 +36,7 @@ public final class Mapper {
         return user;
     }
 
-    public UserOutDto userToUserOutDto(User user) {
+    public UserOutDto fromUserToUserOutDto(User user) {
         UserOutDto userOutDto = new UserOutDto();
         userOutDto.setUserId(user.getId());
         userOutDto.setUsername(user.getUsername());
@@ -51,21 +48,55 @@ public final class Mapper {
         return userOutDto;
     }
 
-    public User userBaseDetailsInDtoToUser(UserBaseDetailsInDto userBaseDetailsInDto) {
+    public User fromUserBaseDetailsInDtoToUser(UserBaseDetailsInDto userBaseDetailsInDto) {
         User userToUpdate = new User();
         userToUpdate.setFirstName(userBaseDetailsInDto.getFirstName());
         userToUpdate.setLastName(userBaseDetailsInDto.getLastName());
         userToUpdate.setDob(userBaseDetailsInDto.getDob());
         return userToUpdate;
     }
-    public Course courseDtoToCourse(CourseDto courseDto){
+    public Course fromCourseFullDetailsDtoToCourse(CourseFullDetailsDto courseDetailedInfoDto){
         Course course = new Course();
-        course.setDescription(courseDto.getDescription());
-        course.setPublished(courseDto.isPublished());
-        course.setPassingGrade(courseDto.getPassingGrade());
-        course.setTitle(courseDto.getTitle());
-        course.setStartDate(courseDto.getStartDate());
-        course.setLectures(courseDto.getLectures());
+        course.setDescription(courseDetailedInfoDto.getDescription());
+        course.setPublished(courseDetailedInfoDto.getIsPublished());
+        course.setPassingGrade(courseDetailedInfoDto.getPassingGrade());
+        course.setTitle(courseDetailedInfoDto.getTitle());
+        course.setStartDate(courseDetailedInfoDto.getStartDate());
+        course.setLectures(courseDetailedInfoDto.getLectures());
         return course;
+    }
+
+    public Course fromCourseBaseDetailsDtoToCourse(CourseBaseDetailsDto courseBaseDetailsDto){
+        Course course = new Course();
+        course.setTitle(courseBaseDetailsDto.getTitle());
+        course.setStartDate(courseBaseDetailsDto.getStartDate());
+        course.setPublished(courseBaseDetailsDto.getIsPublished());
+        course.setPassingGrade(courseBaseDetailsDto.getPassingGrade());
+        course.setDescription(courseBaseDetailsDto.getDescription());
+        return course;
+    }
+
+    public CourseBaseDetailsDto fromCourseToCourseBaseDetailsDto(Course updatedCourse) {
+        CourseBaseDetailsDto result = new CourseBaseDetailsDto();
+        result.setCreator(fromUserToUserOutDto(updatedCourse.getTeacher()));
+        result.setIsPublished(updatedCourse.isPublished());
+        result.setDescription(updatedCourse.getDescription());
+        result.setTitle(updatedCourse.getTitle());
+        result.setStartDate(updatedCourse.getStartDate());
+        result.setPassingGrade(updatedCourse.getPassingGrade());
+        return result;
+    }
+
+    public CourseFullDetailsDto fromCourseToCourseFullDetailsDto(Course course){
+        CourseFullDetailsDto result = new CourseFullDetailsDto();
+        result.setCreator(fromUserToUserOutDto(course.getTeacher()));
+        result.setIsPublished(course.isPublished());
+        result.setDescription(course.getDescription());
+        result.setPassingGrade(course.getPassingGrade());
+        result.setTitle(course.getTitle());
+        result.setStartDate(course.getStartDate());
+        result.setTopics(course.getTopics());
+        result.setLectures(course.getLectures());
+        return result;
     }
 }

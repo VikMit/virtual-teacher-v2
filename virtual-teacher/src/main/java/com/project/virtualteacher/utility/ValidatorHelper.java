@@ -1,7 +1,10 @@
 package com.project.virtualteacher.utility;
 
 import com.project.virtualteacher.dto.UserFullDetailsInDto;
+import com.project.virtualteacher.entity.Course;
+import com.project.virtualteacher.exception_handling.error_message.ErrorMessage;
 import com.project.virtualteacher.exception_handling.exceptions.IncorrectConfirmPasswordException;
+import com.project.virtualteacher.exception_handling.exceptions.UnAuthorizeException;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
@@ -41,4 +44,9 @@ public class ValidatorHelper {
         return (isAdmin(loggedUser) || isTeacher(loggedUser));
     }
 
+    public void isCreatorOfCourse(Course courseDB, Authentication loggedUser) {
+        if (!courseDB.getTeacher().getUsername().equals(loggedUser.getName())){
+            throw new UnAuthorizeException(ErrorMessage.NOT_COURSE_CREATOR_ERROR);
+        }
+    }
 }

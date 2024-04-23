@@ -36,7 +36,7 @@ public class UserController {
             throw new IncorrectInputException(errors.getAllErrors().get(0).getDefaultMessage());
         }
         validatorHelper.validatePassAndConfirmPass(userDetailedInDto);
-        User userToCreate = mapper.userFullDetailsInDtoToUser(userDetailedInDto);
+        User userToCreate = mapper.fromUserFullDetailsInDtoToUser(userDetailedInDto);
         userService.createUser(userToCreate);
         return new ResponseEntity<>(String.format("User with username: %s was created", userDetailedInDto.getUsername())
                 , HttpStatus.CREATED);
@@ -46,7 +46,7 @@ public class UserController {
     @GetMapping("/{id}")
     public ResponseEntity<UserOutDto> getUser(@PathVariable(name = "id") int id) {
         User userDb = userService.getUserById(id);
-        UserOutDto userToReturn = mapper.userToUserOutDto(userDb);
+        UserOutDto userToReturn = mapper.fromUserToUserOutDto(userDb);
         return new ResponseEntity<>(userToReturn, HttpStatus.OK);
     }
 
@@ -70,7 +70,7 @@ public class UserController {
 
     @PutMapping("/{id}/basic-details")
     public ResponseEntity<String> updateBaseDetails(@PathVariable(name = "id") int id, @RequestBody @Valid UserBaseDetailsInDto userBaseDetailsInDto, Authentication loggedUser) {
-        User userToUpdate = mapper.userBaseDetailsInDtoToUser(userBaseDetailsInDto);
+        User userToUpdate = mapper.fromUserBaseDetailsInDtoToUser(userBaseDetailsInDto);
         userService.updateBaseUserDetails(userToUpdate, id, loggedUser);
         return new ResponseEntity<>("User with ID: " + id + " was updated", HttpStatus.OK);
     }

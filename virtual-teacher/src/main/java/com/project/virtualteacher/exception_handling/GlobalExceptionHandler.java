@@ -1,5 +1,6 @@
 package com.project.virtualteacher.exception_handling;
 
+import com.project.virtualteacher.exception_handling.error_message.ErrorMessage;
 import com.project.virtualteacher.exception_handling.exceptions.VirtualTeacherCustomExceptions;
 import com.project.virtualteacher.exception_handling.responce_error_model.ErrorResponse;
 import org.springframework.http.HttpStatus;
@@ -12,6 +13,7 @@ import java.time.format.DateTimeParseException;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
+
     @ExceptionHandler()
     public <E extends VirtualTeacherCustomExceptions> ResponseEntity<ErrorResponse> handleVirtualTeacherExceptions(E e, WebRequest request) {
         ErrorResponse error = new ErrorResponse();
@@ -25,7 +27,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleIncorrectDateFormat(DateTimeParseException e, WebRequest request){
         ErrorResponse error = new ErrorResponse();
         error.setStatusCode(HttpStatus.BAD_REQUEST.value());
-        error.setMessage(e.getMessage());
+        error.setMessage(ErrorMessage.INCORRECT_DATE_FORMAT);
         error.setDescription(request.getDescription(false));
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
