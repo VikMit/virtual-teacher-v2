@@ -75,12 +75,13 @@ public class CourseController {
     }
 
     @GetMapping("/all-public/basic-details")
-    public ResponseEntity<Set<CourseBaseDetailsDto>> getAllPublic(){
+    public ResponseEntity<Set<CourseBaseDetailsDto>> getAllPublicWithBaseDetails() {
         Set<Course> publicCourses = courseService.getAllPublic();
-        Set<CourseBaseDetailsDto> result = new HashSet<>();
-        for (Course course : publicCourses) {
-            result.add(mapper.fromCourseToCourseBaseDetailsDto(course));
-        }
-        return new ResponseEntity<>(result,HttpStatus.OK);
+        Set<CourseBaseDetailsDto> extractedCourseBaseDetails = new HashSet<>();
+        publicCourses.forEach((course) -> {
+            CourseBaseDetailsDto b = mapper.fromCourseToCourseBaseDetailsDto(course);
+            extractedCourseBaseDetails.add(b);
+        });
+        return new ResponseEntity<>(extractedCourseBaseDetails, HttpStatus.OK);
     }
 }
