@@ -36,17 +36,18 @@ public class CourseController {
         return new ResponseEntity<>("Course with title: " + createdCourse.getTitle() + " was created", HttpStatus.CREATED);
     }
 
-
-    @GetMapping("/{courseId}/basic-details")
-    public ResponseEntity<CourseBaseDetailsDto> courseBasicDetailsById(@PathVariable(name = "courseId") int courseId,Authentication loggedUser) {
-        Course course = courseService.getCourseById(courseId,loggedUser);
+    //All users include anonymous has access to basic details of each public course
+    @GetMapping("/{courseId}/public/basic-details")
+    public ResponseEntity<CourseBaseDetailsDto> courseBasicDetailsById(@PathVariable(name = "courseId") int courseId) {
+        Course course = courseService.getPublicCourseById(courseId);
         CourseBaseDetailsDto result = mapper.fromCourseToCourseBaseDetailsDto(course);
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
-    @GetMapping("/title/basic-details")
-    public ResponseEntity<CourseBaseDetailsDto> courseBaseDetails(@RequestParam(name = "title") String title,Authentication loggedUser) {
-        Course course = courseService.getCourseByTitle(title,loggedUser);
+    //All users include anonymous has access to basic details of each public course
+    @GetMapping("/title/public/basic-details")
+    public ResponseEntity<CourseBaseDetailsDto> courseBaseDetails(@RequestParam(name = "title") String title) {
+        Course course = courseService.getPublicCourseByTitle(title);
         CourseBaseDetailsDto result = mapper.fromCourseToCourseBaseDetailsDto(course);
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
@@ -75,10 +76,10 @@ public class CourseController {
         Course updatedCourse = courseService.update(courseId, courseToUpdate, loggedUser);
         return new ResponseEntity<>(updatedCourse, HttpStatus.OK);
     }
-
-    @GetMapping("/all/basic-details")
-    public ResponseEntity<Set<CourseBaseDetailsDto>> getAllWithBaseDetails(Authentication loggedUser) {
-        Set<Course> allCourses = courseService.getAll(loggedUser);
+    //All users include anonymous has access to basic details of each public course
+    @GetMapping("/all-public/basic-details")
+    public ResponseEntity<Set<CourseBaseDetailsDto>> getAllPublicWithBaseDetails() {
+        Set<Course> allCourses = courseService.getAllPublic();
         Set<CourseBaseDetailsDto> extractedCourseBaseDetails = new HashSet<>();
         allCourses.forEach((course) -> {
             CourseBaseDetailsDto b = mapper.fromCourseToCourseBaseDetailsDto(course);

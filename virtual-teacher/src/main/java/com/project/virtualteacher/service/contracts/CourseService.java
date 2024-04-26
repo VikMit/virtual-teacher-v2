@@ -1,6 +1,5 @@
 package com.project.virtualteacher.service.contracts;
 
-import com.project.virtualteacher.dto.CourseFullDetailsDto;
 import com.project.virtualteacher.entity.Course;
 import org.springframework.security.core.Authentication;
 
