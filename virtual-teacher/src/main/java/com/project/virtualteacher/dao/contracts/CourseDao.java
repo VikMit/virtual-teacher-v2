@@ -24,4 +24,6 @@ public interface CourseDao {
     Optional<Course> getPublicCourseByTitle(String title);
 
     Set<Course> getAllPublic();
+
+    Set<Course> getAll();
 }

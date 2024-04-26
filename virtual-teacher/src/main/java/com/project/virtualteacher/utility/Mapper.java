@@ -9,6 +9,7 @@ import com.project.virtualteacher.entity.User;
 import org.springframework.stereotype.Component;
 
 import java.time.format.DateTimeFormatter;
+import java.util.stream.Collectors;
 
 @Component
 public final class Mapper {
@@ -97,6 +98,7 @@ public final class Mapper {
         result.setStartDate(course.getStartDate());
         result.setTopics(course.getTopics());
         result.setLectures(course.getLectures());
+        result.setEnrolledStudents(course.getEnrolledStudents().stream().map(this::fromUserToUserOutDto).collect(Collectors.toSet()));
         return result;
     }
 }

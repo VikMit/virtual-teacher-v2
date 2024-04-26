@@ -1,6 +1,7 @@
 package com.project.virtualteacher.service;
 
 import com.project.virtualteacher.dao.contracts.UserDao;
+import com.project.virtualteacher.exception_handling.exceptions.UnAuthorizeException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -26,10 +27,13 @@ public class VirtualTeacherUserDetails implements UserDetailsService {
         List<GrantedAuthority> authorities;
         com.project.virtualteacher.entity.User user = userDao.getByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User details not found for user:" + username));
+        if (user.isBlocked()) {
+            throw new UnAuthorizeException("User is blocked, please contact support center for further information");
+        }
         userName = user.getUsername();
         passWord = user.getPassword();
-        authorities=new ArrayList<>();
+        authorities = new ArrayList<>();
         authorities.add(new SimpleGrantedAuthority(user.getRole().getValue()));
-        return new User(userName,passWord,authorities);
+        return new User(userName, passWord, authorities);
     }
 }

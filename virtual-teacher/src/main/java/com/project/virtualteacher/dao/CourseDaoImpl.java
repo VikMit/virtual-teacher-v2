@@ -103,4 +103,10 @@ public class CourseDaoImpl implements CourseDao {
         TypedQuery<Course> published = em.createQuery("FROM Course WHERE isPublished = true",Course.class);
         return new HashSet<>(published.getResultList());
     }
+
+    @Override
+    public Set<Course> getAll() {
+        TypedQuery<Course> query = em.createQuery("FROM Course",Course.class);
+        return new HashSet<>(query.getResultList());
+    }
 }

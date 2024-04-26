@@ -15,11 +15,13 @@ public interface CourseService {
 
     Course getPublicCourseById(int courseId);
 
-    CourseFullDetailsDto getCourseByTitle(String title, Authentication loggedUser);
+    Course getCourseByTitle(String title, Authentication loggedUser);
 
     Course getPublicCourseByTitle(String title);
 
     Set<Course> getAllPublic();
+
+    Set<Course> getAll(Authentication loggedUser);
 
 
 

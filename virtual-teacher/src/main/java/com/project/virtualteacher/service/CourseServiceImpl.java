@@ -17,6 +17,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class CourseServiceImpl implements CourseService {
@@ -62,12 +63,12 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
-    public CourseFullDetailsDto getCourseByTitle(String title, Authentication loggedUser) {
+    public Course getCourseByTitle(String title, Authentication loggedUser) {
         Course course = courseDao.getCourseByTitle(title)
                 .orElseThrow(() -> new CourseNotFoundException(ErrorMessage.COURSE_WITH_TITLE_NOT_FOUND, title));
 
         if (course.isPublished() || validator.isTeacherOrAdmin(loggedUser)) {
-            return mapper.fromCourseToCourseFullDetailsDto(course);
+            return course;
         }
 
         throw new CourseNotFoundException(ErrorMessage.PUBLIC_COURSE_WITH_TITLE_NOT_FOUND, title);
@@ -81,6 +82,21 @@ public class CourseServiceImpl implements CourseService {
     @Override
     public Set<Course> getAllPublic() {
         return courseDao.getAllPublic();
+    }
+
+    @Override
+    public Set<Course> getAll(Authentication loggedUser) {
+        Set<Course> allCourses = courseDao.getAll();
+        if (validator.isTeacherOrAdmin(loggedUser)){
+            return allCourses;
+        }
+        if (validator.isStudent(loggedUser)){
+            User user = userDao.getByUsername(loggedUser.getName()).orElseThrow(()-> new UserNotFoundException(ErrorMessage.USERNAME_NOT_FOUND,loggedUser.getName()));
+           return allCourses.stream().filter(Course::isPublished).filter(course -> course.getEnrolledStudents().contains(user)).collect(Collectors.toSet());
+        }
+        else{
+            return allCourses.stream().filter(Course::isPublished).collect(Collectors.toSet());
+        }
     }
 
     @Override

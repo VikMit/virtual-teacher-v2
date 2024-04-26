@@ -20,6 +20,9 @@ public class ValidatorHelper {
     }
 
     public boolean isTeacher(Authentication loggedUser) {
+        if (loggedUser==null){
+            return false;
+        }
         return loggedUser
                 .getAuthorities()
                 .stream()
@@ -27,6 +30,9 @@ public class ValidatorHelper {
     }
 
     public boolean isAdmin(Authentication loggedUser) {
+        if (loggedUser == null) {
+            return false;
+        }
         return loggedUser
                 .getAuthorities()
                 .stream()
@@ -34,6 +40,9 @@ public class ValidatorHelper {
     }
 
     public boolean isStudent(Authentication loggedUser) {
+        if (loggedUser == null) {
+            return false;
+        }
         return loggedUser
                 .getAuthorities()
                 .stream()
@@ -45,7 +54,7 @@ public class ValidatorHelper {
     }
 
     public void isCreatorOfCourse(Course courseDB, Authentication loggedUser) {
-        if (!courseDB.getTeacher().getUsername().equals(loggedUser.getName())){
+        if (!courseDB.getTeacher().getUsername().equals(loggedUser.getName())) {
             throw new UnAuthorizeException(ErrorMessage.NOT_COURSE_CREATOR_ERROR);
         }
     }
