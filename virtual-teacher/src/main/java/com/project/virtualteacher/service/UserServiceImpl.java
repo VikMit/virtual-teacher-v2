@@ -35,8 +35,15 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User getUserById(int userId) throws EntityNotFoundException {
-        return userDao.getById(userId).orElseThrow(() -> new UserNotFoundException(USER_ID_NOT_FOUND, userId));
+    public User getUserById(int userId, Authentication loggedUser) {
+        if (validator.isTeacherOrAdmin(loggedUser)) {
+            return userDao.getById(userId).orElseThrow(() -> new UserNotFoundException(USER_ID_NOT_FOUND, userId));
+        }
+        User userDB = userDao.getByUsername(loggedUser.getName()).orElseThrow(() -> new UserNotFoundException(USERNAME_NOT_FOUND, loggedUser.getName()));
+        if (userDB.getId() == userId) {
+            return userDao.getById(userId).orElseThrow(() -> new UserNotFoundException(USER_ID_NOT_FOUND, userId));
+        }
+        throw new UnAuthorizeException(USER_NOT_AUTHORIZED,loggedUser.getName());
     }
 
     @Override
@@ -67,10 +74,10 @@ public class UserServiceImpl implements UserService {
         User userDb = userDao.getById(userToUpdateId)
                 .orElseThrow(() -> new UserNotFoundException(USER_ID_NOT_FOUND, userToUpdateId));
 
-        if (!isUsernamesMatch(loggedUser, userDb)){
+        if (!isUsernamesMatch(loggedUser, userDb)) {
             throw new UnAuthorizeException(USER_NOT_RESOURCE_OWNER);
         }
-        updateBaseDetails(userToUpdate,userDb);
+        updateBaseDetails(userToUpdate, userDb);
         userDao.update(userDb);
     }
 
@@ -80,7 +87,7 @@ public class UserServiceImpl implements UserService {
         if (validator.isAdmin(loggedUser)) {
             userDao.blockUser(id);
         } else {
-            throw new UnAuthorizeException("Only ADMIN can block users");
+            throw new UnAuthorizeException(ADMIN_BLOCK_PERMIT);
         }
     }
 
@@ -90,15 +97,15 @@ public class UserServiceImpl implements UserService {
         if (validator.isAdmin(loggedUser)) {
             userDao.unBlockUser(id);
         } else {
-            throw new UnAuthorizeException("Only ADMIN can unblock users");
+            throw new UnAuthorizeException(ADMIN_UNBLOCK_PERMIT);
         }
     }
 
     @Override
     @Transactional
     public void updateRole(int userId, int roleId) {
-        User userDb = userDao.getById(userId).orElseThrow(()->new UserNotFoundException(USER_ID_NOT_FOUND,userId));
-        Role role = roleDao.getRoleById(roleId).orElseThrow(()-> new RoleNotFoundException(ROLE_ID_NOT_FOUND,roleId));
+        User userDb = userDao.getById(userId).orElseThrow(() -> new UserNotFoundException(USER_ID_NOT_FOUND, userId));
+        Role role = roleDao.getRoleById(roleId).orElseThrow(() -> new RoleNotFoundException(ROLE_ID_NOT_FOUND, roleId));
         userDb.setRole(role);
         userDao.update(userDb);
     }

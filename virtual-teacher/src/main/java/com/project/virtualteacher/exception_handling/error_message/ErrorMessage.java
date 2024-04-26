@@ -17,4 +17,8 @@ public final class ErrorMessage {
     public static final String PUBLIC_COURSE_WITH_TITLE_NOT_FOUND = "Public course with title: %s not found.";
     public static final String NOT_COURSE_CREATOR_ERROR = "Only creator of the course can modify it.";
     public static final String INCORRECT_DATE_FORMAT = "Incorrect date format, accepted format 'yyyy-MM-dd'";
+    public static final String USER_NOT_AUTHORIZED = "User %s not authorized for this resource";
+    public static final String ADMIN_BLOCK_PERMIT = "Only ADMIN can block users";
+    public static final String ADMIN_UNBLOCK_PERMIT = "Only ADMIN can unblock users";
+
 }

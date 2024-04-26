@@ -6,7 +6,7 @@ import org.springframework.security.core.Authentication;
 
 public interface UserService {
 
-    User getUserById(int userId);
+    User getUserById(int userId, Authentication loggedUser);
 
     void createUser(User user);
 

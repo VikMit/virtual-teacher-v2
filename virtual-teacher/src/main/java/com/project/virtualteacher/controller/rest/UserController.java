@@ -44,8 +44,8 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<UserOutDto> getUser(@PathVariable(name = "id") int id) {
-        User userDb = userService.getUserById(id);
+    public ResponseEntity<UserOutDto> getUser(@PathVariable(name = "id") int id, Authentication loggedUser) {
+        User userDb = userService.getUserById(id,loggedUser);
         UserOutDto userToReturn = mapper.fromUserToUserOutDto(userDb);
         return new ResponseEntity<>(userToReturn, HttpStatus.OK);
     }
