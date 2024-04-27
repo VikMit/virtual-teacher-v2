@@ -35,7 +35,7 @@ public class CourseServiceImpl implements CourseService {
     public Course create(Course course, Authentication loggedUser) {
         if (!courseDao.isCourseTitleExist(course.getTitle())) {
             String username = loggedUser.getName();
-            User creator = userDao.getByUsername(username).orElseThrow(() -> new UserNotFoundException(ErrorMessage.USER_WITH_USERNAME_NOT_FOUND, username));
+            User creator = userDao.findByUsename(username).orElseThrow(() -> new UserNotFoundException(ErrorMessage.USER_WITH_USERNAME_NOT_FOUND, username));
             course.setTeacher(creator);
             return courseDao.createCourse(course);
         } else {
@@ -52,7 +52,7 @@ public class CourseServiceImpl implements CourseService {
             return course;
         } else {
             String username = loggedUser.getName();
-            User userFromDB = userDao.getByUsername(username).orElseThrow(() -> new UserNotFoundException(ErrorMessage.USER_WITH_USERNAME_NOT_FOUND, username));
+            User userFromDB = userDao.findByUsename(username).orElseThrow(() -> new UserNotFoundException(ErrorMessage.USER_WITH_USERNAME_NOT_FOUND, username));
             return getCourseIfEnrolled(course, userFromDB);
         }
     }
@@ -91,7 +91,7 @@ public class CourseServiceImpl implements CourseService {
             return allCourses;
         }
         if (validator.isStudent(loggedUser)) {
-            User user = userDao.getByUsername(loggedUser.getName()).orElseThrow(() -> new UserNotFoundException(ErrorMessage.USER_WITH_USERNAME_NOT_FOUND, loggedUser.getName()));
+            User user = userDao.findByUsename(loggedUser.getName()).orElseThrow(() -> new UserNotFoundException(ErrorMessage.USER_WITH_USERNAME_NOT_FOUND, loggedUser.getName()));
             return allCourses.stream().filter(Course::isPublished).filter(course -> course.getEnrolledStudents().contains(user)).collect(Collectors.toSet());
         } else {
             return allCourses.stream().filter(Course::isPublished).collect(Collectors.toSet());
@@ -103,7 +103,7 @@ public class CourseServiceImpl implements CourseService {
     public void delete(int courseId, Authentication loggedUser) {
         String username = loggedUser.getName();
         Course courseToDelete = courseDao.getCourseById(courseId).orElseThrow(() -> new CourseNotFoundException(ErrorMessage.COURSE_WITH_ID_NOT_FOUND, courseId));
-        User userFromDB = userDao.getByUsername(username).orElseThrow(()->new UserNotFoundException(ErrorMessage.USER_WITH_USERNAME_NOT_FOUND, username));
+        User userFromDB = userDao.findByUsename(username).orElseThrow(()->new UserNotFoundException(ErrorMessage.USER_WITH_USERNAME_NOT_FOUND, username));
         isEnrolledStudents(courseToDelete);
         deleteIfCreator(courseToDelete,userFromDB);
     }

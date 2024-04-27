@@ -19,24 +19,27 @@ public class RoleDaoImpl implements RoleDao {
     }
 
     @Override
-    public Optional<Role> getRoleById(int id) {
+    public Optional<Role> findById(int id) {
         Role role = em.find(Role.class, id);
         if (role == null) {
             return Optional.empty();
-           // throw new RoleNotFoundException(ErrorMessage.ROLE_ID_NOT_FOUND,id);
+            // throw new RoleNotFoundException(ErrorMessage.ROLE_ID_NOT_FOUND,id);
         }
         return Optional.of(role);
     }
 
     @Override
-    public Role getRoleByName(String roleName) {
-        try {
-            Query query = em.createQuery("FROM Role WHERE value=:value");
-            query.setParameter("value",roleName);
-            return (Role) query.getSingleResult();
-        } catch (NoResultException e) {
-            throw new RoleNotFoundException(ErrorMessage.ROLE_NAME_NOT_FOUND,roleName);
-        }
+    public Optional<Role> findByName(String roleName) {
 
+        TypedQuery<Role> query = em.createQuery("FROM Role WHERE value=:value", Role.class);
+        query.setParameter("value", roleName);
+
+        try {
+            Role role = query.getSingleResult();
+            return Optional.of(role);
+
+        } catch (NoResultException e) {
+            return Optional.empty();
+        }
     }
 }

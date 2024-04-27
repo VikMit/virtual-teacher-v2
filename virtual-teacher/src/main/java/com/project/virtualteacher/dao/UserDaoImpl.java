@@ -21,7 +21,7 @@ public class UserDaoImpl implements UserDao {
     }
 
     @Override
-    public Optional<User> getByUsername(String username) {
+    public Optional<User> findByUsename(String username) {
         TypedQuery<User> query = em.createQuery("FROM User where username=:username", User.class);
         query.setParameter("username", username);
         try {
@@ -35,15 +35,6 @@ public class UserDaoImpl implements UserDao {
     public void create(User user) {
         em.persist(user);
     }
-
- /*   @Override
-    public Optional<Student> findById(int userId) {
-        Student user = entityManager.find(Student.class, userId);
-        if (user == null) {
-            return Optional.empty();
-        }
-        return Optional.of(user);
-    }*/
 
     @Override
     public void delete(User user) {
@@ -72,7 +63,7 @@ public class UserDaoImpl implements UserDao {
     }
 
     @Override
-    public void blockUser(int userId) {
+    public void block(int userId) {
         Query query = em.createQuery("UPDATE  User u SET u.isBlocked = true WHERE id=:userId");
         query.setParameter("userId", userId);
         int result = query.executeUpdate();
@@ -82,7 +73,7 @@ public class UserDaoImpl implements UserDao {
     }
 
     @Override
-    public void unBlockUser(int userId) {
+    public void unblock(int userId) {
         Query query = em.createQuery("UPDATE  User u SET u.isBlocked = false WHERE id=:userId");
         query.setParameter("userId", userId);
         int result = query.executeUpdate();
@@ -92,7 +83,7 @@ public class UserDaoImpl implements UserDao {
     }
 
     @Override
-    public Optional<User> getById(int userId) {
+    public Optional<User> findById(int userId) {
         User user = em.find(User.class, userId);
         if (user == null) {
             return Optional.empty();

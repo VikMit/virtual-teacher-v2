@@ -25,7 +25,7 @@ public class VirtualTeacherUserDetails implements UserDetailsService {
         String userName;
         String passWord;
         List<GrantedAuthority> authorities;
-        com.project.virtualteacher.entity.User user = userDao.getByUsername(username)
+        com.project.virtualteacher.entity.User user = userDao.findByUsename(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User details not found for user:" + username));
         if (user.isBlocked()) {
             throw new UnAuthorizeException("User is blocked, please contact support center for further information");

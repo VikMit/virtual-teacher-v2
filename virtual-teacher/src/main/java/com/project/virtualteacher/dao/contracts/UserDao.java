@@ -8,11 +8,11 @@ import java.util.Optional;
 
 @Repository
 public interface UserDao {
-    Optional<User> getByUsername(String username);
+    Optional<User> findByUsename(String username);
 
     void create(User user);
 
-    Optional<User> getById(int userId);
+    Optional<User> findById(int userId);
 
     void delete(User user);
 
@@ -22,7 +22,7 @@ public interface UserDao {
 
     boolean isUsernameExist(String username);
 
-    void blockUser(int userId);
+    void block(int userId);
 
-    void unBlockUser(int id);
+    void unblock(int id);
 }

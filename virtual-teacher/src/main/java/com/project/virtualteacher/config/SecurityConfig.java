@@ -38,7 +38,7 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         return http
                 .csrf(AbstractHttpConfigurer::disable).cors(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests(auth -> auth.requestMatchers(HttpMethod.GET,"/api/v1/user/register","/api/v1/course/{courseId}/public/basic-details","/api/v1/course/title/basic-details","/api/v1/course/all-public/basic-details").permitAll()
+                .authorizeHttpRequests(auth -> auth.requestMatchers(HttpMethod.GET,"/api/v1/user/register","/api/v1/course/{courseId}/public/basic-details","/api/v1/role/{roleId}","/api/v1/course/title/basic-details","/api/v1/course/all-public/basic-details").permitAll()
                         .requestMatchers(HttpMethod.GET,"/api/v1/user/{id}", "/api/v1/user/{id}/basic-details", "/api/v1/course/title","/api/v1/course/{courseId}/full-details","/api/v1/course/all/full-details").authenticated()
                         .requestMatchers("/api/v1/user/{id}/block", "/api/v1/user/{id}/unblock", "/api/v1/user/{userId}/role/{roleId}").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.POST,"/api/v1/course").hasRole("TEACHER")

@@ -36,11 +36,11 @@ public class UserServiceImpl implements UserService {
     @Override
     public User getUserById(int userId, Authentication loggedUser) {
         if (validator.isTeacherOrAdmin(loggedUser)) {
-            return userDao.getById(userId).orElseThrow(() -> new UserNotFoundException(USER_ID_NOT_FOUND, userId));
+            return userDao.findById(userId).orElseThrow(() -> new UserNotFoundException(USER_ID_NOT_FOUND, userId));
         }
-        User userDB = userDao.getByUsername(loggedUser.getName()).orElseThrow(() -> new UserNotFoundException(USER_WITH_USERNAME_NOT_FOUND, loggedUser.getName()));
+        User userDB = userDao.findByUsename(loggedUser.getName()).orElseThrow(() -> new UserNotFoundException(USER_WITH_USERNAME_NOT_FOUND, loggedUser.getName()));
         if (userDB.getId() == userId) {
-            return userDao.getById(userId).orElseThrow(() -> new UserNotFoundException(USER_ID_NOT_FOUND, userId));
+            return userDao.findById(userId).orElseThrow(() -> new UserNotFoundException(USER_ID_NOT_FOUND, userId));
         }
         throw new UnAuthorizeException(USER_NOT_AUTHORIZED,loggedUser.getName());
     }
@@ -50,7 +50,7 @@ public class UserServiceImpl implements UserService {
     public void createUser(User user) {
         validateUsernameAndEmailNotExist(user);
         user.setRequestedRole(user.getRole());
-        user.setRole(roleDao.getRoleByName("ROLE_STUDENT"));
+        user.setRole(roleDao.findByName("ROLE_STUDENT").orElseThrow());
         user.setPassword(encoder.encode(user.getPassword()));
         user.setBlocked(false);
         userDao.create(user);
@@ -59,7 +59,7 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public void delete(int id, Authentication loggedUser) {
-        User userToDelete = userDao.getById(id).orElseThrow(() -> new UserNotFoundException(USER_ID_NOT_FOUND, id));
+        User userToDelete = userDao.findById(id).orElseThrow(() -> new UserNotFoundException(USER_ID_NOT_FOUND, id));
         if (!isUsernamesMatch(loggedUser, userToDelete)) {
             throw new UnAuthorizeException(ErrorMessage.USER_NOT_RESOURCE_OWNER);
         }
@@ -69,7 +69,7 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public void updateBaseUserDetails(User userToUpdate, int userToUpdateId, Authentication loggedUser) {
-        User userDb = userDao.getById(userToUpdateId)
+        User userDb = userDao.findById(userToUpdateId)
                 .orElseThrow(() -> new UserNotFoundException(USER_ID_NOT_FOUND, userToUpdateId));
 
         if (!isUsernamesMatch(loggedUser, userDb)) {
@@ -83,7 +83,7 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public void blockUser(int id, Authentication loggedUser) {
         if (validator.isAdmin(loggedUser)) {
-            userDao.blockUser(id);
+            userDao.block(id);
         } else {
             throw new UnAuthorizeException(ADMIN_BLOCK_PERMIT);
         }
@@ -93,7 +93,7 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public void unBlockUser(int id, Authentication loggedUser) {
         if (validator.isAdmin(loggedUser)) {
-            userDao.unBlockUser(id);
+            userDao.unblock(id);
         } else {
             throw new UnAuthorizeException(ADMIN_UNBLOCK_PERMIT);
         }
@@ -102,8 +102,8 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public void updateRole(int userId, int roleId) {
-        User userDb = userDao.getById(userId).orElseThrow(() -> new UserNotFoundException(USER_ID_NOT_FOUND, userId));
-        Role role = roleDao.getRoleById(roleId).orElseThrow(() -> new RoleNotFoundException(ROLE_ID_NOT_FOUND, roleId));
+        User userDb = userDao.findById(userId).orElseThrow(() -> new UserNotFoundException(USER_ID_NOT_FOUND, userId));
+        Role role = roleDao.findById(roleId).orElseThrow(() -> new RoleNotFoundException(ROLE_ID_NOT_FOUND, roleId));
         userDb.setRole(role);
         userDao.update(userDb);
     }

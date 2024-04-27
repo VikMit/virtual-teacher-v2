@@ -23,7 +23,7 @@ public final class Mapper {
 
     public User fromUserFullDetailsInDtoToUser(UserFullDetailsInDto detailedUserInDto) {
         User user = fromUserBaseDetailsInDtoToUser(detailedUserInDto);
-        Role role = roleDao.getRoleById(detailedUserInDto.getRoleId()).orElseThrow();
+        Role role = roleDao.findById(detailedUserInDto.getRoleId()).orElseThrow();
         user.setUsername(detailedUserInDto.getUsername());
         user.setPassword(detailedUserInDto.getPassword());
         user.setEmail(detailedUserInDto.getEmail());
