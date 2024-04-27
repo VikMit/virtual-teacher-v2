@@ -2,13 +2,10 @@ package com.project.virtualteacher.service;
 
 import com.project.virtualteacher.dao.contracts.CourseDao;
 import com.project.virtualteacher.dao.contracts.UserDao;
-import com.project.virtualteacher.dto.CourseFullDetailsDto;
 import com.project.virtualteacher.entity.Course;
 import com.project.virtualteacher.entity.User;
 import com.project.virtualteacher.exception_handling.error_message.ErrorMessage;
-import com.project.virtualteacher.exception_handling.exceptions.CourseNotFoundException;
-import com.project.virtualteacher.exception_handling.exceptions.CourseTitleExistException;
-import com.project.virtualteacher.exception_handling.exceptions.UserNotFoundException;
+import com.project.virtualteacher.exception_handling.exceptions.*;
 import com.project.virtualteacher.service.contracts.CourseService;
 import com.project.virtualteacher.utility.Mapper;
 import com.project.virtualteacher.utility.ValidatorHelper;
@@ -38,7 +35,7 @@ public class CourseServiceImpl implements CourseService {
     public Course create(Course course, Authentication loggedUser) {
         if (!courseDao.isCourseTitleExist(course.getTitle())) {
             String username = loggedUser.getName();
-            User creator = userDao.getByUsername(username).orElseThrow(() -> new UserNotFoundException(ErrorMessage.USERNAME_NOT_FOUND, username));
+            User creator = userDao.getByUsername(username).orElseThrow(() -> new UserNotFoundException(ErrorMessage.USER_WITH_USERNAME_NOT_FOUND, username));
             course.setTeacher(creator);
             return courseDao.createCourse(course);
         } else {
@@ -51,15 +48,18 @@ public class CourseServiceImpl implements CourseService {
         Course course = courseDao.getCourseById(courseId)
                 .orElseThrow(() -> new CourseNotFoundException(ErrorMessage.COURSE_WITH_ID_NOT_FOUND, courseId));
 
-        if (course.isPublished() || validator.isTeacherOrAdmin(loggedUser)) {
+        if (validator.isTeacherOrAdmin(loggedUser)) {
             return course;
+        } else {
+            String username = loggedUser.getName();
+            User userFromDB = userDao.getByUsername(username).orElseThrow(() -> new UserNotFoundException(ErrorMessage.USER_WITH_USERNAME_NOT_FOUND, username));
+            return getCourseIfEnrolled(course, userFromDB);
         }
-        throw new CourseNotFoundException(ErrorMessage.PUBLIC_COURSE_WITH_ID_NOT_FOUND, courseId);
     }
 
     @Override
     public Course getPublicCourseById(int courseId) {
-        return courseDao.getPublicCourseById(courseId).orElseThrow(()->new CourseNotFoundException(ErrorMessage.COURSE_WITH_ID_NOT_FOUND,courseId));
+        return courseDao.getPublicCourseById(courseId).orElseThrow(() -> new CourseNotFoundException(ErrorMessage.COURSE_WITH_ID_NOT_FOUND, courseId));
     }
 
     @Override
@@ -76,7 +76,7 @@ public class CourseServiceImpl implements CourseService {
 
     @Override
     public Course getPublicCourseByTitle(String title) {
-        return courseDao.getPublicCourseByTitle(title).orElseThrow(()->new CourseNotFoundException(ErrorMessage.COURSE_WITH_TITLE_NOT_FOUND,title));
+        return courseDao.getPublicCourseByTitle(title).orElseThrow(() -> new CourseNotFoundException(ErrorMessage.COURSE_WITH_TITLE_NOT_FOUND, title));
     }
 
     @Override
@@ -87,25 +87,40 @@ public class CourseServiceImpl implements CourseService {
     @Override
     public Set<Course> getAll(Authentication loggedUser) {
         Set<Course> allCourses = courseDao.getAll();
-        if (validator.isTeacherOrAdmin(loggedUser)){
+        if (validator.isTeacherOrAdmin(loggedUser)) {
             return allCourses;
         }
-        if (validator.isStudent(loggedUser)){
-            User user = userDao.getByUsername(loggedUser.getName()).orElseThrow(()-> new UserNotFoundException(ErrorMessage.USERNAME_NOT_FOUND,loggedUser.getName()));
-           return allCourses.stream().filter(Course::isPublished).filter(course -> course.getEnrolledStudents().contains(user)).collect(Collectors.toSet());
-        }
-        else{
+        if (validator.isStudent(loggedUser)) {
+            User user = userDao.getByUsername(loggedUser.getName()).orElseThrow(() -> new UserNotFoundException(ErrorMessage.USER_WITH_USERNAME_NOT_FOUND, loggedUser.getName()));
+            return allCourses.stream().filter(Course::isPublished).filter(course -> course.getEnrolledStudents().contains(user)).collect(Collectors.toSet());
+        } else {
             return allCourses.stream().filter(Course::isPublished).collect(Collectors.toSet());
         }
     }
 
     @Override
     @Transactional
+    public void delete(int courseId, Authentication loggedUser) {
+        String username = loggedUser.getName();
+        Course courseToDelete = courseDao.getCourseById(courseId).orElseThrow(() -> new CourseNotFoundException(ErrorMessage.COURSE_WITH_ID_NOT_FOUND, courseId));
+        User userFromDB = userDao.getByUsername(username).orElseThrow(()->new UserNotFoundException(ErrorMessage.USER_WITH_USERNAME_NOT_FOUND, username));
+        isEnrolledStudents(courseToDelete);
+        deleteIfCreator(courseToDelete,userFromDB);
+    }
+
+    private void isEnrolledStudents(Course courseToDelete) {
+        if (!courseToDelete.getEnrolledStudents().isEmpty()){
+            throw new UnsupportedDeleteCourseException(ErrorMessage.COURSE_DELETE_WITH_ENROLLED_NOT_SUPPORTED);
+        }
+    }
+
+    @Override
+    @Transactional
     public Course update(int courseToUpdateId, Course updateCourse, Authentication loggedUser) {
-        Course courseToUpdate = courseDao.getCourseById(courseToUpdateId).orElseThrow(()-> new CourseNotFoundException(ErrorMessage.COURSE_WITH_ID_NOT_FOUND, courseToUpdateId));
-        validator.isCreatorOfCourse(courseToUpdate,loggedUser);
-        validateTitleUniqueIfChanged(updateCourse,courseToUpdate);
-        applyChanges(courseToUpdate,updateCourse);
+        Course courseToUpdate = courseDao.getCourseById(courseToUpdateId).orElseThrow(() -> new CourseNotFoundException(ErrorMessage.COURSE_WITH_ID_NOT_FOUND, courseToUpdateId));
+        validator.isCreatorOfCourse(courseToUpdate, loggedUser);
+        validateTitleUniqueIfChanged(updateCourse, courseToUpdate);
+        applyChanges(courseToUpdate, updateCourse);
         return courseDao.update(courseToUpdate);
     }
 
@@ -120,15 +135,15 @@ public class CourseServiceImpl implements CourseService {
         Course courseFullDetails = courseDao.getCourseByTitle(title).orElseThrow(()->new CourseNotFoundException(ErrorMessage.COURSE_WITH_TITLE_NOT_FOUND,title));
         return mapper.fromCourseToCourseBaseDetailsDto(courseFullDetails);    }*/
 
-    private void validateTitleUniqueIfChanged(Course updateCourse, Course courseToUpdate){
-        if (!courseToUpdate.getTitle().equals(updateCourse.getTitle())){
-            if ((courseDao.getCourseByTitle(updateCourse.getTitle()).isPresent())){
-                throw new CourseTitleExistException(ErrorMessage.COURSE_TITLE_EXIST,updateCourse.getTitle());
+    private void validateTitleUniqueIfChanged(Course updateCourse, Course courseToUpdate) {
+        if (!courseToUpdate.getTitle().equals(updateCourse.getTitle())) {
+            if ((courseDao.getCourseByTitle(updateCourse.getTitle()).isPresent())) {
+                throw new CourseTitleExistException(ErrorMessage.COURSE_TITLE_EXIST, updateCourse.getTitle());
             }
         }
     }
 
-    private void applyChanges(Course mainCourse, Course updateDetails){
+    private void applyChanges(Course mainCourse, Course updateDetails) {
         mainCourse.setTitle(updateDetails.getTitle());
         mainCourse.setStartDate(updateDetails.getStartDate());
         mainCourse.setPublished(updateDetails.isPublished());
@@ -136,5 +151,18 @@ public class CourseServiceImpl implements CourseService {
         mainCourse.setDescription(updateDetails.getDescription());
     }
 
+    private Course getCourseIfEnrolled(Course course, User user) {
+        if (course.getEnrolledStudents().contains(user)) {
+            return course;
+        }
+        throw new UnAuthorizeException(ErrorMessage.USER_NOT_ENROLLED, user.getUsername(), course.getTitle());
+    }
+    private void deleteIfCreator(Course course, User user){
+        if (course.getTeacher().equals(user)){
+            courseDao.delete(course);
+        }else{
+            throw new UnAuthorizeException(ErrorMessage.NOT_COURSE_CREATOR_ERROR);
+        }
 
+    }
 }

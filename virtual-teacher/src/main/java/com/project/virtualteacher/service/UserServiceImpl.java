@@ -8,7 +8,6 @@ import com.project.virtualteacher.exception_handling.error_message.ErrorMessage;
 import com.project.virtualteacher.exception_handling.exceptions.*;
 import com.project.virtualteacher.service.contracts.UserService;
 import com.project.virtualteacher.utility.ValidatorHelper;
-import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -39,7 +38,7 @@ public class UserServiceImpl implements UserService {
         if (validator.isTeacherOrAdmin(loggedUser)) {
             return userDao.getById(userId).orElseThrow(() -> new UserNotFoundException(USER_ID_NOT_FOUND, userId));
         }
-        User userDB = userDao.getByUsername(loggedUser.getName()).orElseThrow(() -> new UserNotFoundException(USERNAME_NOT_FOUND, loggedUser.getName()));
+        User userDB = userDao.getByUsername(loggedUser.getName()).orElseThrow(() -> new UserNotFoundException(USER_WITH_USERNAME_NOT_FOUND, loggedUser.getName()));
         if (userDB.getId() == userId) {
             return userDao.getById(userId).orElseThrow(() -> new UserNotFoundException(USER_ID_NOT_FOUND, userId));
         }
@@ -67,7 +66,6 @@ public class UserServiceImpl implements UserService {
         userDao.delete(userToDelete);
     }
 
-    //TODO
     @Override
     @Transactional
     public void updateBaseUserDetails(User userToUpdate, int userToUpdateId, Authentication loggedUser) {

@@ -9,7 +9,7 @@ public final class ErrorMessage {
     public static final String ROLE_NAME_NOT_FOUND = "Role with name: %s, not found.";
     public static final String ROLE_ID_NOT_FOUND = "Role with ID: %d, not found.";
     public static final String USER_NOT_RESOURCE_OWNER = "Only owner of the resource have permits to modify or delete.";
-    public static final String USERNAME_NOT_FOUND = "User with username: %s not found.";
+    public static final String USER_WITH_USERNAME_NOT_FOUND = "User with username: %s not found.";
     public static final String COURSE_TITLE_EXIST = "Course with title: %s already exit.";
     public static final String COURSE_WITH_ID_NOT_FOUND = "Course with ID: %d not found.";
     public static final String COURSE_WITH_TITLE_NOT_FOUND = "Course with title: %s not found.";
@@ -20,5 +20,8 @@ public final class ErrorMessage {
     public static final String USER_NOT_AUTHORIZED = "User %s not authorized for this resource";
     public static final String ADMIN_BLOCK_PERMIT = "Only ADMIN can block users";
     public static final String ADMIN_UNBLOCK_PERMIT = "Only ADMIN can unblock users";
+    public static final String USER_NOT_ENROLLED = "User with username: %s is not enrolled for course: %s";
+    public static final String COURSE_DELETE_WITH_ENROLLED_NOT_SUPPORTED = "Course with enrolled students can not be deleted";
+
 
 }

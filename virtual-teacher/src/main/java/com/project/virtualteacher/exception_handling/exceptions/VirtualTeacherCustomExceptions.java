@@ -20,4 +20,8 @@ public abstract class VirtualTeacherCustomExceptions extends RuntimeException{
         super(String.format(message,placeHolder));
     }
 
+    protected VirtualTeacherCustomExceptions(String message,String placeHolderOne, String placeHolderTwo) {
+        super(String.format(message,placeHolderOne,placeHolderTwo));
+    }
+
 }

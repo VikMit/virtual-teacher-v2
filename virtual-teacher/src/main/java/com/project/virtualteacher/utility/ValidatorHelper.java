@@ -2,6 +2,7 @@ package com.project.virtualteacher.utility;
 
 import com.project.virtualteacher.dto.UserFullDetailsInDto;
 import com.project.virtualteacher.entity.Course;
+import com.project.virtualteacher.entity.User;
 import com.project.virtualteacher.exception_handling.error_message.ErrorMessage;
 import com.project.virtualteacher.exception_handling.exceptions.IncorrectConfirmPasswordException;
 import com.project.virtualteacher.exception_handling.exceptions.UnAuthorizeException;
@@ -58,4 +59,6 @@ public class ValidatorHelper {
             throw new UnAuthorizeException(ErrorMessage.NOT_COURSE_CREATOR_ERROR);
         }
     }
+
+
 }

@@ -61,7 +61,7 @@ public class CourseDaoImpl implements CourseDao {
     @Override
     public void delete(Course course) {
         try {
-            em.detach(course);
+            em.remove(course);
         } catch (IllegalArgumentException e) {
             throw new CourseNotFoundException(ErrorMessage.COURSE_WITH_ID_NOT_FOUND, course.getId());
         }
@@ -100,13 +100,13 @@ public class CourseDaoImpl implements CourseDao {
 
     @Override
     public Set<Course> getAllPublic() {
-        TypedQuery<Course> published = em.createQuery("FROM Course WHERE isPublished = true",Course.class);
+        TypedQuery<Course> published = em.createQuery("FROM Course WHERE isPublished = true", Course.class);
         return new HashSet<>(published.getResultList());
     }
 
     @Override
     public Set<Course> getAll() {
-        TypedQuery<Course> query = em.createQuery("FROM Course",Course.class);
+        TypedQuery<Course> query = em.createQuery("FROM Course", Course.class);
         return new HashSet<>(query.getResultList());
     }
 }

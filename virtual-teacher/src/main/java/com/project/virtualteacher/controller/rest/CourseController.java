@@ -76,6 +76,7 @@ public class CourseController {
         Course updatedCourse = courseService.update(courseId, courseToUpdate, loggedUser);
         return new ResponseEntity<>(updatedCourse, HttpStatus.OK);
     }
+
     //All users include anonymous has access to basic details of each public course
     @GetMapping("/all-public/basic-details")
     public ResponseEntity<Set<CourseBaseDetailsDto>> getAllPublicWithBaseDetails() {
@@ -97,5 +98,10 @@ public class CourseController {
             extractedCourseFullDetails.add(b);
         });
         return new ResponseEntity<>(extractedCourseFullDetails, HttpStatus.OK);
+    }
+    @DeleteMapping("/{courseId}")
+    public ResponseEntity<String> delete(@PathVariable(name = "courseId")int courseId, Authentication loggedUser){
+        courseService.delete(courseId,loggedUser);
+        return new ResponseEntity<>("Course with ID: "+courseId+" was deleted",HttpStatus.OK);
     }
 }

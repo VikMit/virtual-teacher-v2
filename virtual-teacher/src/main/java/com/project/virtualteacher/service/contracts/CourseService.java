@@ -22,7 +22,7 @@ public interface CourseService {
 
     Set<Course> getAll(Authentication loggedUser);
 
-
+    void delete(int courseId,Authentication loggedUser);
 
     // CourseBaseDetailsDto getCourseBasicDetailsById(int courseId);
 
