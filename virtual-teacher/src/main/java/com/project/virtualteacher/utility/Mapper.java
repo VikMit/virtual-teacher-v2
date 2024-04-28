@@ -102,7 +102,7 @@ public final class Mapper {
         return result;
     }
 
-    public Role fromRoleDtoInToRole(RoleCreateDtoIn roleCreateDtoIn){
+    public Role fromRoleCreateDtoInToRole(RoleCreateDtoIn roleCreateDtoIn){
         Role role = new Role();
         role.setValue(roleCreateDtoIn.getValue());
         return role;

@@ -12,4 +12,9 @@ public interface RoleDao {
     boolean isRoleNameExist(String roleName);
 
     void create(Role roleToCreate);
+
+    boolean isAssignedToUser(int id);
+
+    void update(Role roleToUpdate);
+
 }

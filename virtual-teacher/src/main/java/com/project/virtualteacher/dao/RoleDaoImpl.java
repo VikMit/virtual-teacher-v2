@@ -43,14 +43,27 @@ public class RoleDaoImpl implements RoleDao {
 
     @Override
     public boolean isRoleNameExist(String roleName) {
-        TypedQuery<Long> query = em.createQuery("SELECT COUNT(*) FROM Role WHERE value = :roleName",Long.class);
-        query.setParameter("roleName",roleName);
+        TypedQuery<Long> query = em.createQuery("SELECT COUNT(*) FROM Role WHERE value = :roleName", Long.class);
+        query.setParameter("roleName", roleName);
         long result = query.getSingleResult();
-        return result>0;
+        return result > 0;
     }
 
     @Override
     public void create(Role roleToCreate) {
         em.persist(roleToCreate);
+    }
+
+    @Override
+    public boolean isAssignedToUser(int id) {
+        TypedQuery<Long> query = em.createQuery("SELECT COUNT(*) FROM User WHERE id = :id", Long.class);
+        query.setParameter("id", id);
+        Long result = query.getSingleResult();
+        return result > 0;
+    }
+
+    @Override
+    public void update(Role roleToUpdate) {
+        em.merge(roleToUpdate);
     }
 }
