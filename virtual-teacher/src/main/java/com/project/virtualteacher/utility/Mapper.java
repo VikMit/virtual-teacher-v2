@@ -101,4 +101,10 @@ public final class Mapper {
         result.setEnrolledStudents(course.getEnrolledStudents().stream().map(this::fromUserToUserOutDto).collect(Collectors.toSet()));
         return result;
     }
+
+    public Role fromRoleDtoInToRole(RoleCreateDtoIn roleCreateDtoIn){
+        Role role = new Role();
+        role.setValue(roleCreateDtoIn.getValue());
+        return role;
+    }
 }

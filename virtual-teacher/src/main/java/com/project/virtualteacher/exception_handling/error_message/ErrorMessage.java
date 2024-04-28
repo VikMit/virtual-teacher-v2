@@ -22,6 +22,7 @@ public final class ErrorMessage {
     public static final String ADMIN_UNBLOCK_PERMIT = "Only ADMIN can unblock users";
     public static final String USER_NOT_ENROLLED = "User with username: %s is not enrolled for course: %s";
     public static final String COURSE_DELETE_WITH_ENROLLED_NOT_SUPPORTED = "Course with enrolled students can not be deleted";
+    public static final String ROLE_NAME_EXIST = "Role with name: %s exist";
 
 
 }

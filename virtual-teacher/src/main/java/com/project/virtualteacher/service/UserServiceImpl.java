@@ -103,7 +103,7 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public void updateRole(int userId, int roleId) {
         User userDb = userDao.findById(userId).orElseThrow(() -> new UserNotFoundException(USER_ID_NOT_FOUND, userId));
-        Role role = roleDao.findById(roleId).orElseThrow(() -> new RoleNotFoundException(ROLE_ID_NOT_FOUND, roleId));
+        Role role = roleDao.findById(roleId).orElseThrow(() -> new RoleException(ROLE_ID_NOT_FOUND, roleId));
         userDb.setRole(role);
         userDao.update(userDb);
     }

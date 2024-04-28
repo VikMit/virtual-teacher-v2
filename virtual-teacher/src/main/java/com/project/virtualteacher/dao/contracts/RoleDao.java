@@ -6,5 +6,10 @@ import java.util.Optional;
 
 public interface RoleDao {
     Optional<Role> findById(int id);
+
     Optional<Role> findByName(String roleName);
+
+    boolean isRoleNameExist(String roleName);
+
+    void create(Role roleToCreate);
 }

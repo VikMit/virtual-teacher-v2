@@ -3,7 +3,7 @@ package com.project.virtualteacher.dto;
 import lombok.Data;
 
 @Data
-public class RoleDTO {
+public class RoleDtoOut {
     private int id;
     private String value;
 }
