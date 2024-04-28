@@ -15,6 +15,7 @@ public interface RoleDao {
 
     boolean isAssignedToUser(int id);
 
-    void update(Role roleToUpdate);
+    Role update(Role roleToUpdate);
 
+    void delete(Role roleToDelete);
 }

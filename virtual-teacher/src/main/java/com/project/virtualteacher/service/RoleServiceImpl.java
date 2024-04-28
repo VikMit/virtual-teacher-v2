@@ -35,23 +35,32 @@ public class RoleServiceImpl implements RoleService {
 
     @Override
     @Transactional
-    public void update(Role roleUpdate, int roleToUpdateId) {
+    public Role update(Role roleUpdate, int roleToUpdateId) {
         Role roleToUpdate = findById(roleToUpdateId);
         roleToUpdate.setValue(roleUpdate.getValue());
         addPrefixIfNotPresent(roleToUpdate);
-        roleDao.update(roleToUpdate);
+        return roleDao.update(roleToUpdate);
 
+    }
+
+    @Override
+    @Transactional
+    public void delete(int roleId) {
+        Role roleToDelete = roleDao.findById(roleId).orElseThrow(()->new RoleException(ErrorMessage.ROLE_ID_NOT_FOUND,roleId));
+        throwIfRoleAssignedToUser(roleId);
+        roleDao.delete(roleToDelete);
     }
 
     private void addPrefixIfNotPresent(Role role) {
         if (role.getValue().startsWith("ROLE_") || role.getValue().startsWith("role_")) {
-            role.setValue( role.getValue().toUpperCase());
+            role.setValue(role.getValue().toUpperCase());
         } else {
             role.setValue("ROLE_" + role.getValue().toUpperCase());
         }
     }
-    private void throwIfRoleAssignedToUser(Role role){
-        if (roleDao.isAssignedToUser(role.getId())){
+
+    private void throwIfRoleAssignedToUser(int roleId) {
+        if (roleDao.isAssignedToUser(roleId)) {
             throw new RoleException("Can not delete role when it's assigned to user");
         }
     }

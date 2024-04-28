@@ -56,14 +56,19 @@ public class RoleDaoImpl implements RoleDao {
 
     @Override
     public boolean isAssignedToUser(int id) {
-        TypedQuery<Long> query = em.createQuery("SELECT COUNT(*) FROM User WHERE id = :id", Long.class);
+        TypedQuery<Long> query = em.createQuery("SELECT COUNT(*) FROM User WHERE role.id = :id", Long.class);
         query.setParameter("id", id);
         Long result = query.getSingleResult();
         return result > 0;
     }
 
     @Override
-    public void update(Role roleToUpdate) {
-        em.merge(roleToUpdate);
+    public Role update(Role roleToUpdate) {
+     return em.merge(roleToUpdate);
+    }
+
+    @Override
+    public void delete(Role roleToDelete) {
+        em.remove(roleToDelete);
     }
 }
