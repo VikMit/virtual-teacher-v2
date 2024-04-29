@@ -15,9 +15,9 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @Getter
 @Setter
-/*@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name = "role_id",
-        discriminatorType = DiscriminatorType.INTEGER)*/
+        discriminatorType = DiscriminatorType.INTEGER)
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -46,7 +46,7 @@ public class User {
     private LocalDate dob;
 
     @ManyToOne()
-    @JoinColumn(name = "role_id")
+    @JoinColumn(name = "role_id",insertable=false, updatable=false)
     private Role role;
 
     @ManyToOne()

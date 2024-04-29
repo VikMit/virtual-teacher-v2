@@ -25,4 +25,6 @@ public interface UserDao {
     void block(int userId);
 
     void unblock(int id);
+
+   // Optional<Student> findStudentByUsername(String username);
 }

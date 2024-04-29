@@ -3,7 +3,7 @@ package com.project.virtualteacher.service;
 import com.project.virtualteacher.dao.contracts.RoleDao;
 import com.project.virtualteacher.entity.Role;
 import com.project.virtualteacher.exception_handling.error_message.ErrorMessage;
-import com.project.virtualteacher.exception_handling.exceptions.RoleException;
+import com.project.virtualteacher.exception_handling.exceptions.EntityNotExistException;
 import com.project.virtualteacher.service.contracts.RoleService;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
@@ -19,7 +19,7 @@ public class RoleServiceImpl implements RoleService {
 
     @Override
     public Role findById(int roleId) {
-        return roleDao.findById(roleId).orElseThrow(() -> new RoleException(ErrorMessage.ROLE_ID_NOT_FOUND, roleId));
+        return roleDao.findById(roleId).orElseThrow(() -> new EntityNotExistException(ErrorMessage.ROLE_ID_NOT_FOUND, roleId));
     }
 
     @Override
@@ -27,7 +27,7 @@ public class RoleServiceImpl implements RoleService {
     public void create(Role roleToCreate) {
         addPrefixIfNotPresent(roleToCreate);
         if (roleDao.isRoleNameExist(roleToCreate.getValue())) {
-            throw new RoleException(ErrorMessage.ROLE_NAME_EXIST, roleToCreate.getValue());
+            throw new EntityNotExistException(ErrorMessage.ROLE_NAME_EXIST, roleToCreate.getValue());
         }
         roleDao.create(roleToCreate);
 
@@ -46,7 +46,7 @@ public class RoleServiceImpl implements RoleService {
     @Override
     @Transactional
     public void delete(int roleId) {
-        Role roleToDelete = roleDao.findById(roleId).orElseThrow(()->new RoleException(ErrorMessage.ROLE_ID_NOT_FOUND,roleId));
+        Role roleToDelete = roleDao.findById(roleId).orElseThrow(()->new EntityNotExistException(ErrorMessage.ROLE_ID_NOT_FOUND,roleId));
         throwIfRoleAssignedToUser(roleId);
         roleDao.delete(roleToDelete);
     }
@@ -61,7 +61,7 @@ public class RoleServiceImpl implements RoleService {
 
     private void throwIfRoleAssignedToUser(int roleId) {
         if (roleDao.isAssignedToUser(roleId)) {
-            throw new RoleException("Can not delete role when it's assigned to user");
+            throw new EntityNotExistException("Can not delete role when it's assigned to user");
         }
     }
 }

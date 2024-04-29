@@ -24,6 +24,9 @@ public interface CourseService {
 
     void delete(int courseId,Authentication loggedUser);
 
+    void enroll(int courseId, Authentication loggedUser);
+
+
     // CourseBaseDetailsDto getCourseBasicDetailsById(int courseId);
 
    // CourseBaseDetailsDto getCourseBasicDetailsByTitle(String title);

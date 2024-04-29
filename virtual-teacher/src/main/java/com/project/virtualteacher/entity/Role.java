@@ -17,7 +17,6 @@ public class Role {
     @Column(name = "id")
     private int id;
 
-
     @Column(name = "role")
     private String value;
 }

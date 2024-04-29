@@ -46,7 +46,8 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.PUT, "/api/v1/course/{courseId}").hasRole("TEACHER")
                         .requestMatchers(HttpMethod.PUT, "/api/v1/role/{roleId}").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE,"/api/v1/course/{courseId}").hasRole("TEACHER")
-                        .requestMatchers(HttpMethod.DELETE,"/api/v1/role/{roleId}").hasRole("ADMIN"))
+                        .requestMatchers(HttpMethod.DELETE,"/api/v1/role/{roleId}").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.POST,"/api/v1/course/{courseId}/enroll").hasRole("STUDENT"))
                         .httpBasic(Customizer.withDefaults())
                 //.formLogin(Customizer.withDefaults())
                 .build();

@@ -4,8 +4,11 @@ package com.project.virtualteacher.dao;
 import com.project.virtualteacher.dao.contracts.UserDao;
 import com.project.virtualteacher.entity.User;
 import com.project.virtualteacher.exception_handling.error_message.ErrorMessage;
-import com.project.virtualteacher.exception_handling.exceptions.UserNotFoundException;
-import jakarta.persistence.*;
+import com.project.virtualteacher.exception_handling.exceptions.EntityNotExistException;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.NoResultException;
+import jakarta.persistence.Query;
+import jakarta.persistence.TypedQuery;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -22,7 +25,7 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     public Optional<User> findByUsename(String username) {
-        TypedQuery<User> query = em.createQuery("FROM User where username=:username", User.class);
+        TypedQuery<User> query = em.createQuery("FROM User WHERE username = :username", User.class);
         query.setParameter("username", username);
         try {
             return Optional.of(query.getSingleResult());
@@ -30,6 +33,17 @@ public class UserDaoImpl implements UserDao {
             return Optional.empty();
         }
     }
+
+  /*  @Override
+    public Optional<Student> findStudentByUsername(String username){
+        TypedQuery<Student> query = em.createQuery("FROM Student WHERE username = :username",Student.class);
+        query.setParameter("username",username);
+        try {
+            return Optional.of(query.getSingleResult());
+        } catch (NoResultException e){
+            return Optional.empty();
+        }
+    }*/
 
     @Override
     public void create(User user) {
@@ -68,7 +82,7 @@ public class UserDaoImpl implements UserDao {
         query.setParameter("userId", userId);
         int result = query.executeUpdate();
         if (result < 1) {
-            throw new UserNotFoundException(ErrorMessage.USER_ID_NOT_FOUND, userId);
+            throw new EntityNotExistException(ErrorMessage.USER_ID_NOT_FOUND, userId);
         }
     }
 
@@ -78,7 +92,7 @@ public class UserDaoImpl implements UserDao {
         query.setParameter("userId", userId);
         int result = query.executeUpdate();
         if (result < 1) {
-            throw new UserNotFoundException(ErrorMessage.USER_ID_NOT_FOUND, userId);
+            throw new EntityNotExistException(ErrorMessage.USER_ID_NOT_FOUND, userId);
         }
     }
 

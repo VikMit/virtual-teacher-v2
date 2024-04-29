@@ -18,7 +18,7 @@ import java.util.Set;
 @Setter
 public class Student extends User {
 
-    @OneToMany()
+    @ManyToMany
     @JoinTable(name = "user_course", joinColumns = @JoinColumn(name = "user_id",referencedColumnName = "id"))
     private Set<Course> enrolledCourses;
 }

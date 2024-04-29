@@ -2,8 +2,9 @@ package com.project.virtualteacher.dao;
 
 import com.project.virtualteacher.dao.contracts.CourseDao;
 import com.project.virtualteacher.entity.Course;
+import com.project.virtualteacher.entity.EnrollStudent;
 import com.project.virtualteacher.exception_handling.error_message.ErrorMessage;
-import com.project.virtualteacher.exception_handling.exceptions.CourseNotFoundException;
+import com.project.virtualteacher.exception_handling.exceptions.EntityNotExistException;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
 import jakarta.persistence.TypedQuery;
@@ -63,7 +64,7 @@ public class CourseDaoImpl implements CourseDao {
         try {
             em.remove(course);
         } catch (IllegalArgumentException e) {
-            throw new CourseNotFoundException(ErrorMessage.COURSE_WITH_ID_NOT_FOUND, course.getId());
+            throw new EntityNotExistException(ErrorMessage.COURSE_WITH_ID_NOT_FOUND, course.getId());
         }
     }
 
@@ -72,7 +73,7 @@ public class CourseDaoImpl implements CourseDao {
         try {
             return em.merge(course);
         } catch (IllegalArgumentException e) {
-            throw new CourseNotFoundException(ErrorMessage.COURSE_WITH_ID_NOT_FOUND, course.getId());
+            throw new EntityNotExistException(ErrorMessage.COURSE_WITH_ID_NOT_FOUND, course.getId());
         }
     }
 
@@ -109,4 +110,10 @@ public class CourseDaoImpl implements CourseDao {
         TypedQuery<Course> query = em.createQuery("FROM Course", Course.class);
         return new HashSet<>(query.getResultList());
     }
+
+    @Override
+    public void enrollUserForCourse(EnrollStudent student) {
+        em.persist(student);
+    }
+
 }

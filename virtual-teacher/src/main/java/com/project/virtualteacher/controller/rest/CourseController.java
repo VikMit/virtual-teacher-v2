@@ -30,10 +30,11 @@ public class CourseController {
 
     //Only teacher has access to create course end-point
     @PostMapping()
-    public ResponseEntity<String> course(@RequestBody CourseFullDetailsDto courseDetailedInfoDto, Authentication loggedUser) {
+    public ResponseEntity<CourseFullDetailsDto> course(@RequestBody CourseFullDetailsDto courseDetailedInfoDto, Authentication loggedUser) {
         Course courseToCreate = mapper.fromCourseFullDetailsDtoToCourse(courseDetailedInfoDto);
         Course createdCourse = courseService.create(courseToCreate, loggedUser);
-        return new ResponseEntity<>("Course with title: " + createdCourse.getTitle() + " was created", HttpStatus.CREATED);
+        CourseFullDetailsDto courseFullDetailsDto = mapper.fromCourseToCourseFullDetailsDto(createdCourse);
+        return new ResponseEntity<>(courseFullDetailsDto, HttpStatus.CREATED);
     }
 
     //All users include anonymous has access to basic details of each public course
@@ -99,9 +100,16 @@ public class CourseController {
         });
         return new ResponseEntity<>(extractedCourseFullDetails, HttpStatus.OK);
     }
+
     @DeleteMapping("/{courseId}")
-    public ResponseEntity<String> delete(@PathVariable(name = "courseId")int courseId, Authentication loggedUser){
-        courseService.delete(courseId,loggedUser);
-        return new ResponseEntity<>("Course with ID: "+courseId+" was deleted",HttpStatus.OK);
+    public ResponseEntity<String> delete(@PathVariable(name = "courseId") int courseId, Authentication loggedUser) {
+        courseService.delete(courseId, loggedUser);
+        return new ResponseEntity<>("Course with ID: " + courseId + " was deleted", HttpStatus.OK);
+    }
+
+    @PostMapping("/{courseId}/enroll")
+    public ResponseEntity<String> enroll(@PathVariable(name = "courseId") int courseId, Authentication loggedUser) {
+        courseService.enroll(courseId,loggedUser);
+        return new ResponseEntity<>("User with username: "+loggedUser.getName()+" was enrolled for course with ID: "+courseId,HttpStatus.OK);
     }
 }
