@@ -22,4 +22,8 @@ public class UnAuthorizeException extends VirtualTeacherCustomExceptions{
         super(message, placeHolderOne,placeHoledTwo);
         super.setHttpStatus(HttpStatus.UNAUTHORIZED);
     }
+    public UnAuthorizeException(String message, String placeHolderOne, int placeHoledTwo) {
+        super(message, placeHolderOne,placeHoledTwo);
+        super.setHttpStatus(HttpStatus.UNAUTHORIZED);
+    }
 }

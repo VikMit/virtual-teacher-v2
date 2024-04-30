@@ -6,6 +6,7 @@ import com.project.virtualteacher.dto.UserOutDto;
 import com.project.virtualteacher.entity.User;
 import com.project.virtualteacher.exception_handling.exceptions.IncorrectInputException;
 import com.project.virtualteacher.service.contracts.UserService;
+import com.project.virtualteacher.utility.ExtractEntityHelper;
 import com.project.virtualteacher.utility.Mapper;
 import com.project.virtualteacher.utility.ValidatorHelper;
 import jakarta.validation.Valid;
@@ -22,11 +23,13 @@ public class UserController {
     private final UserService userService;
     private final Mapper mapper;
     private final ValidatorHelper validatorHelper;
+    private final ExtractEntityHelper extractEntityHelper;
 
-    public UserController(UserService userService, Mapper mapper, ValidatorHelper validatorHelper) {
+    public UserController(UserService userService, Mapper mapper, ValidatorHelper validatorHelper, ExtractEntityHelper extractEntityHelper) {
         this.userService = userService;
         this.mapper = mapper;
         this.validatorHelper = validatorHelper;
+        this.extractEntityHelper = extractEntityHelper;
     }
 
     @PostMapping("/register")
@@ -44,32 +47,37 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<UserOutDto> getUser(@PathVariable(name = "id") int id, Authentication loggedUser) {
+    public ResponseEntity<UserOutDto> getUser(@PathVariable(name = "id") int id, Authentication authentication) {
+        User loggedUser = extractEntityHelper.extractUserFromAuthentication(authentication);
         User userDb = userService.getUserById(id,loggedUser);
         UserOutDto userToReturn = mapper.fromUserToUserOutDto(userDb);
         return new ResponseEntity<>(userToReturn, HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> delete(@PathVariable(name = "id") int id, Authentication loggedUser) {
+    public ResponseEntity<String> delete(@PathVariable(name = "id") int id, Authentication authentication) {
+        User loggedUser = extractEntityHelper.extractUserFromAuthentication(authentication);
         userService.delete(id, loggedUser);
         return new ResponseEntity<>("User with ID: " + id + " was deleted", HttpStatus.OK);
     }
 
     @PutMapping("/{id}/block")
-    public ResponseEntity<String> block(@PathVariable(name = "id") int id, Authentication loggedUser) {
+    public ResponseEntity<String> block(@PathVariable(name = "id") int id, Authentication authentication) {
+        User loggedUser = extractEntityHelper.extractUserFromAuthentication(authentication);
         userService.blockUser(id, loggedUser);
         return new ResponseEntity<>("User with ID: " + id + " was blocked", HttpStatus.OK);
     }
 
     @PutMapping("/{id}/unblock")
-    public ResponseEntity<String> unblock(@PathVariable(name = "id") int id, Authentication loggedUser) {
+    public ResponseEntity<String> unblock(@PathVariable(name = "id") int id, Authentication authentication) {
+        User loggedUser = extractEntityHelper.extractUserFromAuthentication(authentication);
         userService.unBlockUser(id, loggedUser);
         return new ResponseEntity<>("User with ID: " + id + " was unblocked", HttpStatus.OK);
     }
 
     @PutMapping("/{id}/basic-details")
-    public ResponseEntity<String> updateBaseDetails(@PathVariable(name = "id") int id, @RequestBody @Valid UserBaseDetailsInDto userBaseDetailsInDto, Authentication loggedUser) {
+    public ResponseEntity<String> updateBaseDetails(@PathVariable(name = "id") int id, @RequestBody @Valid UserBaseDetailsInDto userBaseDetailsInDto, Authentication authentication) {
+        User loggedUser = extractEntityHelper.extractUserFromAuthentication(authentication);
         User userToUpdate = mapper.fromUserBaseDetailsInDtoToUser(userBaseDetailsInDto);
         userService.updateBaseUserDetails(userToUpdate, id, loggedUser);
         return new ResponseEntity<>("User with ID: " + id + " was updated", HttpStatus.OK);

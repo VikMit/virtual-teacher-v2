@@ -3,8 +3,10 @@ package com.project.virtualteacher.controller.rest;
 import com.project.virtualteacher.dto.CourseBaseDetailsDto;
 import com.project.virtualteacher.dto.CourseFullDetailsDto;
 import com.project.virtualteacher.entity.Course;
+import com.project.virtualteacher.entity.User;
 import com.project.virtualteacher.exception_handling.exceptions.IncorrectInputException;
 import com.project.virtualteacher.service.contracts.CourseService;
+import com.project.virtualteacher.utility.ExtractEntityHelper;
 import com.project.virtualteacher.utility.Mapper;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -22,17 +24,20 @@ public class CourseController {
 
     private final CourseService courseService;
     private final Mapper mapper;
+    private final ExtractEntityHelper extractEntityHelper;
 
-    public CourseController(CourseService courseService, Mapper mapper) {
+    public CourseController(CourseService courseService, Mapper mapper, ExtractEntityHelper extractEntityHelper) {
         this.courseService = courseService;
         this.mapper = mapper;
+        this.extractEntityHelper = extractEntityHelper;
     }
 
     //Only teacher has access to create course end-point
     @PostMapping()
     public ResponseEntity<CourseFullDetailsDto> course(@RequestBody CourseFullDetailsDto courseDetailedInfoDto, Authentication loggedUser) {
         Course courseToCreate = mapper.fromCourseFullDetailsDtoToCourse(courseDetailedInfoDto);
-        Course createdCourse = courseService.create(courseToCreate, loggedUser);
+        User user = extractEntityHelper.extractUserFromAuthentication(loggedUser);
+        Course createdCourse = courseService.create(courseToCreate, user);
         CourseFullDetailsDto courseFullDetailsDto = mapper.fromCourseToCourseFullDetailsDto(createdCourse);
         return new ResponseEntity<>(courseFullDetailsDto, HttpStatus.CREATED);
     }
@@ -55,24 +60,27 @@ public class CourseController {
 
 
     @GetMapping("/{courseId}/full-details")
-    public ResponseEntity<CourseFullDetailsDto> courseFullDetailsById(@PathVariable(name = "courseId") int courseId, Authentication loggedUser) {
+    public ResponseEntity<CourseFullDetailsDto> courseFullDetailsById(@PathVariable(name = "courseId") int courseId, Authentication authentication) {
+        User loggedUser = extractEntityHelper.extractUserFromAuthentication(authentication);
         Course course = courseService.getCourseById(courseId, loggedUser);
         CourseFullDetailsDto result = mapper.fromCourseToCourseFullDetailsDto(course);
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
     @GetMapping("/title/full-details")
-    public ResponseEntity<CourseFullDetailsDto> courseByTitle(@RequestParam(name = "title") String title, Authentication loggedUser) {
+    public ResponseEntity<CourseFullDetailsDto> courseByTitle(@RequestParam(name = "title") String title, Authentication authentication) {
+        User loggedUser = extractEntityHelper.extractUserFromAuthentication(authentication);
         Course course = courseService.getCourseByTitle(title, loggedUser);
         CourseFullDetailsDto result = mapper.fromCourseToCourseFullDetailsDto(course);
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
     @PutMapping("/{courseId}")
-    public ResponseEntity<Course> update(@PathVariable(name = "courseId") int courseId, @RequestBody @Valid CourseFullDetailsDto courseFullDetailsDto, BindingResult errors, Authentication loggedUser) {
+    public ResponseEntity<Course> update(@PathVariable(name = "courseId") int courseId, @RequestBody @Valid CourseFullDetailsDto courseFullDetailsDto, BindingResult errors, Authentication authentication) {
         if (errors.hasErrors()) {
             throw new IncorrectInputException(errors.getAllErrors().get(0).getDefaultMessage());
         }
+        User loggedUser = extractEntityHelper.extractUserFromAuthentication(authentication);
         Course courseToUpdate = mapper.fromCourseFullDetailsDtoToCourse(courseFullDetailsDto);
         Course updatedCourse = courseService.update(courseId, courseToUpdate, loggedUser);
         return new ResponseEntity<>(updatedCourse, HttpStatus.OK);
@@ -91,7 +99,8 @@ public class CourseController {
     }
 
     @GetMapping("/all/full-details")
-    public ResponseEntity<Set<CourseFullDetailsDto>> getAllWithFullDetails(Authentication loggedUser) {
+    public ResponseEntity<Set<CourseFullDetailsDto>> getAllWithFullDetails(Authentication authentication) {
+        User loggedUser = extractEntityHelper.extractUserFromAuthentication(authentication);
         Set<Course> allCourses = courseService.getAll(loggedUser);
         Set<CourseFullDetailsDto> extractedCourseFullDetails = new HashSet<>();
         allCourses.forEach((course) -> {
@@ -102,14 +111,16 @@ public class CourseController {
     }
 
     @DeleteMapping("/{courseId}")
-    public ResponseEntity<String> delete(@PathVariable(name = "courseId") int courseId, Authentication loggedUser) {
+    public ResponseEntity<String> delete(@PathVariable(name = "courseId") int courseId, Authentication authentication) {
+        User loggedUser = extractEntityHelper.extractUserFromAuthentication(authentication);
         courseService.delete(courseId, loggedUser);
         return new ResponseEntity<>("Course with ID: " + courseId + " was deleted", HttpStatus.OK);
     }
 
     @PostMapping("/{courseId}/enroll")
-    public ResponseEntity<String> enroll(@PathVariable(name = "courseId") int courseId, Authentication loggedUser) {
+    public ResponseEntity<String> enroll(@PathVariable(name = "courseId") int courseId, Authentication authentication) {
+        User loggedUser = extractEntityHelper.extractUserFromAuthentication(authentication);
         courseService.enroll(courseId,loggedUser);
-        return new ResponseEntity<>("User with username: "+loggedUser.getName()+" was enrolled for course with ID: "+courseId,HttpStatus.OK);
+        return new ResponseEntity<>("User with username: "+loggedUser.getUsername()+" was enrolled for course with ID: "+courseId,HttpStatus.OK);
     }
 }

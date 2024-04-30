@@ -2,6 +2,7 @@ package com.project.virtualteacher.dao.contracts;
 
 import com.project.virtualteacher.entity.Course;
 import com.project.virtualteacher.entity.EnrollStudent;
+import com.project.virtualteacher.entity.User;
 
 import java.util.Optional;
 import java.util.Set;
@@ -29,6 +30,7 @@ public interface CourseDao {
     Set<Course> getAll();
 
     void enrollUserForCourse(EnrollStudent student);
+  //  boolean isUserEnrolledForCourse(User user, Course course);
 
 }
 

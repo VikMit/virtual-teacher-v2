@@ -5,12 +5,13 @@ import com.project.virtualteacher.dao.contracts.UserDao;
 import com.project.virtualteacher.entity.Role;
 import com.project.virtualteacher.entity.User;
 import com.project.virtualteacher.exception_handling.error_message.ErrorMessage;
-import com.project.virtualteacher.exception_handling.exceptions.*;
+import com.project.virtualteacher.exception_handling.exceptions.EntityExistException;
+import com.project.virtualteacher.exception_handling.exceptions.EntityNotExistException;
+import com.project.virtualteacher.exception_handling.exceptions.UnAuthorizeException;
 import com.project.virtualteacher.service.contracts.UserService;
 import com.project.virtualteacher.utility.ValidatorHelper;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -34,15 +35,15 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User getUserById(int userId, Authentication loggedUser) {
+    public User getUserById(int userId, User loggedUser) {
         if (validator.isTeacherOrAdmin(loggedUser)) {
             return userDao.findById(userId).orElseThrow(() -> new EntityNotExistException(USER_ID_NOT_FOUND, userId));
         }
-        User userDB = userDao.findByUsename(loggedUser.getName()).orElseThrow(() -> new EntityNotExistException(USER_WITH_USERNAME_NOT_FOUND, loggedUser.getName()));
+        User userDB = userDao.findByUsename(loggedUser.getUsername()).orElseThrow(() -> new EntityNotExistException(USER_WITH_USERNAME_NOT_FOUND, loggedUser.getUsername()));
         if (userDB.getId() == userId) {
             return userDao.findById(userId).orElseThrow(() -> new EntityNotExistException(USER_ID_NOT_FOUND, userId));
         }
-        throw new UnAuthorizeException(USER_NOT_AUTHORIZED,loggedUser.getName());
+        throw new UnAuthorizeException(USER_NOT_AUTHORIZED,loggedUser.getUsername());
     }
 
     @Override
@@ -58,7 +59,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public void delete(int id, Authentication loggedUser) {
+    public void delete(int id, User loggedUser) {
         User userToDelete = userDao.findById(id).orElseThrow(() -> new EntityNotExistException(USER_ID_NOT_FOUND, id));
         if (!isUsernamesMatch(loggedUser, userToDelete)) {
             throw new UnAuthorizeException(ErrorMessage.USER_NOT_RESOURCE_OWNER);
@@ -68,7 +69,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public void updateBaseUserDetails(User userToUpdate, int userToUpdateId, Authentication loggedUser) {
+    public void updateBaseUserDetails(User userToUpdate, int userToUpdateId, User loggedUser) {
         User userDb = userDao.findById(userToUpdateId)
                 .orElseThrow(() -> new EntityNotExistException(USER_ID_NOT_FOUND, userToUpdateId));
 
@@ -81,7 +82,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public void blockUser(int id, Authentication loggedUser) {
+    public void blockUser(int id, User loggedUser) {
         if (validator.isAdmin(loggedUser)) {
             userDao.block(id);
         } else {
@@ -91,7 +92,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public void unBlockUser(int id, Authentication loggedUser) {
+    public void unBlockUser(int id, User loggedUser) {
         if (validator.isAdmin(loggedUser)) {
             userDao.unblock(id);
         } else {
@@ -122,8 +123,8 @@ public class UserServiceImpl implements UserService {
         }
     }
 
-    private boolean isUsernamesMatch(Authentication loggedUser, User requestedUser) {
-        return loggedUser.getName().equals(requestedUser.getUsername());
+    private boolean isUsernamesMatch(User loggedUser, User requestedUser) {
+        return loggedUser.getUsername().equals(requestedUser.getUsername());
     }
 
     private void updateBaseDetails(User userToUpdate, User userDb) {

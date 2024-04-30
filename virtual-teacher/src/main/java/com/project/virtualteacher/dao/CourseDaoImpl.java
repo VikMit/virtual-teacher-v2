@@ -3,6 +3,7 @@ package com.project.virtualteacher.dao;
 import com.project.virtualteacher.dao.contracts.CourseDao;
 import com.project.virtualteacher.entity.Course;
 import com.project.virtualteacher.entity.EnrollStudent;
+import com.project.virtualteacher.entity.User;
 import com.project.virtualteacher.exception_handling.error_message.ErrorMessage;
 import com.project.virtualteacher.exception_handling.exceptions.EntityNotExistException;
 import jakarta.persistence.EntityManager;
@@ -115,5 +116,10 @@ public class CourseDaoImpl implements CourseDao {
     public void enrollUserForCourse(EnrollStudent student) {
         em.persist(student);
     }
+
+   /* @Override
+    public boolean isUserEnrolledForCourse(User user, Course course) {
+        return false;
+    }*/
 
 }

@@ -25,9 +25,9 @@ public class Course {
     @Column(name = "start_date")
     private LocalDate startDate;
 
-    @OneToMany()
+    @OneToMany(mappedBy = "course")
     @Cascade(org.hibernate.annotations.CascadeType.ALL)
-    @JoinTable(name = "course_lecture", joinColumns = @JoinColumn(name = "course_id"), inverseJoinColumns = @JoinColumn(name = "lecture_id"))
+   // @JoinTable(name = "course_lecture", joinColumns = @JoinColumn(name = "course_id"), inverseJoinColumns = @JoinColumn(name = "lecture_id"))
     private Set<Lecture> lectures;
 
     @OneToMany(fetch = FetchType.EAGER)

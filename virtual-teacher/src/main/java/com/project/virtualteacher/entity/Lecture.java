@@ -1,11 +1,11 @@
 package com.project.virtualteacher.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
 
 @Entity
 @Table(name = "lectures")
@@ -30,5 +30,9 @@ public class Lecture {
     @Column(name = "description")
     private String description;
 
+    @ManyToOne()
+    @JoinTable(name = "course_lecture", joinColumns = @JoinColumn(name = "lecture_id"), inverseJoinColumns = @JoinColumn(name = "course_id"))
+    @JsonIgnore
+    private Course course;
 
 }

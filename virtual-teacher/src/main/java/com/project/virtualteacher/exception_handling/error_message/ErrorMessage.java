@@ -24,6 +24,9 @@ public final class ErrorMessage {
     public static final String COURSE_DELETE_WITH_ENROLLED_NOT_SUPPORTED = "Course with enrolled students can not be deleted";
     public static final String ROLE_NAME_EXIST = "Role with name: %s exist";
     public static final String USER_ENROLLED = "User already enrolled.";
+    public static final String LECTURE_ID_NOT_FOUND = "Lecture with ID: %d not found.";
+    public static final String USER_NOT_ENROLLED_LECTURE_ACCESS_DENIED = "User with username: %s is not enrolled for a course that lecture belongs.";
+
 
 
 }

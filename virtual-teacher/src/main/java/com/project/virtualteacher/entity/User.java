@@ -15,9 +15,7 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @Getter
 @Setter
-@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
-@DiscriminatorColumn(name = "role_id",
-        discriminatorType = DiscriminatorType.INTEGER)
+
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
