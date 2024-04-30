@@ -8,7 +8,7 @@ import java.time.LocalDate;
 
 @Data
 public class CourseBaseDetailsDto {
-    @NotBlank
+    @NotNull(message = "Title can not be NULL.")
     @Size(min = 10, max = 128, message = "Title must be between 10 and 128 characters.")
     private String title;
 
@@ -24,10 +24,17 @@ public class CourseBaseDetailsDto {
     @Max(value = 6, message = "Passing grade must be lower or equal than 6.")
     private int passingGrade;
 
-    @NotBlank(message = "Description can not contain only white spaces.")
+    @NotNull(message = "Description can not be NULL.")
     @Size(min = 10, max = 1024, message = "Description must have min: 10 and max: 1024 characters.")
     private String description;
 
     private UserOutDto creator;
 
+    public void setTitle(String title) {
+        this.title = title.trim();
+    }
+
+    public void setDescription(String description) {
+        this.description = description.trim();
+    }
 }

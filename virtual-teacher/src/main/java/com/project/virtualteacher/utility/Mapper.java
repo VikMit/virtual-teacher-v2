@@ -14,13 +14,10 @@ import org.springframework.stereotype.Component;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.ObjectError;
 
-import java.time.format.DateTimeFormatter;
 import java.util.stream.Collectors;
 
 @Component
 public final class Mapper {
-    private static final String LECTURE_TITLE_INPUT_INCORRECT = "Lecture title must be 10 or more characters, all leading or ending white spaces are trimmed.";
-    private static final String LECTURE_DESCRIPTION_INPUT_INCORRECT = "Lecture description must be 10 or more characters, all leading or ending white spaces are trimmed.";
 
     private final RoleDao roleDao;
     private final CourseDao courseDao;
@@ -120,10 +117,8 @@ public final class Mapper {
 
     public Lecture fromLectureDtoToLecture(LectureDto lectureDto, BindingResult error) {
         Lecture lecture = new Lecture();
-        lecture.setTitle(lectureDto.getTitle().trim());
-        addBindingErrorIfIncorrectInput(lecture.getTitle(), 10,"Lecture Title",LECTURE_TITLE_INPUT_INCORRECT,error);
-        lecture.setDescription(lectureDto.getDescription().trim());
-        addBindingErrorIfIncorrectInput(lecture.getDescription(),10,"Lecture Description",LECTURE_DESCRIPTION_INPUT_INCORRECT,error);
+        lecture.setTitle(lectureDto.getTitle());
+        lecture.setDescription(lectureDto.getDescription());
         lecture.setAssignmentUrl(lectureDto.getAssignmentUrl());
         lecture.setVideoUrl(lectureDto.getVideoUrl());
         Course course = courseDao.getCourseById(lectureDto.getCourseId()).orElseThrow(()->new EntityNotExistException(ErrorMessage.COURSE_WITH_ID_NOT_FOUND, lectureDto.getCourseId()));

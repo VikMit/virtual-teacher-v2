@@ -8,7 +8,7 @@ public class LectureDto {
 
     private int id;
 
-    @NotBlank(message = "Lecture title can not be NULL and can not contains only white spaces")
+    @NotNull(message = "Lecture title can not be NULL.")
     @Size(min = 10, max = 128, message = "Lecture title must be in range 10 and 128 characters")
     private String title;
 
@@ -16,11 +16,18 @@ public class LectureDto {
 
     private String assignmentUrl;
 
-    @NotBlank(message = "Lecture description can not be NULL and can not contains only white spaces")
+    @NotNull(message = "Lecture description can not be NULL.")
     @Size(min = 10, max = 512, message = "Lecture description must be in range 10 and 512 characters")
     private String description;
 
     @Positive(message = "Course ID must be positive INTEGER")
     private int courseId;
 
+    public void setTitle(String title) {
+        this.title = title.trim();
+    }
+
+    public void setDescription(String description) {
+        this.description = description.trim();
+    }
 }

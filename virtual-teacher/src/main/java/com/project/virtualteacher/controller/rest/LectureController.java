@@ -23,6 +23,7 @@ public class LectureController {
     private final BindingResultCatcher catchInputErrors;
     private final Mapper mapper;
 
+
     public LectureController(ExtractEntityHelper extractEntityHelper, LectureService lectureService, BindingResultCatcher catchInputErrors, Mapper mapper) {
         this.extractEntityHelper = extractEntityHelper;
         this.lectureService = lectureService;
