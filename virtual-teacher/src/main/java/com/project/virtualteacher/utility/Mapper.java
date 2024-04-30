@@ -1,24 +1,34 @@
 package com.project.virtualteacher.utility;
 
+import com.project.virtualteacher.dao.contracts.CourseDao;
 import com.project.virtualteacher.dao.contracts.RoleDao;
 import com.project.virtualteacher.dao.contracts.UserDao;
 import com.project.virtualteacher.dto.*;
 import com.project.virtualteacher.entity.Course;
+import com.project.virtualteacher.entity.Lecture;
 import com.project.virtualteacher.entity.Role;
 import com.project.virtualteacher.entity.User;
+import com.project.virtualteacher.exception_handling.error_message.ErrorMessage;
+import com.project.virtualteacher.exception_handling.exceptions.EntityNotExistException;
 import org.springframework.stereotype.Component;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.ObjectError;
 
 import java.time.format.DateTimeFormatter;
 import java.util.stream.Collectors;
 
 @Component
 public final class Mapper {
-    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+    private static final String LECTURE_TITLE_INPUT_INCORRECT = "Lecture title must be 10 or more characters, all leading or ending white spaces are trimmed.";
+    private static final String LECTURE_DESCRIPTION_INPUT_INCORRECT = "Lecture description must be 10 or more characters, all leading or ending white spaces are trimmed.";
+
     private final RoleDao roleDao;
+    private final CourseDao courseDao;
 
 
-    public Mapper(RoleDao roleDao, UserDao userDao) {
+    public Mapper(RoleDao roleDao, UserDao userDao, CourseDao courseDao) {
         this.roleDao = roleDao;
+        this.courseDao = courseDao;
     }
 
     public User fromUserFullDetailsInDtoToUser(UserFullDetailsInDto detailedUserInDto) {
@@ -106,5 +116,25 @@ public final class Mapper {
         Role role = new Role();
         role.setValue(roleCreateDtoIn.getValue());
         return role;
+    }
+
+    public Lecture fromLectureDtoToLecture(LectureDto lectureDto, BindingResult error) {
+        Lecture lecture = new Lecture();
+        lecture.setTitle(lectureDto.getTitle().trim());
+        addBindingErrorIfIncorrectInput(lecture.getTitle(), 10,"Lecture Title",LECTURE_TITLE_INPUT_INCORRECT,error);
+        lecture.setDescription(lectureDto.getDescription().trim());
+        addBindingErrorIfIncorrectInput(lecture.getDescription(),10,"Lecture Description",LECTURE_DESCRIPTION_INPUT_INCORRECT,error);
+        lecture.setAssignmentUrl(lectureDto.getAssignmentUrl());
+        lecture.setVideoUrl(lectureDto.getVideoUrl());
+        Course course = courseDao.getCourseById(lectureDto.getCourseId()).orElseThrow(()->new EntityNotExistException(ErrorMessage.COURSE_WITH_ID_NOT_FOUND, lectureDto.getCourseId()));
+        lecture.setCourse(course);
+        return lecture;
+    }
+
+
+    private void addBindingErrorIfIncorrectInput(String valueToCheck, int condition, String objName, String message, BindingResult errors){
+        if (valueToCheck.length()<condition){
+            errors.addError(new ObjectError(objName,message));
+        }
     }
 }

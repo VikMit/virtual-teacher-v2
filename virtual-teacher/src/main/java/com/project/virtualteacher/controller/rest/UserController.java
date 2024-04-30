@@ -4,8 +4,8 @@ import com.project.virtualteacher.dto.UserBaseDetailsInDto;
 import com.project.virtualteacher.dto.UserFullDetailsInDto;
 import com.project.virtualteacher.dto.UserOutDto;
 import com.project.virtualteacher.entity.User;
-import com.project.virtualteacher.exception_handling.exceptions.IncorrectInputException;
 import com.project.virtualteacher.service.contracts.UserService;
+import com.project.virtualteacher.utility.BindingResultCatcher;
 import com.project.virtualteacher.utility.ExtractEntityHelper;
 import com.project.virtualteacher.utility.Mapper;
 import com.project.virtualteacher.utility.ValidatorHelper;
@@ -24,20 +24,19 @@ public class UserController {
     private final Mapper mapper;
     private final ValidatorHelper validatorHelper;
     private final ExtractEntityHelper extractEntityHelper;
+    private final BindingResultCatcher catchInputErrors;
 
-    public UserController(UserService userService, Mapper mapper, ValidatorHelper validatorHelper, ExtractEntityHelper extractEntityHelper) {
+    public UserController(UserService userService, Mapper mapper, ValidatorHelper validatorHelper, ExtractEntityHelper extractEntityHelper, BindingResultCatcher catchInputErrors) {
         this.userService = userService;
         this.mapper = mapper;
         this.validatorHelper = validatorHelper;
         this.extractEntityHelper = extractEntityHelper;
+        this.catchInputErrors = catchInputErrors;
     }
 
     @PostMapping("/register")
     public ResponseEntity<String> register(@RequestBody @Valid UserFullDetailsInDto userDetailedInDto, BindingResult errors) {
-
-        if (errors.hasErrors()) {
-            throw new IncorrectInputException(errors.getAllErrors().get(0).getDefaultMessage());
-        }
+        catchInputErrors.proceedInputError(errors);
         validatorHelper.validatePassAndConfirmPass(userDetailedInDto);
         User userToCreate = mapper.fromUserFullDetailsInDtoToUser(userDetailedInDto);
         userService.createUser(userToCreate);

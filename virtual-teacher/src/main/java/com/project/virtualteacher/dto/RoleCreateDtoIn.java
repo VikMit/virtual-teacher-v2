@@ -5,6 +5,7 @@ import lombok.Data;
 
 @Data
 public class RoleCreateDtoIn {
+
     @NotBlank
     private String value;
 }

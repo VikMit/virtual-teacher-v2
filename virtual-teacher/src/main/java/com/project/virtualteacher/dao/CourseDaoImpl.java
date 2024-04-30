@@ -117,9 +117,4 @@ public class CourseDaoImpl implements CourseDao {
         em.persist(student);
     }
 
-   /* @Override
-    public boolean isUserEnrolledForCourse(User user, Course course) {
-        return false;
-    }*/
-
 }

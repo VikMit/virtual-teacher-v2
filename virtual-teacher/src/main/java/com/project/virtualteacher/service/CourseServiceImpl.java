@@ -1,6 +1,5 @@
 package com.project.virtualteacher.service;
 
-import com.project.virtualteacher.dao.contracts.CourseDao;
 import com.project.virtualteacher.dao.contracts.CourseStatusDao;
 import com.project.virtualteacher.dao.contracts.UserDao;
 import com.project.virtualteacher.entity.Course;
@@ -13,7 +12,6 @@ import com.project.virtualteacher.exception_handling.exceptions.EntityNotExistEx
 import com.project.virtualteacher.exception_handling.exceptions.UnAuthorizeException;
 import com.project.virtualteacher.exception_handling.exceptions.UnsupportedOperationException;
 import com.project.virtualteacher.service.contracts.CourseService;
-import com.project.virtualteacher.utility.Mapper;
 import com.project.virtualteacher.utility.ValidatorHelper;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
@@ -23,12 +21,12 @@ import java.util.stream.Collectors;
 
 @Service
 public class CourseServiceImpl implements CourseService {
-    private final CourseDao courseDao;
+    private final com.project.virtualteacher.dao.contracts.CourseDao courseDao;
     private final UserDao userDao;
     private final ValidatorHelper validator;
     private final CourseStatusDao courseStatus;
 
-    public CourseServiceImpl(CourseDao courseDao, UserDao userDao, ValidatorHelper validator, CourseStatusDao courseStatus) {
+    public CourseServiceImpl(com.project.virtualteacher.dao.contracts.CourseDao courseDao, UserDao userDao, ValidatorHelper validator, CourseStatusDao courseStatus) {
         this.courseDao = courseDao;
         this.userDao = userDao;
         this.validator = validator;

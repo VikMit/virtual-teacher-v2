@@ -29,4 +29,10 @@ public class LectureDaoImpl implements LectureDao {
         }
 
     }
+
+    @Override
+    public Lecture create(Lecture lectureToCreate) {
+        em.persist(lectureToCreate);
+        return lectureToCreate;
+    }
 }

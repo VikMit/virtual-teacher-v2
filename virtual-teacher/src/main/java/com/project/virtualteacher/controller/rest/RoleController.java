@@ -1,6 +1,7 @@
 package com.project.virtualteacher.controller.rest;
 
 import com.project.virtualteacher.dto.RoleCreateDtoIn;
+import com.project.virtualteacher.dto.RoleDto;
 import com.project.virtualteacher.entity.Role;
 import com.project.virtualteacher.service.contracts.RoleService;
 import com.project.virtualteacher.utility.Mapper;

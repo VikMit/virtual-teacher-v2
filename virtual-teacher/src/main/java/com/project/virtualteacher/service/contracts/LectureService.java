@@ -7,4 +7,6 @@ public interface LectureService {
 
     Lecture findById(int lectureId, User loggedUser);
 
+    Lecture create(Lecture lectureToCreate, User loggedUser);
+
 }

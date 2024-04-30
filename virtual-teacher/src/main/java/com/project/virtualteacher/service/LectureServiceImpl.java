@@ -8,6 +8,7 @@ import com.project.virtualteacher.exception_handling.exceptions.EntityNotExistEx
 import com.project.virtualteacher.exception_handling.exceptions.UnAuthorizeException;
 import com.project.virtualteacher.service.contracts.LectureService;
 import com.project.virtualteacher.utility.ValidatorHelper;
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -29,6 +30,14 @@ public class LectureServiceImpl implements LectureService {
         } else {
             throw new UnAuthorizeException(ErrorMessage.USER_NOT_ENROLLED_LECTURE_ACCESS_DENIED, loggedUser.getUsername());
         }
+    }
+
+    @Override
+    @Transactional
+    public Lecture create(Lecture lectureToCreate, User loggedUser) {
+        validator.isCreatorOfCourse(lectureToCreate.getCourse(),loggedUser);
+        validator.isLectureTitleExistInCourse(lectureToCreate.getCourse(),lectureToCreate.getTitle());
+        return lectureDao.create(lectureToCreate);
     }
 
 }

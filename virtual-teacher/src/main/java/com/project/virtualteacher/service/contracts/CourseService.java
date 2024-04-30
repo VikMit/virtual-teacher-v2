@@ -2,7 +2,6 @@ package com.project.virtualteacher.service.contracts;
 
 import com.project.virtualteacher.entity.Course;
 import com.project.virtualteacher.entity.User;
-import org.springframework.security.core.Authentication;
 
 import java.util.Set;
 
