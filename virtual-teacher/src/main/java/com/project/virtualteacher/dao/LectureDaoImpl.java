@@ -35,4 +35,9 @@ public class LectureDaoImpl implements LectureDao {
         em.persist(lectureToCreate);
         return lectureToCreate;
     }
+
+    @Override
+    public void delete(Lecture lectureToDelete) {
+        em.remove(lectureToDelete);
+    }
 }

@@ -40,10 +40,19 @@ public class LectureController {
 
     @PostMapping()
     public ResponseEntity<Lecture> create(@RequestBody @Valid LectureDto lectureDto, BindingResult errors, Authentication authentication) {
-        Lecture lectureToCreate = mapper.fromLectureDtoToLecture(lectureDto,errors);
+        Lecture lectureToCreate = mapper.fromLectureDtoToLecture(lectureDto, errors);
         catchInputErrors.proceedInputError(errors);
         User loggedUser = extractEntityHelper.extractUserFromAuthentication(authentication);
         Lecture createdLecture = lectureService.create(lectureToCreate, loggedUser);
         return new ResponseEntity<>(createdLecture, HttpStatus.CREATED);
     }
+
+
+    @DeleteMapping("/{lectureId}")
+    public ResponseEntity<String> delete(@PathVariable(name = "lectureId") int lectureId, Authentication authentication) {
+        User loggedUser = extractEntityHelper.extractUserFromAuthentication(authentication);
+        lectureService.delete(lectureId, loggedUser);
+        return new ResponseEntity<>("Lecture with ID: "+lectureId+"was deleted",HttpStatus.OK);
+    }
+
 }

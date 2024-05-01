@@ -9,4 +9,5 @@ public interface LectureService {
 
     Lecture create(Lecture lectureToCreate, User loggedUser);
 
+    void delete(int lectureId, User loggedUser);
 }

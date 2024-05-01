@@ -11,6 +11,7 @@ import jakarta.persistence.NoResultException;
 import jakarta.persistence.TypedQuery;
 import org.springframework.stereotype.Repository;
 
+import java.sql.SQLOutput;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
@@ -115,6 +116,20 @@ public class CourseDaoImpl implements CourseDao {
     @Override
     public void enrollUserForCourse(EnrollStudent student) {
         em.persist(student);
+    }
+
+    @Override
+    public Optional<Course> getCourseByLectureId(int lectureId) {
+        TypedQuery<Course> query = em.createQuery("FROM Course WHERE element(lectures).id = :lectureId", Course.class);
+        query.setParameter("lectureId", lectureId);
+
+        try {
+           return   Optional.of(query.getSingleResult());
+
+        } catch (NoResultException e) {
+
+            return Optional.empty();
+        }
     }
 
 }

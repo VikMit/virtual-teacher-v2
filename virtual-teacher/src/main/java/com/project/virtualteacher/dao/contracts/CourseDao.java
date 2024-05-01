@@ -30,7 +30,7 @@ public interface CourseDao {
     Set<Course> getAll();
 
     void enrollUserForCourse(EnrollStudent student);
-  //  boolean isUserEnrolledForCourse(User user, Course course);
 
+    Optional<Course> getCourseByLectureId(int lectureId);
 }
 

@@ -1,6 +1,9 @@
 package com.project.virtualteacher.service;
 
+import com.project.virtualteacher.dao.contracts.CourseDao;
 import com.project.virtualteacher.dao.contracts.LectureDao;
+import com.project.virtualteacher.dao.contracts.SolutionDao;
+import com.project.virtualteacher.entity.Course;
 import com.project.virtualteacher.entity.Lecture;
 import com.project.virtualteacher.entity.User;
 import com.project.virtualteacher.exception_handling.error_message.ErrorMessage;
@@ -16,10 +19,14 @@ public class LectureServiceImpl implements LectureService {
 
     private final LectureDao lectureDao;
     private final ValidatorHelper validator;
+    private final CourseDao courseDao;
+    private final SolutionDao solutionDao;
 
-    public LectureServiceImpl(LectureDao lectureDao, ValidatorHelper validator) {
+    public LectureServiceImpl(LectureDao lectureDao, ValidatorHelper validator, CourseDao courseDao, SolutionDao solutionDao) {
         this.lectureDao = lectureDao;
         this.validator = validator;
+        this.courseDao = courseDao;
+        this.solutionDao = solutionDao;
     }
 
     @Override
@@ -35,9 +42,19 @@ public class LectureServiceImpl implements LectureService {
     @Override
     @Transactional
     public Lecture create(Lecture lectureToCreate, User loggedUser) {
-        validator.isCreatorOfCourse(lectureToCreate.getCourse(),loggedUser);
-        validator.isLectureTitleExistInCourse(lectureToCreate.getCourse(),lectureToCreate.getTitle());
+        validator.isCreatorOfCourse(lectureToCreate.getCourse(), loggedUser);
+        validator.isLectureTitleExistInCourse(lectureToCreate.getCourse(), lectureToCreate.getTitle());
         return lectureDao.create(lectureToCreate);
+    }
+
+    @Override
+    @Transactional
+    public void delete(int lectureId, User loggedUser) {
+        Lecture lectureToDelete = lectureDao.findById(lectureId).orElseThrow(() -> new EntityNotExistException(ErrorMessage.LECTURE_ID_NOT_FOUND, lectureId));
+        Course course = courseDao.getCourseByLectureId(lectureId).orElseThrow(() -> new EntityNotExistException(ErrorMessage.COURSE_WITH_LECTURE_NOT_FOUND, lectureId));
+        validator.isCreatorOfCourse(course, loggedUser);
+        solutionDao.delete(lectureId);
+        lectureDao.delete(lectureToDelete);
     }
 
 }

@@ -12,7 +12,6 @@ import com.project.virtualteacher.exception_handling.error_message.ErrorMessage;
 import com.project.virtualteacher.exception_handling.exceptions.EntityNotExistException;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.ObjectError;
 
 import java.util.stream.Collectors;
 
@@ -126,10 +125,4 @@ public final class Mapper {
         return lecture;
     }
 
-
-    private void addBindingErrorIfIncorrectInput(String valueToCheck, int condition, String objName, String message, BindingResult errors){
-        if (valueToCheck.length()<condition){
-            errors.addError(new ObjectError(objName,message));
-        }
-    }
 }

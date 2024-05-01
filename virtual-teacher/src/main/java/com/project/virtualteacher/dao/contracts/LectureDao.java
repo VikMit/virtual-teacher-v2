@@ -10,4 +10,6 @@ public interface LectureDao {
 
     Lecture create(Lecture lectureToCreate);
 
+    void delete(Lecture lectureToDelete);
+
 }
