@@ -7,6 +7,7 @@ import com.project.virtualteacher.entity.Course;
 import com.project.virtualteacher.entity.Lecture;
 import com.project.virtualteacher.entity.User;
 import com.project.virtualteacher.exception_handling.error_message.ErrorMessage;
+import com.project.virtualteacher.exception_handling.exceptions.EntityExistException;
 import com.project.virtualteacher.exception_handling.exceptions.EntityNotExistException;
 import com.project.virtualteacher.exception_handling.exceptions.UnAuthorizeException;
 import com.project.virtualteacher.service.contracts.LectureService;
@@ -55,6 +56,28 @@ public class LectureServiceImpl implements LectureService {
         validator.isCreatorOfCourse(course, loggedUser);
         solutionDao.delete(lectureId);
         lectureDao.delete(lectureToDelete);
+    }
+
+    @Override
+    @Transactional
+    public Lecture update(Lecture lectureUpdate, User loggedUser) {
+        Course course = courseDao.getCourseByLectureId(lectureUpdate.getId()).orElseThrow(() -> new EntityNotExistException(ErrorMessage.LECTURE_ID_NOT_FOUND, lectureUpdate.getId()));
+        validator.isCreatorOfCourse(course, loggedUser);
+        throwIfTitleExistInCourse(lectureUpdate,course);
+        lectureUpdate.setCourse(course);
+        return lectureDao.update(lectureUpdate);
+    }
+
+    @Override
+    public Lecture findPublicById(int lectureId) {
+        return lectureDao.findById(lectureId).orElseThrow(()->new EntityNotExistException(ErrorMessage.PUBLIC_LECTURE_ID_NOT_FOUND,lectureId));
+    }
+
+    private void throwIfTitleExistInCourse(Lecture lecture, Course course) {
+        boolean isTitleExist = course.getLectures().stream().anyMatch(l -> l.getTitle().equalsIgnoreCase(lecture.getTitle()));
+        if (isTitleExist) {
+            throw new EntityExistException(ErrorMessage.LECTURE_TITLE_EXIST, lecture.getTitle());
+        }
     }
 
 }

@@ -19,6 +19,9 @@ public class EntityNotExistException extends VirtualTeacherCustomExceptions{
     public EntityNotExistException(String message, int placeHolder) {
         super(message, placeHolder);
         super.setHttpStatus(HttpStatus.NOT_FOUND);
-
+    }
+    public EntityNotExistException(String message, int placeHolderOne,int placeHolderTwo) {
+        super(message, placeHolderOne,placeHolderTwo);
+        super.setHttpStatus(HttpStatus.NOT_FOUND);
     }
 }

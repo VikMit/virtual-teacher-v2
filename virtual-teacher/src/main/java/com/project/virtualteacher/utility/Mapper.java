@@ -11,7 +11,6 @@ import com.project.virtualteacher.entity.User;
 import com.project.virtualteacher.exception_handling.error_message.ErrorMessage;
 import com.project.virtualteacher.exception_handling.exceptions.EntityNotExistException;
 import org.springframework.stereotype.Component;
-import org.springframework.validation.BindingResult;
 
 import java.util.stream.Collectors;
 
@@ -34,10 +33,9 @@ public final class Mapper {
         user.setPassword(detailedUserInDto.getPassword());
         user.setEmail(detailedUserInDto.getEmail());
         user.setRole(role);
-        if (user.getPictureUrl()==null){
+        if (user.getPictureUrl() == null) {
             user.setPictureUrl("Default picture URL");
-        }
-        else{
+        } else {
             user.setPictureUrl(detailedUserInDto.getPictureUrl());
         }
         return user;
@@ -62,7 +60,8 @@ public final class Mapper {
         userToUpdate.setDob(userBaseDetailsInDto.getDob());
         return userToUpdate;
     }
-    public Course fromCourseFullDetailsDtoToCourse(CourseFullDetailsDto courseDetailedInfoDto){
+
+    public Course fromCourseFullDetailsDtoToCourse(CourseFullDetailsDto courseDetailedInfoDto) {
         Course course = new Course();
         course.setDescription(courseDetailedInfoDto.getDescription());
         course.setPublished(courseDetailedInfoDto.getIsPublished());
@@ -73,7 +72,7 @@ public final class Mapper {
         return course;
     }
 
-    public Course fromCourseBaseDetailsDtoToCourse(CourseBaseDetailsDto courseBaseDetailsDto){
+    public Course fromCourseBaseDetailsDtoToCourse(CourseBaseDetailsDto courseBaseDetailsDto) {
         Course course = new Course();
         course.setTitle(courseBaseDetailsDto.getTitle());
         course.setStartDate(courseBaseDetailsDto.getStartDate());
@@ -94,7 +93,7 @@ public final class Mapper {
         return result;
     }
 
-    public CourseFullDetailsDto fromCourseToCourseFullDetailsDto(Course course){
+    public CourseFullDetailsDto fromCourseToCourseFullDetailsDto(Course course) {
         CourseFullDetailsDto result = new CourseFullDetailsDto();
         result.setCreator(fromUserToUserOutDto(course.getTeacher()));
         result.setIsPublished(course.isPublished());
@@ -108,21 +107,47 @@ public final class Mapper {
         return result;
     }
 
-    public Role fromRoleCreateDtoInToRole(RoleCreateDtoIn roleCreateDtoIn){
+    public Role fromRoleCreateDtoInToRole(RoleCreateDtoIn roleCreateDtoIn) {
         Role role = new Role();
         role.setValue(roleCreateDtoIn.getValue());
         return role;
     }
 
-    public Lecture fromLectureDtoToLecture(LectureDto lectureDto, BindingResult error) {
-        Lecture lecture = new Lecture();
-        lecture.setTitle(lectureDto.getTitle());
-        lecture.setDescription(lectureDto.getDescription());
-        lecture.setAssignmentUrl(lectureDto.getAssignmentUrl());
-        lecture.setVideoUrl(lectureDto.getVideoUrl());
-        Course course = courseDao.getCourseById(lectureDto.getCourseId()).orElseThrow(()->new EntityNotExistException(ErrorMessage.COURSE_WITH_ID_NOT_FOUND, lectureDto.getCourseId()));
-        lecture.setCourse(course);
+    public Lecture fromLectureFullDetailsDtoToLecture(LectureFullDetailsDto lectureFullDetailsDto) {
+        Lecture lecture = fromLectureBaseDetailsDtoToLecture(lectureFullDetailsDto);
+        lecture.setId(lecture.getId());
+        lecture.setVideoUrl(lectureFullDetailsDto.getVideoUrl());
+        lecture.setAssignmentUrl(lectureFullDetailsDto.getAssignmentUrl());
         return lecture;
     }
 
+    public Lecture fromLectureBaseDetailsDtoToLecture(LectureBaseDetailsDto lectureBaseDetailsDto) {
+        Lecture lecture = new Lecture();
+        lecture.setId(lectureBaseDetailsDto.getId());
+        lecture.setTitle(lectureBaseDetailsDto.getTitle());
+        lecture.setDescription(lectureBaseDetailsDto.getDescription());
+        if (lectureBaseDetailsDto.getId() != null) {
+            Course course = courseDao.getCourseById(lectureBaseDetailsDto.getCourseId()).orElseThrow(() -> new EntityNotExistException(ErrorMessage.LECTURE_NOT_FOUND_IN_COURSE, lectureBaseDetailsDto.getId()));
+            lecture.setCourse(course);
+        }
+        return lecture;
+    }
+
+    public LectureFullDetailsDto fromLectureToLectureFullDetailsDto(Lecture lecture) {
+        LectureFullDetailsDto result = new LectureFullDetailsDto();
+        result.setId(lecture.getId());
+        result.setCourseId(lecture.getCourse().getId());
+        result.setVideoUrl(lecture.getVideoUrl());
+        result.setAssignmentUrl(lecture.getAssignmentUrl());
+        return result;
+    }
+
+    public LectureBaseDetailsDto fromLectureToLectureBaseDetailsDto(Lecture lecture) {
+        LectureBaseDetailsDto result = new LectureBaseDetailsDto();
+        result.setId(lecture.getId());
+        result.setCourseId(lecture.getId());
+        result.setDescription(lecture.getDescription());
+        result.setTitle(lecture.getTitle());
+        return result;
+    }
 }

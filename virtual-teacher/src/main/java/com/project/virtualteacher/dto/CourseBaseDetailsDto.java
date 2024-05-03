@@ -8,6 +8,9 @@ import java.time.LocalDate;
 
 @Data
 public class CourseBaseDetailsDto {
+
+    private int id;
+
     @NotNull(message = "Title can not be NULL.")
     @Size(min = 10, max = 128, message = "Title must be between 10 and 128 characters.")
     private String title;
@@ -15,7 +18,6 @@ public class CourseBaseDetailsDto {
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
     @NotNull(message = "Start date can not be null, date format: 'yyyy-MM-dd'.")
     private LocalDate startDate;
-
 
     @NotNull(message = "Course status must be set 'TRUE' or 'FALSE'.")
     private Boolean isPublished;

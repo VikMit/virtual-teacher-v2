@@ -32,7 +32,6 @@ public class CourseController {
         this.extractEntityHelper = extractEntityHelper;
     }
 
-    //Only teacher has access to create course end-point
     @PostMapping()
     public ResponseEntity<CourseFullDetailsDto> course(@RequestBody CourseFullDetailsDto courseDetailedInfoDto, Authentication loggedUser) {
         Course courseToCreate = mapper.fromCourseFullDetailsDtoToCourse(courseDetailedInfoDto);
@@ -42,16 +41,14 @@ public class CourseController {
         return new ResponseEntity<>(courseFullDetailsDto, HttpStatus.CREATED);
     }
 
-    //All users include anonymous has access to basic details of each public course
-    @GetMapping("/{courseId}/public/basic-details")
+    @GetMapping("/{courseId}/public/basic")
     public ResponseEntity<CourseBaseDetailsDto> courseBasicDetailsById(@PathVariable(name = "courseId") int courseId) {
         Course course = courseService.getPublicCourseById(courseId);
         CourseBaseDetailsDto result = mapper.fromCourseToCourseBaseDetailsDto(course);
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
-    //All users include anonymous has access to basic details of each public course
-    @GetMapping("/title/public/basic-details")
+    @GetMapping("/title/public/basic")
     public ResponseEntity<CourseBaseDetailsDto> courseBaseDetails(@RequestParam(name = "title") String title) {
         Course course = courseService.getPublicCourseByTitle(title);
         CourseBaseDetailsDto result = mapper.fromCourseToCourseBaseDetailsDto(course);
@@ -59,7 +56,7 @@ public class CourseController {
     }
 
 
-    @GetMapping("/{courseId}/full-details")
+    @GetMapping("/{courseId}/full")
     public ResponseEntity<CourseFullDetailsDto> courseFullDetailsById(@PathVariable(name = "courseId") int courseId, Authentication authentication) {
         User loggedUser = extractEntityHelper.extractUserFromAuthentication(authentication);
         Course course = courseService.getCourseById(courseId, loggedUser);
@@ -67,7 +64,7 @@ public class CourseController {
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
-    @GetMapping("/title/full-details")
+    @GetMapping("/title/full")
     public ResponseEntity<CourseFullDetailsDto> courseByTitle(@RequestParam(name = "title") String title, Authentication authentication) {
         User loggedUser = extractEntityHelper.extractUserFromAuthentication(authentication);
         Course course = courseService.getCourseByTitle(title, loggedUser);
@@ -86,8 +83,7 @@ public class CourseController {
         return new ResponseEntity<>(updatedCourse, HttpStatus.OK);
     }
 
-    //All users include anonymous has access to basic details of each public course
-    @GetMapping("/all-public/basic-details")
+    @GetMapping("/all-public/basic")
     public ResponseEntity<Set<CourseBaseDetailsDto>> getAllPublicWithBaseDetails() {
         Set<Course> allCourses = courseService.getAllPublic();
         Set<CourseBaseDetailsDto> extractedCourseBaseDetails = new HashSet<>();
@@ -98,7 +94,7 @@ public class CourseController {
         return new ResponseEntity<>(extractedCourseBaseDetails, HttpStatus.OK);
     }
 
-    @GetMapping("/all/full-details")
+    @GetMapping("/all/full")
     public ResponseEntity<Set<CourseFullDetailsDto>> getAllWithFullDetails(Authentication authentication) {
         User loggedUser = extractEntityHelper.extractUserFromAuthentication(authentication);
         Set<Course> allCourses = courseService.getAll(loggedUser);

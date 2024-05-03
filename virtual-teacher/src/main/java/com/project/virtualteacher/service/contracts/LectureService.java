@@ -10,4 +10,7 @@ public interface LectureService {
     Lecture create(Lecture lectureToCreate, User loggedUser);
 
     void delete(int lectureId, User loggedUser);
+
+    Lecture update(Lecture lectureUpdate, User loggedUser);
+    Lecture findPublicById(int lectureId);
 }

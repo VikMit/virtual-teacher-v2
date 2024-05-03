@@ -74,7 +74,7 @@ public class UserController {
         return new ResponseEntity<>("User with ID: " + id + " was unblocked", HttpStatus.OK);
     }
 
-    @PutMapping("/{id}/basic-details")
+    @PutMapping("/{id}")
     public ResponseEntity<String> updateBaseDetails(@PathVariable(name = "id") int id, @RequestBody @Valid UserBaseDetailsInDto userBaseDetailsInDto, Authentication authentication) {
         User loggedUser = extractEntityHelper.extractUserFromAuthentication(authentication);
         User userToUpdate = mapper.fromUserBaseDetailsInDtoToUser(userBaseDetailsInDto);

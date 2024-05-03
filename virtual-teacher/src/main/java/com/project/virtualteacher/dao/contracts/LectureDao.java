@@ -12,4 +12,5 @@ public interface LectureDao {
 
     void delete(Lecture lectureToDelete);
 
+    Lecture update(Lecture lectureUpdate);
 }

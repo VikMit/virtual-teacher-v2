@@ -27,7 +27,6 @@ public class LectureDaoImpl implements LectureDao {
         } catch (NoResultException e) {
             return Optional.empty();
         }
-
     }
 
     @Override
@@ -39,5 +38,10 @@ public class LectureDaoImpl implements LectureDao {
     @Override
     public void delete(Lecture lectureToDelete) {
         em.remove(lectureToDelete);
+    }
+
+    @Override
+    public Lecture update(Lecture lectureUpdate) {
+        return em.merge(lectureUpdate);
     }
 }

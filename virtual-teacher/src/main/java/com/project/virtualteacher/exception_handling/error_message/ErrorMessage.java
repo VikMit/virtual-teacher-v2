@@ -28,6 +28,9 @@ public final class ErrorMessage {
     public static final String USER_NOT_ENROLLED_LECTURE_ACCESS_DENIED = "User with username: %s is not enrolled for a course that lecture belongs.";
     public static final String LECTURE_TITLE_EXIST = "Lecture with title: %s already exist.";
     public static final String COURSE_WITH_LECTURE_NOT_FOUND = "Course containing lecture with ID: %d not found.";
+    public static final String LECTURE_NOT_FOUND_IN_COURSE = "Lecture with ID: %d NOT FOUND in course";
+    public static final String PUBLIC_LECTURE_ID_NOT_FOUND = "Public Lecture with ID: %d not found.";
+
 
 
 
