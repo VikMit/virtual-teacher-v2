@@ -73,6 +73,19 @@ public class LectureServiceImpl implements LectureService {
         return lectureDao.findById(lectureId).orElseThrow(()->new EntityNotExistException(ErrorMessage.PUBLIC_LECTURE_ID_NOT_FOUND,lectureId));
     }
 
+    @Override
+    public String getAssignment(int lectureId, User loggedUser) {
+        Lecture lecture = lectureDao.findById(lectureId).orElseThrow(()->new EntityNotExistException(ErrorMessage.LECTURE_ID_NOT_FOUND,lectureId));
+        if (validator.isTeacherOrAdmin(loggedUser)){
+            return lecture.getAssignmentUrl();
+        }
+        Course course = courseDao.getCourseByLectureId(lectureId).orElseThrow(()->new EntityNotExistException(ErrorMessage.COURSE_WITH_LECTURE_NOT_FOUND,lectureId));
+        if (validator.isUserEnrolledForCourse(loggedUser,course)){
+            return lecture.getAssignmentUrl();
+        }
+        throw new UnAuthorizeException(ErrorMessage.USER_NOT_ENROLLED, loggedUser.getUsername(),course.getTitle());
+    }
+
     private void throwIfTitleExistInCourse(Lecture lecture, Course course) {
         boolean isTitleExist = course.getLectures().stream().anyMatch(l -> l.getTitle().equalsIgnoreCase(lecture.getTitle()));
         if (isTitleExist) {

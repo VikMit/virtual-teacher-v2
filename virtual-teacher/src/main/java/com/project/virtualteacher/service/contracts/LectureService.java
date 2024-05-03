@@ -13,4 +13,6 @@ public interface LectureService {
 
     Lecture update(Lecture lectureUpdate, User loggedUser);
     Lecture findPublicById(int lectureId);
+
+    String getAssignment(int lectureId, User loggedUser);
 }

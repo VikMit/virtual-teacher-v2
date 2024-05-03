@@ -14,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/api/v1/lecture")
@@ -61,7 +62,7 @@ public class LectureController {
     public ResponseEntity<String> delete(@PathVariable(name = "lectureId") int lectureId, Authentication authentication) {
         User loggedUser = extractEntityHelper.extractUserFromAuthentication(authentication);
         lectureService.delete(lectureId, loggedUser);
-        return new ResponseEntity<>("Lecture with ID: " + lectureId + "was deleted", HttpStatus.OK);
+        return new ResponseEntity<>("Lecture with ID: " + lectureId + " was deleted", HttpStatus.OK);
     }
 
     @PutMapping("/{lectureId}")
@@ -71,6 +72,13 @@ public class LectureController {
         lectureUpdate.setId(lectureId);
         Lecture updatedLecture = lectureService.update(lectureUpdate,loggedUser);
         return new ResponseEntity<>(updatedLecture,HttpStatus.OK);
+    }
+
+    @GetMapping("/{lectureId}/assignment")
+    public ResponseEntity<String> downloadAssignment(@PathVariable(name = "lectureId")int lectureId,Authentication authentication){
+        User user = extractEntityHelper.extractUserFromAuthentication(authentication);
+        String assignmentUrl = lectureService.getAssignment(lectureId,user);
+        return new ResponseEntity<>(assignmentUrl,HttpStatus.OK);
     }
 
 }
