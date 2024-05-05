@@ -39,19 +39,48 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         return http
                 .csrf(AbstractHttpConfigurer::disable).cors(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests(auth -> auth.requestMatchers(HttpMethod.GET,"/api/v1/course/{id}/public/basic","/api/v1/role/{id}","/api/v1/course/title/basic","/api/v1/course/all-public/basic","/api/v1/lecture/{id}/public/basic","/api/v1/user/verification/{code}").permitAll()
-                        .requestMatchers(HttpMethod.POST,"/api/v1/user/register").permitAll()
-                        .requestMatchers(HttpMethod.GET,"/api/v1/user/{id}", "/api/v1/user/{id}/basic", "/api/v1/course/title","/api/v1/course/{courseId}/full","/api/v1/course/all/full","/api/v1/lecture/{lectureId}","/api/v1/lecture/{lectureId}/assignment").authenticated()
-                        .requestMatchers("/api/v1/user/{id}/block", "/api/v1/user/{id}/unblock", "/api/v1/user/{id}/role/{roleId}","/api/v1/role").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.POST,"/api/v1/course","/api/v1/lecture").hasRole("TEACHER")
-                        .requestMatchers(HttpMethod.GET, "/api/v1/course/title/full").authenticated()
-                        .requestMatchers(HttpMethod.PUT,"/api/v1/user/{id}").authenticated()
-                        .requestMatchers(HttpMethod.PUT, "/api/v1/course/{id}","/api/v1/lecture/{id}").hasRole("TEACHER")
-                        .requestMatchers(HttpMethod.PUT, "/api/v1/role/{roleId}").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.DELETE,"/api/v1/course/{id}","/api/v1/lecture/{id}").hasRole("TEACHER")
-                        .requestMatchers(HttpMethod.DELETE,"/api/v1/role/{id}").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.POST,"/api/v1/course/{id}/enroll").hasRole("STUDENT"))
-                        .httpBasic(Customizer.withDefaults())
+                .authorizeHttpRequests(auth -> auth.requestMatchers(HttpMethod.GET,
+                                "/api/v1/course/{id}/public/basic",
+                                "/api/v1/role/{id}",
+                                "/api/v1/course/title/basic",
+                                "/api/v1/course/all-public/basic",
+                                "/api/v1/lecture/{id}/public/basic",
+                                "/api/v1/user/verification/{code}").permitAll()
+                        .requestMatchers(HttpMethod.POST,
+                                "/api/v1/user/register").permitAll()
+                        .requestMatchers(HttpMethod.GET,
+                                "/api/v1/user/{id}",
+                                "/api/v1/user/{id}/basic",
+                                "/api/v1/course/title",
+                                "/api/v1/course/{courseId}/full",
+                                "/api/v1/course/all/full",
+                                "/api/v1/lecture/{lectureId}",
+                                "/api/v1/lecture/{lectureId}/assignment").authenticated()
+                        .requestMatchers(
+                                "/api/v1/user/{id}/block",
+                                "/api/v1/user/{id}/unblock",
+                                "/api/v1/user/{id}/role/{roleId}",
+                                "/api/v1/role").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.POST,
+                                "/api/v1/course",
+                                "/api/v1/lecture").hasRole("TEACHER")
+                        .requestMatchers(HttpMethod.GET,
+                                "/api/v1/course/title/full").authenticated()
+                        .requestMatchers(HttpMethod.PUT,
+                                "/api/v1/user/{id}").authenticated()
+                        .requestMatchers(HttpMethod.PUT,
+                                "/api/v1/course/{id}",
+                                "/api/v1/lecture/{id}").hasRole("TEACHER")
+                        .requestMatchers(HttpMethod.PUT,
+                                "/api/v1/role/{roleId}").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE,
+                                "/api/v1/course/{id}",
+                                "/api/v1/lecture/{id}").hasRole("TEACHER")
+                        .requestMatchers(HttpMethod.DELETE,
+                                "/api/v1/role/{id}").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.POST,
+                                "/api/v1/course/{id}/enroll").hasRole("STUDENT"))
+                .httpBasic(Customizer.withDefaults())
                 //.formLogin(Customizer.withDefaults())
                 .build();
     }
