@@ -30,6 +30,9 @@ public class VirtualTeacherUserDetails implements UserDetailsService {
         if (user.isBlocked()) {
             throw new UnAuthorizeException("User is blocked, please contact support center for further information");
         }
+        if (!user.isEmailVerified()){
+            throw new UnAuthorizeException("User not verified.");
+        }
         userName = user.getUsername();
         passWord = user.getPassword();
         authorities = new ArrayList<>();

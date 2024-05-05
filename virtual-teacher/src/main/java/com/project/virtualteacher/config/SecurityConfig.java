@@ -17,6 +17,7 @@ import org.springframework.security.provisioning.UserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 
 import javax.sql.DataSource;
+import java.util.Properties;
 
 @Configuration
 @EnableWebSecurity
@@ -38,7 +39,8 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         return http
                 .csrf(AbstractHttpConfigurer::disable).cors(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests(auth -> auth.requestMatchers(HttpMethod.GET,"/api/v1/user/register","/api/v1/course/{id}/public/basic","/api/v1/role/{id}","/api/v1/course/title/basic","/api/v1/course/all-public/basic","/api/v1/lecture/{id}/public/basic").permitAll()
+                .authorizeHttpRequests(auth -> auth.requestMatchers(HttpMethod.GET,"/api/v1/course/{id}/public/basic","/api/v1/role/{id}","/api/v1/course/title/basic","/api/v1/course/all-public/basic","/api/v1/lecture/{id}/public/basic","/api/v1/user/verification/{code}").permitAll()
+                        .requestMatchers(HttpMethod.POST,"/api/v1/user/register").permitAll()
                         .requestMatchers(HttpMethod.GET,"/api/v1/user/{id}", "/api/v1/user/{id}/basic", "/api/v1/course/title","/api/v1/course/{courseId}/full","/api/v1/course/all/full","/api/v1/lecture/{lectureId}","/api/v1/lecture/{lectureId}/assignment").authenticated()
                         .requestMatchers("/api/v1/user/{id}/block", "/api/v1/user/{id}/unblock", "/api/v1/user/{id}/role/{roleId}","/api/v1/role").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.POST,"/api/v1/course","/api/v1/lecture").hasRole("TEACHER")

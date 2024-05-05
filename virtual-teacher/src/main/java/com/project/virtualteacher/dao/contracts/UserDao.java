@@ -26,5 +26,7 @@ public interface UserDao {
 
     void unblock(int id);
 
-   // Optional<Student> findStudentByUsername(String username);
+    void verifyEmail(String code);
+
+    // Optional<Student> findStudentByUsername(String username);
 }

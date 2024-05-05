@@ -7,6 +7,8 @@ import com.project.virtualteacher.service.contracts.RoleService;
 import com.project.virtualteacher.utility.Mapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.web.bind.annotation.*;
 
 @RestController()

@@ -3,18 +3,24 @@ package com.project.virtualteacher.controller.rest;
 import com.project.virtualteacher.dto.UserBaseDetailsInDto;
 import com.project.virtualteacher.dto.UserFullDetailsInDto;
 import com.project.virtualteacher.dto.UserOutDto;
+import com.project.virtualteacher.service.MailTemplatesGeneratorServiceImpl;
 import com.project.virtualteacher.entity.User;
 import com.project.virtualteacher.service.contracts.UserService;
 import com.project.virtualteacher.utility.BindingResultCatcher;
 import com.project.virtualteacher.utility.ExtractEntityHelper;
 import com.project.virtualteacher.utility.Mapper;
 import com.project.virtualteacher.utility.ValidatorHelper;
+import jakarta.mail.*;
+import jakarta.mail.internet.InternetAddress;
+import jakarta.mail.internet.MimeMessage;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Properties;
 
 @RestController()
 @RequestMapping("/api/v1/user")
@@ -25,17 +31,22 @@ public class UserController {
     private final ValidatorHelper validatorHelper;
     private final ExtractEntityHelper extractEntityHelper;
     private final BindingResultCatcher catchInputErrors;
+    private final Properties properties;
+    private final Session emailSession;
 
-    public UserController(UserService userService, Mapper mapper, ValidatorHelper validatorHelper, ExtractEntityHelper extractEntityHelper, BindingResultCatcher catchInputErrors) {
+
+    public UserController(UserService userService, Mapper mapper, ValidatorHelper validatorHelper, ExtractEntityHelper extractEntityHelper, BindingResultCatcher catchInputErrors, Properties properties, Session emailSession) {
         this.userService = userService;
         this.mapper = mapper;
         this.validatorHelper = validatorHelper;
         this.extractEntityHelper = extractEntityHelper;
         this.catchInputErrors = catchInputErrors;
+        this.properties = properties;
+        this.emailSession = emailSession;
     }
 
     @PostMapping("/register")
-    public ResponseEntity<String> register(@RequestBody @Valid UserFullDetailsInDto userDetailedInDto, BindingResult errors) {
+    public ResponseEntity<String> register(@RequestBody @Valid UserFullDetailsInDto userDetailedInDto, BindingResult errors) throws MessagingException {
         catchInputErrors.proceedInputError(errors);
         validatorHelper.validatePassAndConfirmPass(userDetailedInDto);
         User userToCreate = mapper.fromUserFullDetailsInDtoToUser(userDetailedInDto);
@@ -44,11 +55,16 @@ public class UserController {
                 , HttpStatus.CREATED);
 
     }
+    @GetMapping("/verification/{code}")
+    public ResponseEntity<String> emailVerification(@PathVariable(name = "code")String code){
+        userService.emailVerification(code);
+        return new ResponseEntity<>("Verification successful.",HttpStatus.OK);
+    }
 
     @GetMapping("/{id}")
     public ResponseEntity<UserOutDto> getUser(@PathVariable(name = "id") int id, Authentication authentication) {
         User loggedUser = extractEntityHelper.extractUserFromAuthentication(authentication);
-        User userDb = userService.getUserById(id,loggedUser);
+        User userDb = userService.getUserById(id, loggedUser);
         UserOutDto userToReturn = mapper.fromUserToUserOutDto(userDb);
         return new ResponseEntity<>(userToReturn, HttpStatus.OK);
     }

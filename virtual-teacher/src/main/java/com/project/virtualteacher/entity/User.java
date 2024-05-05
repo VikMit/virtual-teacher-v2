@@ -44,7 +44,7 @@ public class User {
     private LocalDate dob;
 
     @ManyToOne()
-    @JoinColumn(name = "role_id",insertable=false, updatable=false)
+    @JoinColumn(name = "role_id")
     private Role role;
 
     @ManyToOne()
@@ -53,6 +53,12 @@ public class User {
 
     @Column(name = "blocked")
     private boolean isBlocked;
+
+    @Column(name = "is_verified")
+    private boolean isEmailVerified;
+
+    @Column(name = "email_code")
+    private String emailCode;
 
 }
 

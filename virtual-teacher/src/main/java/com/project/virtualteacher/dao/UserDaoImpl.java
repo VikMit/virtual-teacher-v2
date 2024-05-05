@@ -97,6 +97,16 @@ public class UserDaoImpl implements UserDao {
     }
 
     @Override
+    public void verifyEmail(String code) {
+        Query query = em.createQuery("UPDATE User u SET u.isEmailVerified = true WHERE emailCode LIKE :code");
+        query.setParameter("code",code);
+        int result = query.executeUpdate();
+        if (result<1){
+            throw new EntityNotExistException("Verification declined.");
+        }
+    }
+
+    @Override
     public Optional<User> findById(int userId) {
         User user = em.find(User.class, userId);
         if (user == null) {
