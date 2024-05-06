@@ -12,4 +12,7 @@ public interface TopicDao {
     Optional<Topic> getByValue(String value);
 
     Optional<Topic> getById(int id);
+
+    Topic update(Topic topicToUpdate);
+
 }

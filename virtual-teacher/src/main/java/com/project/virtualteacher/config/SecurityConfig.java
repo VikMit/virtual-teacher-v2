@@ -69,7 +69,8 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET,
                                 "/api/v1/course/title/full").authenticated()
                         .requestMatchers(HttpMethod.PUT,
-                                "/api/v1/user/{id}").authenticated()
+                                "/api/v1/user/{id}",
+                                "/api/v1/topic/{topicId}").authenticated()
                         .requestMatchers(HttpMethod.PUT,
                                 "/api/v1/course/{id}",
                                 "/api/v1/lecture/{id}").hasRole("TEACHER")

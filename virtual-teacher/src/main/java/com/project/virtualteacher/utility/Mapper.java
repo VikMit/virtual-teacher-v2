@@ -161,4 +161,11 @@ public final class Mapper {
         topic.setTopic(topicDto.getTopic());
         return topic;
     }
+
+    public TopicDto fromTopicToTopicDto(Topic updatedTopic) {
+        TopicDto result = new TopicDto();
+        result.setId(updatedTopic.getId());
+        result.setTopic(updatedTopic.getTopic());
+        return result;
+    }
 }

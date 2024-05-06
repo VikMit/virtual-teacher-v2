@@ -55,4 +55,9 @@ public class TopicDaoImpl implements TopicDao {
         }
         return Optional.of(topic);
     }
+
+    @Override
+    public Topic update(Topic topicToUpdate) {
+        return em.merge(topicToUpdate);
+    }
 }
