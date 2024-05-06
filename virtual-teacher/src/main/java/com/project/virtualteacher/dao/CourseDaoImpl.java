@@ -44,13 +44,11 @@ public class CourseDaoImpl implements CourseDao {
 
     @Override
     public Optional<Course> getCourseById(int id) {
-        TypedQuery<Course> query = em.createQuery("FROM Course WHERE id = :id", Course.class);
-        query.setParameter("id", id);
-        try {
-            return Optional.of(query.getSingleResult());
-        } catch (NoResultException e) {
+        Course course = em.find(Course.class, id);
+        if (course == null) {
             return Optional.empty();
         }
+        return Optional.of(course);
     }
 
     @Override
@@ -122,14 +120,12 @@ public class CourseDaoImpl implements CourseDao {
     public Optional<Course> getCourseByLectureId(int lectureId) {
         TypedQuery<Course> query = em.createQuery("FROM Course WHERE element(lectures).id = :lectureId", Course.class);
         query.setParameter("lectureId", lectureId);
-
         try {
-           return   Optional.of(query.getSingleResult());
+            return Optional.of(query.getSingleResult());
 
         } catch (NoResultException e) {
 
             return Optional.empty();
         }
     }
-
 }

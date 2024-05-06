@@ -1,14 +1,11 @@
 package com.project.virtualteacher.controller.rest;
 
-import com.project.virtualteacher.dto.RoleCreateDtoIn;
-import com.project.virtualteacher.dto.RoleDto;
+import com.project.virtualteacher.dto.RoleCreateDto;
 import com.project.virtualteacher.entity.Role;
 import com.project.virtualteacher.service.contracts.RoleService;
 import com.project.virtualteacher.utility.Mapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.web.bind.annotation.*;
 
 @RestController()
@@ -30,14 +27,14 @@ public class RoleController {
     }
 
     @PostMapping()
-    public ResponseEntity<String> create(@RequestBody() RoleCreateDtoIn roleCreateDtoIn) {
-        Role roleToCreate = mapper.fromRoleCreateDtoInToRole(roleCreateDtoIn);
+    public ResponseEntity<String> create(@RequestBody() RoleCreateDto roleCreateDto) {
+        Role roleToCreate = mapper.fromRoleCreateDtoInToRole(roleCreateDto);
         roleService.create(roleToCreate);
-        return new ResponseEntity<>("Role '" + roleCreateDtoIn.getValue().toUpperCase() + "' was created.", HttpStatus.CREATED);
+        return new ResponseEntity<>("Role '" + roleCreateDto.getValue().toUpperCase() + "' was created.", HttpStatus.CREATED);
     }
 
     @PutMapping("/{roleId}")
-    public ResponseEntity<Role> update(@PathVariable(name = "roleId") int roleId, @RequestBody() RoleCreateDtoIn updateRole) {
+    public ResponseEntity<Role> update(@PathVariable(name = "roleId") int roleId, @RequestBody() RoleCreateDto updateRole) {
         Role roleUpdate = mapper.fromRoleCreateDtoInToRole(updateRole);
         roleUpdate = roleService.update(roleUpdate, roleId);
         return new ResponseEntity<>(roleUpdate, HttpStatus.OK);

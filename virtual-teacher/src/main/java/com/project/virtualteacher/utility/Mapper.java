@@ -1,17 +1,14 @@
 package com.project.virtualteacher.utility;
 
-import com.project.virtualteacher.dao.contracts.CourseDao;
-import com.project.virtualteacher.dao.contracts.RoleDao;
-import com.project.virtualteacher.dao.contracts.UserDao;
+import com.project.virtualteacher.dao.contracts.*;
 import com.project.virtualteacher.dto.*;
-import com.project.virtualteacher.entity.Course;
-import com.project.virtualteacher.entity.Lecture;
-import com.project.virtualteacher.entity.Role;
-import com.project.virtualteacher.entity.User;
+import com.project.virtualteacher.entity.*;
 import com.project.virtualteacher.exception_handling.error_message.ErrorMessage;
 import com.project.virtualteacher.exception_handling.exceptions.EntityNotExistException;
 import org.springframework.stereotype.Component;
 
+import java.util.HashSet;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Component
@@ -19,11 +16,15 @@ public final class Mapper {
 
     private final RoleDao roleDao;
     private final CourseDao courseDao;
+    private final LectureDao lectureDao;
+    private final TopicDao topicDao;
 
 
-    public Mapper(RoleDao roleDao, UserDao userDao, CourseDao courseDao) {
+    public Mapper(RoleDao roleDao, UserDao userDao, CourseDao courseDao, LectureDao lectureDao, TopicDao topicDao, UserDao userDao1) {
         this.roleDao = roleDao;
         this.courseDao = courseDao;
+        this.lectureDao = lectureDao;
+        this.topicDao = topicDao;
     }
 
     public User fromUserFullDetailsInDtoToUser(UserFullDetailsInDto detailedUserInDto) {
@@ -61,29 +62,34 @@ public final class Mapper {
         return userToUpdate;
     }
 
-    public Course fromCourseFullDetailsDtoToCourse(CourseFullDetailsDto courseDetailedInfoDto) {
+    public Course fromCourseCreateDtoToCourse(CourseCreateDto courseCreateDto) {
         Course course = new Course();
-        course.setDescription(courseDetailedInfoDto.getDescription());
-        course.setPublished(courseDetailedInfoDto.getIsPublished());
-        course.setPassingGrade(courseDetailedInfoDto.getPassingGrade());
-        course.setTitle(courseDetailedInfoDto.getTitle());
-        course.setStartDate(courseDetailedInfoDto.getStartDate());
-        course.setLectures(courseDetailedInfoDto.getLectures());
+        course.setDescription(courseCreateDto.getDescription());
+        course.setPublished(courseCreateDto.getIsPublished());
+        course.setPassingGrade(courseCreateDto.getPassingGrade());
+        course.setTitle(courseCreateDto.getTitle());
+        course.setStartDate(courseCreateDto.getStartDate());
+        Set<Lecture> lectures = new HashSet<>();
+        course.setLectures(lectures);
+        Set<Topic> topics = new HashSet<>();
+        courseCreateDto.getTopics().forEach(topic -> topics.add(topicDao.getById(topic)
+                .orElseThrow(() -> new EntityNotExistException(ErrorMessage.TOPIC_ID_NOT_EXIST, topic))));
+        course.setTopics(topics);
         return course;
     }
 
-    public Course fromCourseBaseDetailsDtoToCourse(CourseBaseDetailsDto courseBaseDetailsDto) {
+    public Course fromCourseBaseDetailsOutDtoToCourse(CourseBaseDetailsOutDto courseBaseDetailsOutDto) {
         Course course = new Course();
-        course.setTitle(courseBaseDetailsDto.getTitle());
-        course.setStartDate(courseBaseDetailsDto.getStartDate());
-        course.setPublished(courseBaseDetailsDto.getIsPublished());
-        course.setPassingGrade(courseBaseDetailsDto.getPassingGrade());
-        course.setDescription(courseBaseDetailsDto.getDescription());
+        course.setTitle(courseBaseDetailsOutDto.getTitle());
+        course.setStartDate(courseBaseDetailsOutDto.getStartDate());
+        course.setPublished(courseBaseDetailsOutDto.getIsPublished());
+        course.setPassingGrade(courseBaseDetailsOutDto.getPassingGrade());
+        course.setDescription(courseBaseDetailsOutDto.getDescription());
         return course;
     }
 
-    public CourseBaseDetailsDto fromCourseToCourseBaseDetailsDto(Course updatedCourse) {
-        CourseBaseDetailsDto result = new CourseBaseDetailsDto();
+    public CourseBaseDetailsOutDto fromCourseToCourseBaseDetailsOutDto(Course updatedCourse) {
+        CourseBaseDetailsOutDto result = new CourseBaseDetailsOutDto();
         result.setCreator(fromUserToUserOutDto(updatedCourse.getTeacher()));
         result.setIsPublished(updatedCourse.isPublished());
         result.setDescription(updatedCourse.getDescription());
@@ -93,8 +99,8 @@ public final class Mapper {
         return result;
     }
 
-    public CourseFullDetailsDto fromCourseToCourseFullDetailsDto(Course course) {
-        CourseFullDetailsDto result = new CourseFullDetailsDto();
+    public CourseFullDetailsOutDto fromCourseToCourseFullDetailsOutDto(Course course) {
+        CourseFullDetailsOutDto result = new CourseFullDetailsOutDto();
         result.setCreator(fromUserToUserOutDto(course.getTeacher()));
         result.setIsPublished(course.isPublished());
         result.setDescription(course.getDescription());
@@ -107,9 +113,9 @@ public final class Mapper {
         return result;
     }
 
-    public Role fromRoleCreateDtoInToRole(RoleCreateDtoIn roleCreateDtoIn) {
+    public Role fromRoleCreateDtoInToRole(RoleCreateDto roleCreateDto) {
         Role role = new Role();
-        role.setValue(roleCreateDtoIn.getValue());
+        role.setValue(roleCreateDto.getValue());
         return role;
     }
 
@@ -149,5 +155,10 @@ public final class Mapper {
         result.setDescription(lecture.getDescription());
         result.setTitle(lecture.getTitle());
         return result;
+    }
+    public Topic fromTopicDtoToTopic(TopicDto topicDto){
+        Topic topic = new Topic();
+        topic.setTopic(topicDto.getTopic());
+        return topic;
     }
 }

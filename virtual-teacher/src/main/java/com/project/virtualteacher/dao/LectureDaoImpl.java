@@ -20,13 +20,13 @@ public class LectureDaoImpl implements LectureDao {
     @Override
     public Optional<Lecture> findById(int lectureId) {
 
-        TypedQuery<Lecture> query = em.createQuery("FROM Lecture WHERE id = :lectureId", Lecture.class);
-        query.setParameter("lectureId", lectureId);
-        try {
-            return Optional.of(query.getSingleResult());
-        } catch (NoResultException e) {
+        Lecture lecture = em.find(Lecture.class,lectureId);
+        if (lecture==null){
             return Optional.empty();
         }
+
+        return Optional.of(lecture);
+
     }
 
     @Override

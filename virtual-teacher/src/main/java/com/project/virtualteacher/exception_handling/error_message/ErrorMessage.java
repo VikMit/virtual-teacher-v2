@@ -30,6 +30,9 @@ public final class ErrorMessage {
     public static final String COURSE_WITH_LECTURE_NOT_FOUND = "Course containing lecture with ID: %d not found.";
     public static final String LECTURE_NOT_FOUND_IN_COURSE = "Lecture with ID: %d NOT FOUND in course";
     public static final String PUBLIC_LECTURE_ID_NOT_FOUND = "Public Lecture with ID: %d not found.";
+    public static final String TOPIC_NAME_EXIST = "Topic with value: %s already exist.";
+    public static final String TOPIC_ID_NOT_EXIST = "Topic with ID: %d not exist.";
+    public static final String ADMIN_TEACHER_PERMISSION = "Operation only for TEACHERS and ADMINS.";
 
 
 

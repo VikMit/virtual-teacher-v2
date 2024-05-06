@@ -48,6 +48,8 @@ public class SecurityConfig {
                                 "/api/v1/user/verification/{code}").permitAll()
                         .requestMatchers(HttpMethod.POST,
                                 "/api/v1/user/register").permitAll()
+                        .requestMatchers(HttpMethod.POST,
+                                "/api/v1/topic").authenticated()
                         .requestMatchers(HttpMethod.GET,
                                 "/api/v1/user/{id}",
                                 "/api/v1/user/{id}/basic",

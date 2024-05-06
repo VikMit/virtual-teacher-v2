@@ -1,13 +1,17 @@
 package com.project.virtualteacher.dto;
 
-import jakarta.validation.constraints.*;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.Data;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDate;
+import java.util.Set;
 
 @Data
-public class CourseBaseDetailsDto {
+public class CourseCreateDto {
 
     private int id;
 
@@ -32,6 +36,9 @@ public class CourseBaseDetailsDto {
 
     private UserOutDto creator;
 
+    private Set<Integer> topics;
+
+
     public void setTitle(String title) {
         this.title = title.trim();
     }
@@ -39,4 +46,7 @@ public class CourseBaseDetailsDto {
     public void setDescription(String description) {
         this.description = description.trim();
     }
+
+
+
 }

@@ -2,6 +2,8 @@ package com.project.virtualteacher.dao;
 
 import com.project.virtualteacher.dao.contracts.RoleDao;
 import com.project.virtualteacher.entity.Role;
+import com.project.virtualteacher.exception_handling.error_message.ErrorMessage;
+import com.project.virtualteacher.exception_handling.exceptions.EntityExistException;
 import jakarta.persistence.*;
 import org.springframework.stereotype.Repository;
 
@@ -21,7 +23,6 @@ public class RoleDaoImpl implements RoleDao {
         Role role = em.find(Role.class, id);
         if (role == null) {
             return Optional.empty();
-            // throw new RoleNotFoundException(ErrorMessage.ROLE_ID_NOT_FOUND,id);
         }
         return Optional.of(role);
     }
@@ -34,7 +35,7 @@ public class RoleDaoImpl implements RoleDao {
 
         try {
             Role role = query.getSingleResult();
-            return Optional.of(role);
+            return Optional.ofNullable(role);
 
         } catch (NoResultException e) {
             return Optional.empty();
@@ -51,7 +52,13 @@ public class RoleDaoImpl implements RoleDao {
 
     @Override
     public void create(Role roleToCreate) {
-        em.persist(roleToCreate);
+        try {
+
+            em.persist(roleToCreate);
+        }
+        catch (EntityExistsException e){
+            throw new EntityExistException(ErrorMessage.ROLE_NAME_EXIST,roleToCreate.getValue());
+        }
     }
 
     @Override

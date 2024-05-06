@@ -4,7 +4,7 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
 @Data
-public class RoleCreateDtoIn {
+public class RoleCreateDto {
 
     @NotBlank
     private String value;

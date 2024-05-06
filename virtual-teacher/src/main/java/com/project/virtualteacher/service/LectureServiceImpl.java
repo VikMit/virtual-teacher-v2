@@ -54,7 +54,7 @@ public class LectureServiceImpl implements LectureService {
         Lecture lectureToDelete = lectureDao.findById(lectureId).orElseThrow(() -> new EntityNotExistException(ErrorMessage.LECTURE_ID_NOT_FOUND, lectureId));
         Course course = courseDao.getCourseByLectureId(lectureId).orElseThrow(() -> new EntityNotExistException(ErrorMessage.COURSE_WITH_LECTURE_NOT_FOUND, lectureId));
         validator.isCreatorOfCourse(course, loggedUser);
-        solutionDao.delete(lectureId);
+        solutionDao.deleteAllForLecture(lectureId);
         lectureDao.delete(lectureToDelete);
     }
 

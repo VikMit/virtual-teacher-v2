@@ -34,17 +34,6 @@ public class UserDaoImpl implements UserDao {
         }
     }
 
-  /*  @Override
-    public Optional<Student> findStudentByUsername(String username){
-        TypedQuery<Student> query = em.createQuery("FROM Student WHERE username = :username",Student.class);
-        query.setParameter("username",username);
-        try {
-            return Optional.of(query.getSingleResult());
-        } catch (NoResultException e){
-            return Optional.empty();
-        }
-    }*/
-
     @Override
     public void create(User user) {
         em.persist(user);

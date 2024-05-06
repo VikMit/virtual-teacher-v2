@@ -44,14 +44,20 @@ public class ValidatorHelper {
         }
     }
 
-    public boolean isUserEnrolledForCourse(User user, Course course){
+    public boolean isUserEnrolledForCourse(User user, Course course) {
         return course.getEnrolledStudents().contains(user);
     }
 
-    public void isLectureTitleExistInCourse(Course course,String title) {
+    public void isLectureTitleExistInCourse(Course course, String title) {
         boolean titleExist = course.getLectures().stream().anyMatch(lecture -> lecture.getTitle().equalsIgnoreCase(title));
-        if (titleExist){
-            throw new EntityExistException(ErrorMessage.LECTURE_TITLE_EXIST,title);
+        if (titleExist) {
+            throw new EntityExistException(ErrorMessage.LECTURE_TITLE_EXIST, title);
+        }
+    }
+
+    public void throwIfNotTeacherOrAdmin(User user) {
+        if (!isTeacherOrAdmin(user)){
+            throw new UnAuthorizeException(ErrorMessage.ADMIN_TEACHER_PERMISSION);
         }
     }
 }
