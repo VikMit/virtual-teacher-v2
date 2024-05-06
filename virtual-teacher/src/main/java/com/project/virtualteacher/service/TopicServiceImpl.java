@@ -35,4 +35,9 @@ public class TopicServiceImpl implements TopicService {
         topicToUpdate.setTopic(topicUpdate.getTopic());
         return topicDao.update(topicToUpdate);
     }
+
+    @Override
+    public Topic getById(int topicId) {
+        return topicDao.getById(topicId).orElseThrow(()->new EntityNotExistException(ErrorMessage.TOPIC_ID_NOT_EXIST,topicId));
+    }
 }

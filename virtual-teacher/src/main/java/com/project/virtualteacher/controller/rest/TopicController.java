@@ -47,4 +47,10 @@ public class TopicController {
         return new ResponseEntity<>(result,HttpStatus.OK);
     }
 
+    @GetMapping("/{topicId}")
+    public ResponseEntity<TopicDto> getById(@PathVariable(name = "topicId") int topicId){
+        Topic topicDb = topicService.getById(topicId);
+        TopicDto result = mapper.fromTopicToTopicDto(topicDb);
+        return new ResponseEntity<>(result,HttpStatus.OK);
+    }
 }

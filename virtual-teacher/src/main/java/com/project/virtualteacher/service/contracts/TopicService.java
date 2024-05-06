@@ -8,4 +8,6 @@ public interface TopicService {
     Topic create(Topic topic, User user);
 
     Topic update(int id, Topic topicUpdate, User loggedUser);
+
+    Topic getById(int topicId);
 }
