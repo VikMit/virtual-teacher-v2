@@ -60,4 +60,9 @@ public class TopicDaoImpl implements TopicDao {
     public Topic update(Topic topicToUpdate) {
         return em.merge(topicToUpdate);
     }
+
+    /*@Override
+    public void removeTopicCoursesRelation(int id) {
+        Query query = em.createQuery("DELETE FROM ")
+    }*/
 }

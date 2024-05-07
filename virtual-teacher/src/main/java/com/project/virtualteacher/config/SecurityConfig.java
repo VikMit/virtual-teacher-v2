@@ -58,6 +58,8 @@ public class SecurityConfig {
                                 "/api/v1/course/all/full",
                                 "/api/v1/lecture/{lectureId}",
                                 "/api/v1/lecture/{lectureId}/assignment").authenticated()
+                        .requestMatchers(HttpMethod.DELETE,
+                                "/api/v1/topic/{topicId}").authenticated()
                         .requestMatchers(
                                 "/api/v1/user/{id}/block",
                                 "/api/v1/user/{id}/unblock",

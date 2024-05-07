@@ -37,20 +37,28 @@ public class TopicController {
         bindingErrorCatcher.proceedInputError(errors);
         return new ResponseEntity<>(topicToCreate, HttpStatus.CREATED);
     }
+
     @PutMapping("/{topicId}")
-    public ResponseEntity<TopicDto> update(@RequestBody @Valid TopicDto topicUpdate,@PathVariable(name = "topicId") int id,BindingResult errors ,Authentication authentication){
+    public ResponseEntity<TopicDto> update(@RequestBody @Valid TopicDto topicUpdate, @PathVariable(name = "topicId") int id, BindingResult errors, Authentication authentication) {
         User loggedUser = extractEntityHelper.extractUserFromAuthentication(authentication);
         Topic topicToUpdate = mapper.fromTopicDtoToTopic(topicUpdate);
-        Topic updatedTopic = topicService.update(id,topicToUpdate,loggedUser);
+        Topic updatedTopic = topicService.update(id, topicToUpdate, loggedUser);
         TopicDto result = mapper.fromTopicToTopicDto(updatedTopic);
         bindingErrorCatcher.proceedInputError(errors);
-        return new ResponseEntity<>(result,HttpStatus.OK);
+        return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
     @GetMapping("/{topicId}")
-    public ResponseEntity<TopicDto> getById(@PathVariable(name = "topicId") int topicId){
+    public ResponseEntity<TopicDto> getById(@PathVariable(name = "topicId") int topicId) {
         Topic topicDb = topicService.getById(topicId);
         TopicDto result = mapper.fromTopicToTopicDto(topicDb);
-        return new ResponseEntity<>(result,HttpStatus.OK);
+        return new ResponseEntity<>(result, HttpStatus.OK);
+    }
+
+    @DeleteMapping("/{topicId}")
+    public ResponseEntity<String> delete(@PathVariable(name = "topicId") int id,Authentication authentication) {
+        User loggedUser = extractEntityHelper.extractUserFromAuthentication(authentication);
+        topicService.delete(id,loggedUser);
+        return new ResponseEntity<>("Topic with ID: " + id + " was deleted.", HttpStatus.OK);
     }
 }

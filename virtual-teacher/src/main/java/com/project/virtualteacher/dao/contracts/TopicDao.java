@@ -15,4 +15,5 @@ public interface TopicDao {
 
     Topic update(Topic topicToUpdate);
 
+  /*  void removeTopicCoursesRelation(int id);*/
 }

@@ -10,4 +10,6 @@ public interface TopicService {
     Topic update(int id, Topic topicUpdate, User loggedUser);
 
     Topic getById(int topicId);
+
+    void delete(int id,User loggedUser);
 }

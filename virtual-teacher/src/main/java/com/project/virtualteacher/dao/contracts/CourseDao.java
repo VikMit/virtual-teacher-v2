@@ -4,6 +4,7 @@ import com.project.virtualteacher.entity.Course;
 import com.project.virtualteacher.entity.EnrollStudent;
 import com.project.virtualteacher.entity.User;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -32,5 +33,7 @@ public interface CourseDao {
     void enrollUserForCourse(EnrollStudent student);
 
     Optional<Course> getCourseByLectureId(int lectureId);
+
+    List<Course> getCoursesByTopic(String topic);
 }
 

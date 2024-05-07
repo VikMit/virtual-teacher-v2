@@ -13,6 +13,7 @@ import org.springframework.stereotype.Repository;
 
 import java.sql.SQLOutput;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -127,5 +128,12 @@ public class CourseDaoImpl implements CourseDao {
 
             return Optional.empty();
         }
+    }
+
+    @Override
+    public List<Course> getCoursesByTopic(String topic) {
+        TypedQuery<Course> query = em.createQuery("FROM Course WHERE element(topics).topic LIKE :topic",Course.class);
+        query.setParameter("topic",topic);
+        return query.getResultList();
     }
 }
