@@ -6,7 +6,7 @@ import jakarta.validation.constraints.Size;
 import lombok.*;
 
 @Data
-public class LectureBaseDetailsDto {
+public class LectureBaseDto {
 
     private Integer id;
 

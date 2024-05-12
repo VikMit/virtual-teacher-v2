@@ -15,6 +15,9 @@ import com.project.virtualteacher.utility.ValidatorHelper;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Service
 public class LectureServiceImpl implements LectureService {
 
@@ -33,11 +36,13 @@ public class LectureServiceImpl implements LectureService {
     @Override
     public Lecture findById(int lectureId, User loggedUser) {
         Lecture lecture = lectureDao.findById(lectureId).orElseThrow(() -> new EntityNotExistException(ErrorMessage.LECTURE_ID_NOT_FOUND, lectureId));
-        if (validator.isTeacherOrAdmin(loggedUser) || validator.isUserEnrolledForCourse(loggedUser, lecture.getCourse())) {
+        if (validator.isTeacherOrAdmin(loggedUser)) {
             return lecture;
-        } else {
-            throw new UnAuthorizeException(ErrorMessage.USER_NOT_ENROLLED_LECTURE_ACCESS_DENIED, loggedUser.getUsername());
+        } else if (validator.isUserEnrolledForCourse(loggedUser, lecture.getCourse())){
+            lecture.setSolutions(new ArrayList<>());
+            return lecture;
         }
+            throw new UnAuthorizeException(ErrorMessage.USER_NOT_ENROLLED_LECTURE_ACCESS_DENIED, loggedUser.getUsername());
     }
 
     @Override

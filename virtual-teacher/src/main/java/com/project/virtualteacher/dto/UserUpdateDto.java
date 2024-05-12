@@ -7,7 +7,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import java.time.LocalDate;
 
 @Data
-public class UserBaseDetailsInDto {
+public class UserUpdateDto {
 
     @NotBlank(message = "First name can not be empty")
     @Size(min = 1, max = 32, message = "First name must be in range min = 1 and max = 32 characters.")

@@ -1,6 +1,6 @@
 package com.project.virtualteacher.config;
 
-import com.project.virtualteacher.service.VirtualTeacherUserDetails;
+import com.project.virtualteacher.service.UserSecurityDetails;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -9,7 +9,6 @@ import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.JdbcUserDetailsManager;
@@ -17,15 +16,14 @@ import org.springframework.security.provisioning.UserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 
 import javax.sql.DataSource;
-import java.util.Properties;
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
 
-    private final VirtualTeacherUserDetails userDetails;
+    private final UserSecurityDetails userDetails;
 
-    public SecurityConfig(VirtualTeacherUserDetails userDetails) {
+    public SecurityConfig(UserSecurityDetails userDetails) {
         this.userDetails = userDetails;
     }
 
@@ -45,7 +43,8 @@ public class SecurityConfig {
                                 "/api/v1/course/title/basic",
                                 "/api/v1/course/all-public/basic",
                                 "/api/v1/lecture/{id}/public/basic",
-                                "/api/v1/user/verification/{code}").permitAll()
+                                "/api/v1/user/verification/{code}",
+                                "/api/v1/user/student/{studentId}").permitAll()
                         .requestMatchers(HttpMethod.POST,
                                 "/api/v1/user/register").permitAll()
                         .requestMatchers(HttpMethod.POST,
@@ -57,7 +56,9 @@ public class SecurityConfig {
                                 "/api/v1/course/{courseId}/full",
                                 "/api/v1/course/all/full",
                                 "/api/v1/lecture/{lectureId}",
-                                "/api/v1/lecture/{lectureId}/assignment").authenticated()
+                                "/api/v1/lecture/{lectureId}/assignment",
+                                "/api/v1/user/student/{studentId}",
+                                "/api/v1/user/teacher/{teacherId}").authenticated()
                         .requestMatchers(HttpMethod.DELETE,
                                 "/api/v1/topic/{topicId}").authenticated()
                         .requestMatchers(
@@ -83,6 +84,8 @@ public class SecurityConfig {
                                 "/api/v1/lecture/{id}").hasRole("TEACHER")
                         .requestMatchers(HttpMethod.DELETE,
                                 "/api/v1/role/{id}").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.POST,
+                                "/api/v1/role").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.POST,
                                 "/api/v1/course/{id}/enroll").hasRole("STUDENT"))
                 .httpBasic(Customizer.withDefaults())

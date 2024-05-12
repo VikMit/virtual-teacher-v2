@@ -1,7 +1,7 @@
 package com.project.virtualteacher.controller.rest;
 
-import com.project.virtualteacher.dto.LectureBaseDetailsDto;
-import com.project.virtualteacher.dto.LectureFullDetailsDto;
+import com.project.virtualteacher.dto.LectureBaseDto;
+import com.project.virtualteacher.dto.LectureFullDto;
 import com.project.virtualteacher.entity.Lecture;
 import com.project.virtualteacher.entity.User;
 import com.project.virtualteacher.service.contracts.LectureService;
@@ -33,23 +33,23 @@ public class LectureController {
     }
 
     @GetMapping("/{lectureId}")
-    public ResponseEntity<LectureFullDetailsDto> lecture(@PathVariable(name = "lectureId") int lectureId, Authentication authentication) {
+    public ResponseEntity<LectureFullDto> lecture(@PathVariable(name = "lectureId") int lectureId, Authentication authentication) {
         User loggedUser = extractEntityHelper.extractUserFromAuthentication(authentication);
         Lecture lecture = lectureService.findById(lectureId, loggedUser);
-        LectureFullDetailsDto lectureToReturn = mapper.fromLectureToLectureFullDetailsDto(lecture);
+        LectureFullDto lectureToReturn = mapper.fromLectureToLectureFullDto(lecture);
         return new ResponseEntity<>(lectureToReturn, HttpStatus.OK);
     }
 
     @GetMapping("/{lectureId}/public/basic")
-    public ResponseEntity<LectureBaseDetailsDto> lectureBasic(@PathVariable(name = "lectureId") int lectureId){
+    public ResponseEntity<LectureBaseDto> lectureBasic(@PathVariable(name = "lectureId") int lectureId){
         Lecture lecture = lectureService.findPublicById(lectureId);
-        LectureBaseDetailsDto lectureToReturn = mapper.fromLectureToLectureBaseDetailsDto(lecture);
+        LectureBaseDto lectureToReturn = mapper.fromLectureToLectureBaseDto(lecture);
         return new ResponseEntity<>(lectureToReturn,HttpStatus.OK);
     }
 
     @PostMapping()
-    public ResponseEntity<Lecture> create(@RequestBody @Valid LectureBaseDetailsDto lectureBaseDetailsDto, BindingResult errors, Authentication authentication) {
-        Lecture lectureToCreate = mapper.fromLectureBaseDetailsDtoToLecture(lectureBaseDetailsDto);
+    public ResponseEntity<Lecture> create(@RequestBody @Valid LectureBaseDto lectureBaseDto, BindingResult errors, Authentication authentication) {
+        Lecture lectureToCreate = mapper.fromLectureBaseDtoToLecture(lectureBaseDto);
         catchInputErrors.proceedInputError(errors);
         User loggedUser = extractEntityHelper.extractUserFromAuthentication(authentication);
         Lecture createdLecture = lectureService.create(lectureToCreate, loggedUser);
@@ -65,9 +65,9 @@ public class LectureController {
     }
 
     @PutMapping("/{lectureId}")
-    public ResponseEntity<Lecture> update(@PathVariable(name = "lectureId") int lectureId, @RequestBody @Valid LectureBaseDetailsDto lectureBaseDetailsDto, BindingResult errors, Authentication authentication){
+    public ResponseEntity<Lecture> update(@PathVariable(name = "lectureId") int lectureId, @RequestBody @Valid LectureBaseDto lectureBaseDto, BindingResult errors, Authentication authentication){
         User loggedUser = extractEntityHelper.extractUserFromAuthentication(authentication);
-        Lecture lectureUpdate = mapper.fromLectureBaseDetailsDtoToLecture(lectureBaseDetailsDto);
+        Lecture lectureUpdate = mapper.fromLectureBaseDtoToLecture(lectureBaseDto);
         lectureUpdate.setId(lectureId);
         Lecture updatedLecture = lectureService.update(lectureUpdate,loggedUser);
         return new ResponseEntity<>(updatedLecture,HttpStatus.OK);

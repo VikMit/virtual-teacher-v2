@@ -1,8 +1,7 @@
 package com.project.virtualteacher.utility;
 
-import com.project.virtualteacher.dto.UserFullDetailsInDto;
+import com.project.virtualteacher.dto.UserCreateDto;
 import com.project.virtualteacher.entity.Course;
-import com.project.virtualteacher.entity.Lecture;
 import com.project.virtualteacher.entity.User;
 import com.project.virtualteacher.exception_handling.error_message.ErrorMessage;
 import com.project.virtualteacher.exception_handling.exceptions.EntityExistException;
@@ -15,7 +14,7 @@ import static com.project.virtualteacher.exception_handling.error_message.ErrorM
 @Component
 public class ValidatorHelper {
 
-    public void validatePassAndConfirmPass(UserFullDetailsInDto user) {
+    public void validatePassAndConfirmPass(UserCreateDto user) {
         if (!user.getPassword().equals(user.getConfirmPassword())) {
             throw new IncorrectInputException(INCORRECT_CONFIRM_PASSWORD);
         }
@@ -60,4 +59,10 @@ public class ValidatorHelper {
             throw new UnAuthorizeException(ErrorMessage.ADMIN_TEACHER_PERMISSION);
         }
     }
+    public void throwIfNotAdmin(User user){
+        if (!isAdmin(user)){
+            throw new UnAuthorizeException(ErrorMessage.ADMIN_PERMISSION_REQUIREMENT);
+        }
+    }
+
 }

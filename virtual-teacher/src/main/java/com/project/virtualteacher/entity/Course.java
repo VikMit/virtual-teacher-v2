@@ -1,8 +1,11 @@
 package com.project.virtualteacher.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import lombok.*;
-import org.hibernate.annotations.Cascade;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.time.LocalDate;
 import java.util.HashSet;
@@ -25,12 +28,10 @@ public class Course {
     @Column(name = "start_date")
     private LocalDate startDate;
 
-    @OneToMany(mappedBy = "course")
-    @Cascade(org.hibernate.annotations.CascadeType.ALL)
-   // @JoinTable(name = "course_lecture", joinColumns = @JoinColumn(name = "course_id"), inverseJoinColumns = @JoinColumn(name = "lecture_id"))
+    @OneToMany(mappedBy = "course", cascade = CascadeType.ALL)
     private Set<Lecture> lectures;
 
-    @OneToMany(fetch = FetchType.EAGER)
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "course_topic", joinColumns = @JoinColumn(name = "course_id"), inverseJoinColumns = @JoinColumn(name = "topic_id"))
     private Set<Topic> topics;
 
@@ -49,6 +50,7 @@ public class Course {
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "user_course", joinColumns = @JoinColumn(name = "course_id"), inverseJoinColumns = @JoinColumn(name = "user_id"))
-    Set<User> enrolledStudents = new HashSet<>();
+    @JsonIgnore
+    Set<Student> enrolledStudents = new HashSet<>();
 
 }

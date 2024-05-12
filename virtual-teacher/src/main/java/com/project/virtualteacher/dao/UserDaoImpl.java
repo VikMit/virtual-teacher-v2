@@ -2,13 +2,12 @@ package com.project.virtualteacher.dao;
 
 
 import com.project.virtualteacher.dao.contracts.UserDao;
+import com.project.virtualteacher.entity.Student;
+import com.project.virtualteacher.entity.Teacher;
 import com.project.virtualteacher.entity.User;
 import com.project.virtualteacher.exception_handling.error_message.ErrorMessage;
 import com.project.virtualteacher.exception_handling.exceptions.EntityNotExistException;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.NoResultException;
-import jakarta.persistence.Query;
-import jakarta.persistence.TypedQuery;
+import jakarta.persistence.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -88,12 +87,52 @@ public class UserDaoImpl implements UserDao {
     @Override
     public void verifyEmail(String code) {
         Query query = em.createQuery("UPDATE User u SET u.isEmailVerified = true WHERE emailCode LIKE :code");
-        query.setParameter("code",code);
+        query.setParameter("code", code);
         int result = query.executeUpdate();
-        if (result<1){
+        if (result < 1) {
             throw new EntityNotExistException("Verification declined.");
         }
     }
+
+    @Override
+    public Optional<Student> findStudentById(int studentId) {
+        TypedQuery<Student> query = em.createQuery("FROM Student WHERE id=:userId",Student.class);
+        query.setParameter("userId",studentId);
+        try {
+
+           Student student = query.getSingleResult();
+           return Optional.of(student);
+        }
+        catch (NoResultException e){
+            return Optional.empty();
+        }
+    }
+
+    @Override
+    public Optional<Teacher> findTeacherById(int teacherId) {
+        TypedQuery<Teacher> query = em.createQuery("FROM Teacher WHERE id=:teacherId",Teacher.class);
+        query.setParameter("teacherId",teacherId);
+        try {
+
+            Teacher teacher = query.getSingleResult();
+            return Optional.of(teacher);
+        }
+        catch (NoResultException e){
+            return Optional.empty();
+        }
+    }
+
+    /*    @Override
+    public Optional<Student> findStudentById(int studentId) {
+        TypedQuery<Student> query = em.createQuery("FROM Student WHERE id =:studentId", Student.class);
+        query.setParameter("studentId", studentId);
+        try {
+            Student student = query.getSingleResult();
+            return Optional.of(student);
+        } catch (NoResultException e) {
+            return Optional.empty();
+        }
+    }*/
 
     @Override
     public Optional<User> findById(int userId) {

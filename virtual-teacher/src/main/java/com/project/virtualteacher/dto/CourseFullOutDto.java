@@ -8,7 +8,7 @@ import java.util.Set;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class CourseFullDetailsOutDto extends CourseBaseDetailsOutDto {
+public class CourseFullOutDto extends CourseBaseOutDto {
 
     private Set<Lecture> lectures;
 

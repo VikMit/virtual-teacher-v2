@@ -6,7 +6,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.annotations.Cascade;
+
+import java.util.List;
 
 @Entity
 @Table(name = "lectures")
@@ -27,6 +28,9 @@ public class Lecture {
 
     @Column(name = "assignment_url")
     private String assignmentUrl;
+
+    @OneToMany(mappedBy = "lecture")
+    private List<Solution> solutions;
 
     @Column(name = "description")
     private String description;

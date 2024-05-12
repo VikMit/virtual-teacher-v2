@@ -1,8 +1,8 @@
 package com.project.virtualteacher.controller.rest;
 
-import com.project.virtualteacher.dto.CourseBaseDetailsOutDto;
+import com.project.virtualteacher.dto.CourseBaseOutDto;
 import com.project.virtualteacher.dto.CourseCreateDto;
-import com.project.virtualteacher.dto.CourseFullDetailsOutDto;
+import com.project.virtualteacher.dto.CourseFullOutDto;
 import com.project.virtualteacher.entity.Course;
 import com.project.virtualteacher.entity.User;
 import com.project.virtualteacher.exception_handling.exceptions.IncorrectInputException;
@@ -34,42 +34,42 @@ public class CourseController {
     }
 
     @PostMapping()
-    public ResponseEntity<CourseFullDetailsOutDto> course(@RequestBody CourseCreateDto courseCreateDto, Authentication loggedUser) {
+    public ResponseEntity<CourseFullOutDto> course(@RequestBody CourseCreateDto courseCreateDto, Authentication loggedUser) {
         Course courseToCreate = mapper.fromCourseCreateDtoToCourse(courseCreateDto);
         User user = extractEntityHelper.extractUserFromAuthentication(loggedUser);
         Course createdCourse = courseService.create(courseToCreate, user);
-        CourseFullDetailsOutDto courseFullDetailsOutDto = mapper.fromCourseToCourseFullDetailsOutDto(createdCourse);
+        CourseFullOutDto courseFullDetailsOutDto = mapper.fromCourseToCourseFullOutDto(createdCourse);
         return new ResponseEntity<>(courseFullDetailsOutDto, HttpStatus.CREATED);
     }
 
     @GetMapping("/{courseId}/public/basic")
-    public ResponseEntity<CourseBaseDetailsOutDto> courseBasicDetailsById(@PathVariable(name = "courseId") int courseId) {
+    public ResponseEntity<CourseBaseOutDto> courseBasicDetailsById(@PathVariable(name = "courseId") int courseId) {
         Course course = courseService.getPublicCourseById(courseId);
-        CourseBaseDetailsOutDto result = mapper.fromCourseToCourseBaseDetailsOutDto(course);
+        CourseBaseOutDto result = mapper.fromCourseToCourseBaseOutDto(course);
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
     @GetMapping("/title/public/basic")
-    public ResponseEntity<CourseBaseDetailsOutDto> courseBaseDetails(@RequestParam(name = "title") String title) {
+    public ResponseEntity<CourseBaseOutDto> courseBaseDetails(@RequestParam(name = "title") String title) {
         Course course = courseService.getPublicCourseByTitle(title);
-        CourseBaseDetailsOutDto result = mapper.fromCourseToCourseBaseDetailsOutDto(course);
+        CourseBaseOutDto result = mapper.fromCourseToCourseBaseOutDto(course);
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
 
     @GetMapping("/{courseId}/full")
-    public ResponseEntity<CourseFullDetailsOutDto> courseFullDetailsById(@PathVariable(name = "courseId") int courseId, Authentication authentication) {
+    public ResponseEntity<CourseFullOutDto> courseFullDetailsById(@PathVariable(name = "courseId") int courseId, Authentication authentication) {
         User loggedUser = extractEntityHelper.extractUserFromAuthentication(authentication);
         Course course = courseService.getCourseById(courseId, loggedUser);
-        CourseFullDetailsOutDto result = mapper.fromCourseToCourseFullDetailsOutDto(course);
+        CourseFullOutDto result = mapper.fromCourseToCourseFullOutDto(course);
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
     @GetMapping("/title/full")
-    public ResponseEntity<CourseFullDetailsOutDto> courseByTitle(@RequestParam(name = "title") String title, Authentication authentication) {
+    public ResponseEntity<CourseFullOutDto> courseByTitle(@RequestParam(name = "title") String title, Authentication authentication) {
         User loggedUser = extractEntityHelper.extractUserFromAuthentication(authentication);
         Course course = courseService.getCourseByTitle(title, loggedUser);
-        CourseFullDetailsOutDto result = mapper.fromCourseToCourseFullDetailsOutDto(course);
+        CourseFullOutDto result = mapper.fromCourseToCourseFullOutDto(course);
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
@@ -85,23 +85,23 @@ public class CourseController {
     }
 
     @GetMapping("/all-public/basic")
-    public ResponseEntity<Set<CourseBaseDetailsOutDto>> getAllPublicWithBaseDetails() {
+    public ResponseEntity<Set<CourseBaseOutDto>> getAllPublicWithBaseDetails() {
         Set<Course> allCourses = courseService.getAllPublic();
-        Set<CourseBaseDetailsOutDto> extractedCourseBaseDetails = new HashSet<>();
+        Set<CourseBaseOutDto> extractedCourseBaseDetails = new HashSet<>();
         allCourses.forEach((course) -> {
-            CourseBaseDetailsOutDto b = mapper.fromCourseToCourseBaseDetailsOutDto(course);
+            CourseBaseOutDto b = mapper.fromCourseToCourseBaseOutDto(course);
             extractedCourseBaseDetails.add(b);
         });
         return new ResponseEntity<>(extractedCourseBaseDetails, HttpStatus.OK);
     }
 
     @GetMapping("/all/full")
-    public ResponseEntity<Set<CourseFullDetailsOutDto>> getAllWithFullDetails(Authentication authentication) {
+    public ResponseEntity<Set<CourseFullOutDto>> getAllWithFullDetails(Authentication authentication) {
         User loggedUser = extractEntityHelper.extractUserFromAuthentication(authentication);
         Set<Course> allCourses = courseService.getAll(loggedUser);
-        Set<CourseFullDetailsOutDto> extractedCourseFullDetails = new HashSet<>();
+        Set<CourseFullOutDto> extractedCourseFullDetails = new HashSet<>();
         allCourses.forEach((course) -> {
-            CourseFullDetailsOutDto b = mapper.fromCourseToCourseFullDetailsOutDto(course);
+            CourseFullOutDto b = mapper.fromCourseToCourseFullOutDto(course);
             extractedCourseFullDetails.add(b);
         });
         return new ResponseEntity<>(extractedCourseFullDetails, HttpStatus.OK);

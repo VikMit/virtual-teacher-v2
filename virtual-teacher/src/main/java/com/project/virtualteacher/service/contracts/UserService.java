@@ -1,8 +1,9 @@
 package com.project.virtualteacher.service.contracts;
 
+import com.project.virtualteacher.entity.Student;
+import com.project.virtualteacher.entity.Teacher;
 import com.project.virtualteacher.entity.User;
 import jakarta.mail.MessagingException;
-import org.springframework.security.core.Authentication;
 
 
 public interface UserService {
@@ -19,7 +20,13 @@ public interface UserService {
 
     void unBlockUser(int id, User loggedUser);
 
-    void updateRole(int userId, int roleId);
+    void updateRole(int userId, int roleId, User loggeduser);
 
     void emailVerification(String code);
+
+    Student getStudentById(int studentId, User loggedUser);
+
+    Teacher getTeacherById(int teacherId, User loggedUser);
+
+    // Student findStudentById(int studentId);
 }

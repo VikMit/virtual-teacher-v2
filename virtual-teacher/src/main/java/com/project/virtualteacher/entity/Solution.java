@@ -7,10 +7,33 @@ import lombok.Data;
 import java.io.Serializable;
 
 @Entity
-@Table(name = "user_lecture_solution")
+@Table(name = "solutions")
 public class Solution {
 
-    @EmbeddedId
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private int id;
+
+    @Column(name = "solution_URL")
+    private String solutionURL;
+
+    @ManyToOne
+    @JoinColumn(name = "lecture_id")
+    @JsonIgnore
+    private Lecture lecture;
+
+    @OneToOne
+    @JoinColumn(name = "user_id")
+    private User creator;
+
+   /* @ManyToOne
+    @JoinColumn(name = "user_id")
+    @JsonIgnore
+    private User creator;*/
+
+
+
+  /*  @EmbeddedId
     private UserSolutionId id;
 
     @OneToOne
@@ -33,5 +56,5 @@ public class Solution {
 
         @Column(name = "user_id")
         private int userId;
-    }
+    }*/
 }

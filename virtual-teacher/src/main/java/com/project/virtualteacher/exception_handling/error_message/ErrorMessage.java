@@ -6,7 +6,7 @@ public final class ErrorMessage {
     public static final String EMAIL_EXIST = "Email: %s already exist.";
     public static final String INCORRECT_CONFIRM_PASSWORD = "Password and confirm password does not match.";
     public static final String USER_ID_NOT_VALID = "User ID must be positive.";
-    public static final String ROLE_NAME_NOT_FOUND = "Role with name: %s, not found.";
+    public static final String ROLE_NAME_NOT_FOUND = "Role %s, not found.";
     public static final String ROLE_ID_NOT_FOUND = "Role with ID: %d, not found.";
     public static final String USER_NOT_RESOURCE_OWNER = "Only owner of the resource have permits to modify or delete.";
     public static final String USER_WITH_USERNAME_NOT_FOUND = "User with username: %s not found.";
@@ -33,8 +33,7 @@ public final class ErrorMessage {
     public static final String TOPIC_NAME_EXIST = "Topic with value: %s already exist.";
     public static final String TOPIC_ID_NOT_EXIST = "Topic with ID: %d not exist.";
     public static final String ADMIN_TEACHER_PERMISSION = "Operation only for TEACHERS and ADMINS.";
-
-
-
-
+    public static final String STUDENT_ID_NOT_FOUND = "Student with ID: %d NOT FOUND";
+    public static final String ADMIN_PERMISSION_REQUIREMENT = "Only user with ADMIN role have permission for this operation.";
+    public static final String TEACHER_ID_NOT_FOUND = "Teacher with ID: %d NOT FOUND";
 }

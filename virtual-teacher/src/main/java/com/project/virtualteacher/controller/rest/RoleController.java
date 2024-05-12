@@ -28,14 +28,14 @@ public class RoleController {
 
     @PostMapping()
     public ResponseEntity<String> create(@RequestBody() RoleCreateDto roleCreateDto) {
-        Role roleToCreate = mapper.fromRoleCreateDtoInToRole(roleCreateDto);
+        Role roleToCreate = mapper.fromRoleCreateDtoToRole(roleCreateDto);
         roleService.create(roleToCreate);
         return new ResponseEntity<>("Role '" + roleCreateDto.getValue().toUpperCase() + "' was created.", HttpStatus.CREATED);
     }
 
     @PutMapping("/{roleId}")
     public ResponseEntity<Role> update(@PathVariable(name = "roleId") int roleId, @RequestBody() RoleCreateDto updateRole) {
-        Role roleUpdate = mapper.fromRoleCreateDtoInToRole(updateRole);
+        Role roleUpdate = mapper.fromRoleCreateDtoToRole(updateRole);
         roleUpdate = roleService.update(roleUpdate, roleId);
         return new ResponseEntity<>(roleUpdate, HttpStatus.OK);
     }

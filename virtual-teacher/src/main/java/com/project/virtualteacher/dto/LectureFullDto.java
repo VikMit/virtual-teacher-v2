@@ -6,7 +6,7 @@ import lombok.EqualsAndHashCode;
 @Data
 @EqualsAndHashCode(callSuper = true)
 
-public class LectureFullDetailsDto extends LectureBaseDetailsDto {
+public class LectureFullDto extends LectureBaseDto {
 
     private String videoUrl;
 

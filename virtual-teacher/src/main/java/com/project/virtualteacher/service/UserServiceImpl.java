@@ -3,6 +3,8 @@ package com.project.virtualteacher.service;
 import com.project.virtualteacher.dao.contracts.RoleDao;
 import com.project.virtualteacher.dao.contracts.UserDao;
 import com.project.virtualteacher.entity.Role;
+import com.project.virtualteacher.entity.Student;
+import com.project.virtualteacher.entity.Teacher;
 import com.project.virtualteacher.entity.User;
 import com.project.virtualteacher.exception_handling.error_message.ErrorMessage;
 import com.project.virtualteacher.exception_handling.exceptions.EntityExistException;
@@ -48,10 +50,6 @@ public class UserServiceImpl implements UserService {
         if (validator.isTeacherOrAdmin(loggedUser)) {
             return userDao.findById(userId).orElseThrow(() -> new EntityNotExistException(USER_ID_NOT_FOUND, userId));
         }
-        User userDB = userDao.findByUsename(loggedUser.getUsername()).orElseThrow(() -> new EntityNotExistException(USER_WITH_USERNAME_NOT_FOUND, loggedUser.getUsername()));
-        if (userDB.getId() == userId) {
-            return userDao.findById(userId).orElseThrow(() -> new EntityNotExistException(USER_ID_NOT_FOUND, userId));
-        }
         throw new UnAuthorizeException(USER_NOT_AUTHORIZED, loggedUser.getUsername());
     }
 
@@ -61,7 +59,7 @@ public class UserServiceImpl implements UserService {
     public void createUser(User user) throws MessagingException {
         validateUsernameAndEmailNotExist(user);
         user.setRequestedRole(user.getRole());
-        user.setRole(roleDao.findByName("ROLE_STUDENT").orElseThrow());
+        user.setRole(roleDao.findByName("ROLE_STUDENT").orElseThrow(()->new EntityNotExistException(ROLE_NAME_NOT_FOUND,"ROLE_STUDENT")));
         user.setPassword(encoder.encode(user.getPassword()));
         user.setBlocked(false);
         user.setEmailVerified(false);
@@ -75,10 +73,14 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public void delete(int id, User loggedUser) {
         User userToDelete = userDao.findById(id).orElseThrow(() -> new EntityNotExistException(USER_ID_NOT_FOUND, id));
-        if (!isUsernamesMatch(loggedUser, userToDelete)) {
+        throwsIfUsersNotMatch(loggedUser, userToDelete);
+        userDao.delete(userToDelete);
+    }
+
+    private void throwsIfUsersNotMatch(User loggedUser, User userDb) {
+        if (!loggedUser.equals(userDb)){
             throw new UnAuthorizeException(ErrorMessage.USER_NOT_RESOURCE_OWNER);
         }
-        userDao.delete(userToDelete);
     }
 
     @Override
@@ -86,10 +88,7 @@ public class UserServiceImpl implements UserService {
     public void updateBaseUserDetails(User userToUpdate, int userToUpdateId, User loggedUser) {
         User userDb = userDao.findById(userToUpdateId)
                 .orElseThrow(() -> new EntityNotExistException(USER_ID_NOT_FOUND, userToUpdateId));
-
-        if (!isUsernamesMatch(loggedUser, userDb)) {
-            throw new UnAuthorizeException(USER_NOT_RESOURCE_OWNER);
-        }
+        throwsIfUsersNotMatch(loggedUser,userDb);
         updateBaseDetails(userToUpdate, userDb);
         userDao.update(userDb);
     }
@@ -116,7 +115,8 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public void updateRole(int userId, int roleId) {
+    public void updateRole(int userId, int roleId,User loggedUser) {
+        validator.throwIfNotAdmin(loggedUser);
         User userDb = userDao.findById(userId).orElseThrow(() -> new EntityNotExistException(USER_ID_NOT_FOUND, userId));
         Role role = roleDao.findById(roleId).orElseThrow(() -> new EntityNotExistException(ROLE_ID_NOT_FOUND, roleId));
         userDb.setRole(role);
@@ -127,6 +127,27 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public void emailVerification(String code) {
         userDao.verifyEmail(code);
+    }
+
+    @Override
+    public Student getStudentById(int studentId, User loggedUser) {
+        Student student = userDao.findStudentById(studentId).orElseThrow(()->new EntityNotExistException(STUDENT_ID_NOT_FOUND,studentId));
+        if (validator.isTeacherOrAdmin(loggedUser)){
+            return student;
+        }
+        else if (isUsernamesMatch(loggedUser,student)){
+            return student;
+        }
+        throw new UnAuthorizeException(USER_NOT_AUTHORIZED,loggedUser.getUsername());
+    }
+
+    @Override
+    public Teacher getTeacherById(int teacherId, User loggedUser) {
+        if (validator.isTeacherOrAdmin(loggedUser)){
+
+            return userDao.findTeacherById(teacherId).orElseThrow(()->new EntityNotExistException(ErrorMessage.TEACHER_ID_NOT_FOUND,teacherId));
+        }
+        throw new UnAuthorizeException(USER_NOT_AUTHORIZED,loggedUser.getUsername());
     }
 
     //TODO

@@ -1,6 +1,8 @@
 package com.project.virtualteacher.dao.contracts;
 
 
+import com.project.virtualteacher.entity.Student;
+import com.project.virtualteacher.entity.Teacher;
 import com.project.virtualteacher.entity.User;
 import org.springframework.stereotype.Repository;
 
@@ -28,5 +30,8 @@ public interface UserDao {
 
     void verifyEmail(String code);
 
-    // Optional<Student> findStudentByUsername(String username);
+    Optional<Student> findStudentById(int studentId);
+
+
+     Optional<Teacher> findTeacherById(int  teacherId);
 }

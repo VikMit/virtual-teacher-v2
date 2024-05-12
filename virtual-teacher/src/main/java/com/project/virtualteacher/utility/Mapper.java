@@ -16,28 +16,26 @@ public final class Mapper {
 
     private final RoleDao roleDao;
     private final CourseDao courseDao;
-    private final LectureDao lectureDao;
     private final TopicDao topicDao;
 
 
-    public Mapper(RoleDao roleDao, UserDao userDao, CourseDao courseDao, LectureDao lectureDao, TopicDao topicDao, UserDao userDao1) {
+    public Mapper(RoleDao roleDao, UserDao userDao, CourseDao courseDao, TopicDao topicDao) {
         this.roleDao = roleDao;
         this.courseDao = courseDao;
-        this.lectureDao = lectureDao;
         this.topicDao = topicDao;
     }
 
-    public User fromUserFullDetailsInDtoToUser(UserFullDetailsInDto detailedUserInDto) {
-        User user = fromUserBaseDetailsInDtoToUser(detailedUserInDto);
-        Role role = roleDao.findById(detailedUserInDto.getRoleId()).orElseThrow();
-        user.setUsername(detailedUserInDto.getUsername());
-        user.setPassword(detailedUserInDto.getPassword());
-        user.setEmail(detailedUserInDto.getEmail());
+    public User fromUserCreateDtoToUser(UserCreateDto userCreateDto) {
+        User user = fromUserUpdateDtoToUser(userCreateDto);
+        Role role = roleDao.findById(userCreateDto.getRoleId()).orElseThrow(() -> new EntityNotExistException(ErrorMessage.ROLE_ID_NOT_FOUND, userCreateDto.getRoleId()));
+        user.setUsername(userCreateDto.getUsername());
+        user.setPassword(userCreateDto.getPassword());
+        user.setEmail(userCreateDto.getEmail());
         user.setRole(role);
-        if (user.getPictureUrl() == null) {
+        if (userCreateDto.getPictureUrl() == null) {
             user.setPictureUrl("Default picture URL");
         } else {
-            user.setPictureUrl(detailedUserInDto.getPictureUrl());
+            user.setPictureUrl(userCreateDto.getPictureUrl());
         }
         return user;
     }
@@ -54,11 +52,11 @@ public final class Mapper {
         return userOutDto;
     }
 
-    public User fromUserBaseDetailsInDtoToUser(UserBaseDetailsInDto userBaseDetailsInDto) {
+    public User fromUserUpdateDtoToUser(UserUpdateDto userUpdateDto) {
         User userToUpdate = new User();
-        userToUpdate.setFirstName(userBaseDetailsInDto.getFirstName());
-        userToUpdate.setLastName(userBaseDetailsInDto.getLastName());
-        userToUpdate.setDob(userBaseDetailsInDto.getDob());
+        userToUpdate.setFirstName(userUpdateDto.getFirstName());
+        userToUpdate.setLastName(userUpdateDto.getLastName());
+        userToUpdate.setDob(userUpdateDto.getDob());
         return userToUpdate;
     }
 
@@ -78,18 +76,18 @@ public final class Mapper {
         return course;
     }
 
-    public Course fromCourseBaseDetailsOutDtoToCourse(CourseBaseDetailsOutDto courseBaseDetailsOutDto) {
+    public Course fromCourseBaseOutDtoToCourse(CourseBaseOutDto courseBaseOutDto) {
         Course course = new Course();
-        course.setTitle(courseBaseDetailsOutDto.getTitle());
-        course.setStartDate(courseBaseDetailsOutDto.getStartDate());
-        course.setPublished(courseBaseDetailsOutDto.getIsPublished());
-        course.setPassingGrade(courseBaseDetailsOutDto.getPassingGrade());
-        course.setDescription(courseBaseDetailsOutDto.getDescription());
+        course.setTitle(courseBaseOutDto.getTitle());
+        course.setStartDate(courseBaseOutDto.getStartDate());
+        course.setPublished(courseBaseOutDto.getIsPublished());
+        course.setPassingGrade(courseBaseOutDto.getPassingGrade());
+        course.setDescription(courseBaseOutDto.getDescription());
         return course;
     }
 
-    public CourseBaseDetailsOutDto fromCourseToCourseBaseDetailsOutDto(Course updatedCourse) {
-        CourseBaseDetailsOutDto result = new CourseBaseDetailsOutDto();
+    public CourseBaseOutDto fromCourseToCourseBaseOutDto(Course updatedCourse) {
+        CourseBaseOutDto result = new CourseBaseOutDto();
         result.setCreator(fromUserToUserOutDto(updatedCourse.getTeacher()));
         result.setIsPublished(updatedCourse.isPublished());
         result.setDescription(updatedCourse.getDescription());
@@ -99,8 +97,9 @@ public final class Mapper {
         return result;
     }
 
-    public CourseFullDetailsOutDto fromCourseToCourseFullDetailsOutDto(Course course) {
-        CourseFullDetailsOutDto result = new CourseFullDetailsOutDto();
+    public CourseFullOutDto fromCourseToCourseFullOutDto(Course course) {
+        CourseFullOutDto result = new CourseFullOutDto();
+        result.setId(course.getId());
         result.setCreator(fromUserToUserOutDto(course.getTeacher()));
         result.setIsPublished(course.isPublished());
         result.setDescription(course.getDescription());
@@ -113,34 +112,34 @@ public final class Mapper {
         return result;
     }
 
-    public Role fromRoleCreateDtoInToRole(RoleCreateDto roleCreateDto) {
+    public Role fromRoleCreateDtoToRole(RoleCreateDto roleCreateDto) {
         Role role = new Role();
         role.setValue(roleCreateDto.getValue());
         return role;
     }
 
-    public Lecture fromLectureFullDetailsDtoToLecture(LectureFullDetailsDto lectureFullDetailsDto) {
-        Lecture lecture = fromLectureBaseDetailsDtoToLecture(lectureFullDetailsDto);
+    public Lecture fromLectureFullDtoToLecture(LectureFullDto lectureFullDetailsDto) {
+        Lecture lecture = fromLectureBaseDtoToLecture(lectureFullDetailsDto);
         lecture.setId(lecture.getId());
         lecture.setVideoUrl(lectureFullDetailsDto.getVideoUrl());
         lecture.setAssignmentUrl(lectureFullDetailsDto.getAssignmentUrl());
         return lecture;
     }
 
-    public Lecture fromLectureBaseDetailsDtoToLecture(LectureBaseDetailsDto lectureBaseDetailsDto) {
+    public Lecture fromLectureBaseDtoToLecture(LectureBaseDto lectureBaseDto) {
         Lecture lecture = new Lecture();
-        lecture.setId(lectureBaseDetailsDto.getId());
-        lecture.setTitle(lectureBaseDetailsDto.getTitle());
-        lecture.setDescription(lectureBaseDetailsDto.getDescription());
-        if (lectureBaseDetailsDto.getId() != null) {
-            Course course = courseDao.getCourseById(lectureBaseDetailsDto.getCourseId()).orElseThrow(() -> new EntityNotExistException(ErrorMessage.LECTURE_NOT_FOUND_IN_COURSE, lectureBaseDetailsDto.getId()));
+        lecture.setId(lectureBaseDto.getId());
+        lecture.setTitle(lectureBaseDto.getTitle());
+        lecture.setDescription(lectureBaseDto.getDescription());
+        if (lectureBaseDto.getId() != null) {
+            Course course = courseDao.getCourseById(lectureBaseDto.getCourseId()).orElseThrow(() -> new EntityNotExistException(ErrorMessage.LECTURE_NOT_FOUND_IN_COURSE, lectureBaseDto.getId()));
             lecture.setCourse(course);
         }
         return lecture;
     }
 
-    public LectureFullDetailsDto fromLectureToLectureFullDetailsDto(Lecture lecture) {
-        LectureFullDetailsDto result = new LectureFullDetailsDto();
+    public LectureFullDto fromLectureToLectureFullDto(Lecture lecture) {
+        LectureFullDto result = new LectureFullDto();
         result.setId(lecture.getId());
         result.setCourseId(lecture.getCourse().getId());
         result.setVideoUrl(lecture.getVideoUrl());
@@ -148,15 +147,16 @@ public final class Mapper {
         return result;
     }
 
-    public LectureBaseDetailsDto fromLectureToLectureBaseDetailsDto(Lecture lecture) {
-        LectureBaseDetailsDto result = new LectureBaseDetailsDto();
+    public LectureBaseDto fromLectureToLectureBaseDto(Lecture lecture) {
+        LectureBaseDto result = new LectureBaseDto();
         result.setId(lecture.getId());
         result.setCourseId(lecture.getId());
         result.setDescription(lecture.getDescription());
         result.setTitle(lecture.getTitle());
         return result;
     }
-    public Topic fromTopicDtoToTopic(TopicDto topicDto){
+
+    public Topic fromTopicDtoToTopic(TopicDto topicDto) {
         Topic topic = new Topic();
         topic.setTopic(topicDto.getTopic());
         return topic;
@@ -167,5 +167,13 @@ public final class Mapper {
         result.setId(updatedTopic.getId());
         result.setTopic(updatedTopic.getTopic());
         return result;
+    }
+
+    public StudentOutDto fromStudentToStudentOutDto(Student student) {
+        return new StudentOutDto(student);
+    }
+
+    public TeacherOutDto fromTeacherToTeacherOutDto(Teacher teacher) {
+        return new TeacherOutDto(teacher);
     }
 }

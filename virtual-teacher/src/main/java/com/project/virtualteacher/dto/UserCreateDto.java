@@ -6,7 +6,7 @@ import lombok.EqualsAndHashCode;
 
 @Data
 @EqualsAndHashCode(callSuper=false)
-public class UserFullDetailsInDto extends UserBaseDetailsInDto {
+public class UserCreateDto extends UserUpdateDto {
     private static final String PASSWORD_PATTERN = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%&* ()-+=^])(?=\\S+$).{8,20}$";
     public static final String PASS_REGEX_ERROR_MESSAGE = "Password must be at least 8 symbols long and contain upper,lower,special characters";
 

@@ -9,12 +9,16 @@ import lombok.Setter;
 
 import java.time.LocalDate;
 
-@Entity()
+@Entity
 @Table(name = "users")
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
 @Setter
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+@DiscriminatorColumn(name="role_id",
+        discriminatorType = DiscriminatorType.INTEGER)
+@DiscriminatorValue("3")
 
 public class User {
     @Id
@@ -44,7 +48,7 @@ public class User {
     private LocalDate dob;
 
     @ManyToOne()
-    @JoinColumn(name = "role_id")
+    @JoinColumn(name = "role_id",insertable=false, updatable=false)
     private Role role;
 
     @ManyToOne()
@@ -58,6 +62,7 @@ public class User {
     private boolean isEmailVerified;
 
     @Column(name = "email_code")
+    @JsonIgnore
     private String emailCode;
 
 }

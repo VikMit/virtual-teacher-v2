@@ -1,9 +1,8 @@
 package com.project.virtualteacher.controller.rest;
 
-import com.project.virtualteacher.dto.UserBaseDetailsInDto;
-import com.project.virtualteacher.dto.UserFullDetailsInDto;
-import com.project.virtualteacher.dto.UserOutDto;
-import com.project.virtualteacher.service.MailTemplatesGeneratorServiceImpl;
+import com.project.virtualteacher.dto.*;
+import com.project.virtualteacher.entity.Student;
+import com.project.virtualteacher.entity.Teacher;
 import com.project.virtualteacher.entity.User;
 import com.project.virtualteacher.service.contracts.UserService;
 import com.project.virtualteacher.utility.BindingResultCatcher;
@@ -11,8 +10,6 @@ import com.project.virtualteacher.utility.ExtractEntityHelper;
 import com.project.virtualteacher.utility.Mapper;
 import com.project.virtualteacher.utility.ValidatorHelper;
 import jakarta.mail.*;
-import jakarta.mail.internet.InternetAddress;
-import jakarta.mail.internet.MimeMessage;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -46,12 +43,12 @@ public class UserController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<String> register(@RequestBody @Valid UserFullDetailsInDto userDetailedInDto, BindingResult errors) throws MessagingException {
+    public ResponseEntity<String> register(@RequestBody @Valid UserCreateDto userCreateDto, BindingResult errors) throws MessagingException {
         catchInputErrors.proceedInputError(errors);
-        validatorHelper.validatePassAndConfirmPass(userDetailedInDto);
-        User userToCreate = mapper.fromUserFullDetailsInDtoToUser(userDetailedInDto);
+        validatorHelper.validatePassAndConfirmPass(userCreateDto);
+        User userToCreate = mapper.fromUserCreateDtoToUser(userCreateDto);
         userService.createUser(userToCreate);
-        return new ResponseEntity<>(String.format("User with username: %s was created", userDetailedInDto.getUsername())
+        return new ResponseEntity<>(String.format("User with username: %s was created", userCreateDto.getUsername())
                 , HttpStatus.CREATED);
 
     }
@@ -64,9 +61,9 @@ public class UserController {
     @GetMapping("/{id}")
     public ResponseEntity<UserOutDto> getUser(@PathVariable(name = "id") int id, Authentication authentication) {
         User loggedUser = extractEntityHelper.extractUserFromAuthentication(authentication);
-        User userDb = userService.getUserById(id, loggedUser);
-        UserOutDto userToReturn = mapper.fromUserToUserOutDto(userDb);
-        return new ResponseEntity<>(userToReturn, HttpStatus.OK);
+        User userDB = userService.getUserById(id, loggedUser);
+        UserOutDto userOutDtoToReturn = mapper.fromUserToUserOutDto(userDB);
+        return new ResponseEntity<>(userOutDtoToReturn, HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")
@@ -91,18 +88,34 @@ public class UserController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<String> updateBaseDetails(@PathVariable(name = "id") int id, @RequestBody @Valid UserBaseDetailsInDto userBaseDetailsInDto, Authentication authentication) {
+    public ResponseEntity<String> updateBaseDetails(@PathVariable(name = "id") int id, @RequestBody @Valid UserUpdateDto userUpdateDto, Authentication authentication) {
         User loggedUser = extractEntityHelper.extractUserFromAuthentication(authentication);
-        User userToUpdate = mapper.fromUserBaseDetailsInDtoToUser(userBaseDetailsInDto);
+        User userToUpdate = mapper.fromUserUpdateDtoToUser(userUpdateDto);
         userService.updateBaseUserDetails(userToUpdate, id, loggedUser);
         return new ResponseEntity<>("User with ID: " + id + " was updated", HttpStatus.OK);
     }
 
     @PutMapping("{userId}/role/{roleId}")
-    public ResponseEntity<String> updateRole(@PathVariable(name = "userId") int userId, @PathVariable(name = "roleId") int roleId) {
-        userService.updateRole(userId, roleId);
+    public ResponseEntity<String> updateRole(@PathVariable(name = "userId") int userId, @PathVariable(name = "roleId") int roleId,Authentication authentication) {
+        User loggedUser = extractEntityHelper.extractUserFromAuthentication(authentication);
+        userService.updateRole(userId, roleId,loggedUser);
         return new ResponseEntity<>("Role of the user with ID: " + userId + " was changed", HttpStatus.OK);
 
     }
 
+    @GetMapping("/student/{studentId}")
+    public ResponseEntity<StudentOutDto> getStudent(@PathVariable(name = "studentId")int studentId, Authentication authentication){
+        User loggedUser = extractEntityHelper.extractUserFromAuthentication(authentication);
+        Student student = userService.getStudentById(studentId,loggedUser);
+        StudentOutDto studentToReturn = mapper.fromStudentToStudentOutDto(student);
+        return new ResponseEntity<>(studentToReturn,HttpStatus.OK);
+    }
+
+    @GetMapping("/teacher/{teacherId}")
+    public ResponseEntity<TeacherOutDto> getTeacher(@PathVariable(name = "teacherId")int teacherId, Authentication authentication){
+        User loggedUser = extractEntityHelper.extractUserFromAuthentication(authentication);
+        Teacher teacher = userService.getTeacherById(teacherId,loggedUser);
+        TeacherOutDto teacherToReturn = mapper.fromTeacherToTeacherOutDto(teacher);
+        return new ResponseEntity<>(teacherToReturn,HttpStatus.OK);
+    }
 }

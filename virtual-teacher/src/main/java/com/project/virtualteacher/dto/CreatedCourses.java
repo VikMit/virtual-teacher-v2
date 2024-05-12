@@ -1,5 +1,6 @@
 package com.project.virtualteacher.dto;
 
+import com.project.virtualteacher.entity.Lecture;
 import com.project.virtualteacher.entity.Topic;
 import lombok.Data;
 
@@ -7,7 +8,7 @@ import java.time.LocalDate;
 import java.util.Set;
 
 @Data
-public class CourseBaseDetailsOutDto {
+public class CreatedCourses {
 
     private int id;
 
@@ -21,15 +22,7 @@ public class CourseBaseDetailsOutDto {
 
     private String description;
 
-    private UserOutDto creator;
+    private Set<Lecture> lectures;
 
     private Set<Topic> topics;
-
-    public void setTitle(String title) {
-        this.title = title.trim();
-    }
-
-    public void setDescription(String description) {
-        this.description = description.trim();
-    }
 }

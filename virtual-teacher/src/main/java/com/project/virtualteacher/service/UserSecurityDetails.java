@@ -15,7 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
-public class VirtualTeacherUserDetails implements UserDetailsService {
+public class UserSecurityDetails implements UserDetailsService {
 
     @Autowired
     private UserDao userDao;
