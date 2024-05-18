@@ -28,7 +28,7 @@ public interface CourseDao {
 
     Set<Course> getAllPublic();
 
-    Set<Course> getAll();
+    Set<Course> getAll(int page,int size);
 
     void enrollUserForCourse(EnrollStudent student);
 

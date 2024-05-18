@@ -17,6 +17,9 @@ public class ExtractEntityHelper {
     }
 
     public User extractUserFromAuthentication(Authentication loggedUser){
+        if (loggedUser==null){
+            return null;
+        }
         String username = loggedUser.getName();
         return userDao.findByUsename(username).orElseThrow(()->new EntityNotExistException(ErrorMessage.USER_WITH_USERNAME_NOT_FOUND));
     }

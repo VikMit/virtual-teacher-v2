@@ -21,14 +21,23 @@ public class ValidatorHelper {
     }
 
     public boolean isTeacher(User loggedUser) {
+        if (loggedUser == null) {
+            return false;
+        }
         return loggedUser.getRole().getValue().equalsIgnoreCase("ROLE_TEACHER");
     }
 
     public boolean isAdmin(User loggedUser) {
+        if (loggedUser == null) {
+            return false;
+        }
         return loggedUser.getRole().getValue().equalsIgnoreCase("ROLE_ADMIN");
     }
 
     public boolean isStudent(User loggedUser) {
+        if (loggedUser == null) {
+            return false;
+        }
         return loggedUser.getRole().getValue().equalsIgnoreCase("ROLE_STUDENT");
 
     }
@@ -55,12 +64,13 @@ public class ValidatorHelper {
     }
 
     public void throwIfNotTeacherOrAdmin(User user) {
-        if (!isTeacherOrAdmin(user)){
+        if (!isTeacherOrAdmin(user)) {
             throw new UnAuthorizeException(ErrorMessage.ADMIN_TEACHER_PERMISSION);
         }
     }
-    public void throwIfNotAdmin(User user){
-        if (!isAdmin(user)){
+
+    public void throwIfNotAdmin(User user) {
+        if (!isAdmin(user)) {
             throw new UnAuthorizeException(ErrorMessage.ADMIN_PERMISSION_REQUIREMENT);
         }
     }

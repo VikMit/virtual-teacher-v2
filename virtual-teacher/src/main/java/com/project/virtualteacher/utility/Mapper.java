@@ -86,14 +86,15 @@ public final class Mapper {
         return course;
     }
 
-    public CourseBaseOutDto fromCourseToCourseBaseOutDto(Course updatedCourse) {
+    public CourseBaseOutDto fromCourseToCourseBaseOutDto(Course course) {
         CourseBaseOutDto result = new CourseBaseOutDto();
-        result.setCreator(fromUserToUserOutDto(updatedCourse.getTeacher()));
-        result.setIsPublished(updatedCourse.isPublished());
-        result.setDescription(updatedCourse.getDescription());
-        result.setTitle(updatedCourse.getTitle());
-        result.setStartDate(updatedCourse.getStartDate());
-        result.setPassingGrade(updatedCourse.getPassingGrade());
+        result.setId(course.getId());
+        result.setCreator(fromUserToUserOutDto(course.getTeacher()));
+        result.setIsPublished(course.isPublished());
+        result.setDescription(course.getDescription());
+        result.setTitle(course.getTitle());
+        result.setStartDate(course.getStartDate());
+        result.setPassingGrade(course.getPassingGrade());
         return result;
     }
 

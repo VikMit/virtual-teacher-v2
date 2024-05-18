@@ -38,9 +38,9 @@ public class SecurityConfig {
         return http
                 .csrf(AbstractHttpConfigurer::disable).cors(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth.requestMatchers(HttpMethod.GET,
-                                "/api/v1/course/{id}/public/basic",
+                                "/api/v1/course/{id}/basic",
                                 "/api/v1/role/{id}",
-                                "/api/v1/course/title/basic",
+                                "/api/v1/course/basic",
                                 "/api/v1/course/all-public/basic",
                                 "/api/v1/lecture/{id}/public/basic",
                                 "/api/v1/user/verification/{code}",

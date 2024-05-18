@@ -107,8 +107,10 @@ public class CourseDaoImpl implements CourseDao {
     }
 
     @Override
-    public Set<Course> getAll() {
+    public Set<Course> getAll(int page, int size) {
         TypedQuery<Course> query = em.createQuery("FROM Course", Course.class);
+        query.setFirstResult((page - 1) * size);
+        query.setMaxResults(size);
         return new HashSet<>(query.getResultList());
     }
 
@@ -132,8 +134,8 @@ public class CourseDaoImpl implements CourseDao {
 
     @Override
     public List<Course> getCoursesByTopic(String topic) {
-        TypedQuery<Course> query = em.createQuery("FROM Course WHERE element(topics).topic LIKE :topic",Course.class);
-        query.setParameter("topic",topic);
+        TypedQuery<Course> query = em.createQuery("FROM Course WHERE element(topics).topic LIKE :topic", Course.class);
+        query.setParameter("topic", topic);
         return query.getResultList();
     }
 }

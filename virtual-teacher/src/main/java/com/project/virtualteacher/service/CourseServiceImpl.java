@@ -48,15 +48,12 @@ public class CourseServiceImpl implements CourseService {
 
     @Override
     public Course getCourseById(int courseId, User loggedUser) {
-        Course course = courseDao.getCourseById(courseId)
-                .orElseThrow(() -> new EntityNotExistException(ErrorMessage.COURSE_WITH_ID_NOT_FOUND, courseId));
 
         if (validator.isTeacherOrAdmin(loggedUser)) {
-            return course;
+            return courseDao.getCourseById(courseId)
+                    .orElseThrow(() -> new EntityNotExistException(ErrorMessage.COURSE_WITH_ID_NOT_FOUND, courseId));
         } else {
-            String username = loggedUser.getUsername();
-            User userFromDB = userDao.findByUsename(username).orElseThrow(() -> new EntityNotExistException(ErrorMessage.USER_WITH_USERNAME_NOT_FOUND, username));
-            return getCourseIfEnrolled(course, userFromDB);
+            return getPublicCourseById(courseId);
         }
     }
 
@@ -67,19 +64,18 @@ public class CourseServiceImpl implements CourseService {
 
     @Override
     public Course getCourseByTitle(String title, User loggedUser) {
-        Course course = courseDao.getCourseByTitle(title)
-                .orElseThrow(() -> new EntityNotExistException(ErrorMessage.COURSE_WITH_TITLE_NOT_FOUND, title));
 
-        if (course.isPublished() || validator.isTeacherOrAdmin(loggedUser)) {
-            return course;
+        if (validator.isTeacherOrAdmin(loggedUser)){
+            return courseDao.getCourseByTitle(title)
+                    .orElseThrow(() -> new EntityNotExistException(ErrorMessage.COURSE_WITH_TITLE_NOT_FOUND, title));
         }
+        return getPublicCourseByTitle(title);
 
-        throw new EntityNotExistException(ErrorMessage.PUBLIC_COURSE_WITH_TITLE_NOT_FOUND, title);
     }
 
     @Override
     public Course getPublicCourseByTitle(String title) {
-        return courseDao.getPublicCourseByTitle(title).orElseThrow(() -> new EntityNotExistException(ErrorMessage.COURSE_WITH_TITLE_NOT_FOUND, title));
+        return courseDao.getPublicCourseByTitle(title).orElseThrow(() -> new EntityNotExistException(ErrorMessage.PUBLIC_COURSE_WITH_TITLE_NOT_FOUND, title));
     }
 
     @Override
@@ -88,8 +84,8 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
-    public Set<Course> getAll(User loggedUser) {
-        Set<Course> allCourses = courseDao.getAll();
+    public Set<Course> getAll(User loggedUser,int page, int size) {
+        Set<Course> allCourses = courseDao.getAll(page,size);
         if (validator.isTeacherOrAdmin(loggedUser)) {
             return allCourses;
         }
@@ -97,7 +93,7 @@ public class CourseServiceImpl implements CourseService {
             User user = userDao.findByUsename(loggedUser.getUsername()).orElseThrow(() -> new EntityNotExistException(ErrorMessage.USER_WITH_USERNAME_NOT_FOUND, loggedUser.getUsername()));
             return allCourses.stream().filter(Course::isPublished).filter(course -> course.getEnrolledStudents().contains(user)).collect(Collectors.toSet());
         } else {
-            return allCourses.stream().filter(Course::isPublished).collect(Collectors.toSet());
+            throw new UnAuthorizeException(ErrorMessage.USER_NOT_AUTHORIZED,loggedUser.getUsername());
         }
     }
 

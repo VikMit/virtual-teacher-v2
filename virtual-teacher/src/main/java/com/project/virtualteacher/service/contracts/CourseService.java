@@ -20,7 +20,7 @@ public interface CourseService {
 
     Set<Course> getAllPublic();
 
-    Set<Course> getAll(User loggedUser);
+    Set<Course> getAll(User loggedUser,int page,int size);
 
     void delete(int courseId,User loggedUser);
 

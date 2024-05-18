@@ -10,6 +10,10 @@ import com.project.virtualteacher.service.contracts.CourseService;
 import com.project.virtualteacher.utility.ExtractEntityHelper;
 import com.project.virtualteacher.utility.Mapper;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Digits;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.Size;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -42,16 +46,20 @@ public class CourseController {
         return new ResponseEntity<>(courseFullDetailsOutDto, HttpStatus.CREATED);
     }
 
-    @GetMapping("/{courseId}/public/basic")
-    public ResponseEntity<CourseBaseOutDto> courseBasicDetailsById(@PathVariable(name = "courseId") int courseId) {
-        Course course = courseService.getPublicCourseById(courseId);
+    //TESTED with POSTMAN
+    @GetMapping("/{courseId}/basic")
+    public ResponseEntity<CourseBaseOutDto> courseBasicDetailsById(@PathVariable(name = "courseId") int courseId,Authentication authentication) {
+        User loggedUser = extractEntityHelper.extractUserFromAuthentication(authentication);
+        Course course = courseService.getCourseById(courseId,loggedUser);
         CourseBaseOutDto result = mapper.fromCourseToCourseBaseOutDto(course);
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
-    @GetMapping("/title/public/basic")
-    public ResponseEntity<CourseBaseOutDto> courseBaseDetails(@RequestParam(name = "title") String title) {
-        Course course = courseService.getPublicCourseByTitle(title);
+    //TESTED with POSTMAN
+    @GetMapping("/basic")
+    public ResponseEntity<CourseBaseOutDto> courseBaseDetails(@RequestParam(name = "title") String title, Authentication authentication) {
+        User loggedUser = extractEntityHelper.extractUserFromAuthentication(authentication);
+        Course course = courseService.getCourseByTitle(title,loggedUser);
         CourseBaseOutDto result = mapper.fromCourseToCourseBaseOutDto(course);
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
@@ -96,9 +104,10 @@ public class CourseController {
     }
 
     @GetMapping("/all/full")
-    public ResponseEntity<Set<CourseFullOutDto>> getAllWithFullDetails(Authentication authentication) {
+    public ResponseEntity<Set<CourseFullOutDto>> getAllWithFullDetails(@RequestParam(name = "page",required = false,defaultValue = "1") @Min(value = 1,message = "Page must be a positive integer") int page,
+                                                                       @RequestParam(name = "size",required = false,defaultValue = "10") @Min(value = 1,message = "Size must be a positive integer") int size, Authentication authentication) {
         User loggedUser = extractEntityHelper.extractUserFromAuthentication(authentication);
-        Set<Course> allCourses = courseService.getAll(loggedUser);
+        Set<Course> allCourses = courseService.getAll(loggedUser,page,size);
         Set<CourseFullOutDto> extractedCourseFullDetails = new HashSet<>();
         allCourses.forEach((course) -> {
             CourseFullOutDto b = mapper.fromCourseToCourseFullOutDto(course);
