@@ -11,34 +11,36 @@ import com.project.virtualteacher.exception_handling.exceptions.EntityExistExcep
 import com.project.virtualteacher.exception_handling.exceptions.EntityNotExistException;
 import com.project.virtualteacher.exception_handling.exceptions.UnAuthorizeException;
 import com.project.virtualteacher.service.contracts.LectureService;
-import com.project.virtualteacher.utility.ValidatorHelper;
+import com.project.virtualteacher.utility.contracts.CourseValidatorHelper;
+import com.project.virtualteacher.utility.contracts.UserValidatorHelper;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.List;
 
 @Service
 public class LectureServiceImpl implements LectureService {
 
     private final LectureDao lectureDao;
-    private final ValidatorHelper validator;
     private final CourseDao courseDao;
     private final SolutionDao solutionDao;
+    private final CourseValidatorHelper courseValidator;
+    private final UserValidatorHelper userValidator;
 
-    public LectureServiceImpl(LectureDao lectureDao, ValidatorHelper validator, CourseDao courseDao, SolutionDao solutionDao) {
+    public LectureServiceImpl(LectureDao lectureDao , CourseDao courseDao, SolutionDao solutionDao, CourseValidatorHelper courseValidator, UserValidatorHelper userValidator) {
         this.lectureDao = lectureDao;
-        this.validator = validator;
         this.courseDao = courseDao;
         this.solutionDao = solutionDao;
+        this.courseValidator = courseValidator;
+        this.userValidator = userValidator;
     }
 
     @Override
     public Lecture findById(int lectureId, User loggedUser) {
         Lecture lecture = lectureDao.findById(lectureId).orElseThrow(() -> new EntityNotExistException(ErrorMessage.LECTURE_ID_NOT_FOUND, lectureId));
-        if (validator.isTeacherOrAdmin(loggedUser)) {
+        if (userValidator.isTeacherOrAdmin(loggedUser)) {
             return lecture;
-        } else if (validator.isUserEnrolledForCourse(loggedUser, lecture.getCourse())){
+        } else if (userValidator.isUserEnrolledForCourse(loggedUser, lecture.getCourse())){
             lecture.setSolutions(new ArrayList<>());
             return lecture;
         }
@@ -48,8 +50,8 @@ public class LectureServiceImpl implements LectureService {
     @Override
     @Transactional
     public Lecture create(Lecture lectureToCreate, User loggedUser) {
-        validator.isCreatorOfCourse(lectureToCreate.getCourse(), loggedUser);
-        validator.isLectureTitleExistInCourse(lectureToCreate.getCourse(), lectureToCreate.getTitle());
+        courseValidator.throwIfNotCourseCreator(lectureToCreate.getCourse(), loggedUser);
+        courseValidator.throwIfLectureTitleExistInCourse(lectureToCreate.getCourse(), lectureToCreate.getTitle());
         return lectureDao.create(lectureToCreate);
     }
 
@@ -58,7 +60,7 @@ public class LectureServiceImpl implements LectureService {
     public void delete(int lectureId, User loggedUser) {
         Lecture lectureToDelete = lectureDao.findById(lectureId).orElseThrow(() -> new EntityNotExistException(ErrorMessage.LECTURE_ID_NOT_FOUND, lectureId));
         Course course = courseDao.getCourseByLectureId(lectureId).orElseThrow(() -> new EntityNotExistException(ErrorMessage.COURSE_WITH_LECTURE_NOT_FOUND, lectureId));
-        validator.isCreatorOfCourse(course, loggedUser);
+        courseValidator.throwIfNotCourseCreator(course, loggedUser);
         solutionDao.deleteAllForLecture(lectureId);
         lectureDao.delete(lectureToDelete);
     }
@@ -67,7 +69,7 @@ public class LectureServiceImpl implements LectureService {
     @Transactional
     public Lecture update(Lecture lectureUpdate, User loggedUser) {
         Course course = courseDao.getCourseByLectureId(lectureUpdate.getId()).orElseThrow(() -> new EntityNotExistException(ErrorMessage.LECTURE_ID_NOT_FOUND, lectureUpdate.getId()));
-        validator.isCreatorOfCourse(course, loggedUser);
+        courseValidator.throwIfNotCourseCreator(course, loggedUser);
         throwIfTitleExistInCourse(lectureUpdate,course);
         lectureUpdate.setCourse(course);
         return lectureDao.update(lectureUpdate);
@@ -81,14 +83,14 @@ public class LectureServiceImpl implements LectureService {
     @Override
     public String getAssignment(int lectureId, User loggedUser) {
         Lecture lecture = lectureDao.findById(lectureId).orElseThrow(()->new EntityNotExistException(ErrorMessage.LECTURE_ID_NOT_FOUND,lectureId));
-        if (validator.isTeacherOrAdmin(loggedUser)){
+        if (userValidator.isTeacherOrAdmin(loggedUser)){
             return lecture.getAssignmentUrl();
         }
         Course course = courseDao.getCourseByLectureId(lectureId).orElseThrow(()->new EntityNotExistException(ErrorMessage.COURSE_WITH_LECTURE_NOT_FOUND,lectureId));
-        if (validator.isUserEnrolledForCourse(loggedUser,course)){
+        if (userValidator.isUserEnrolledForCourse(loggedUser,course)){
             return lecture.getAssignmentUrl();
         }
-        throw new UnAuthorizeException(ErrorMessage.USER_NOT_ENROLLED, loggedUser.getUsername(),course.getTitle());
+        throw new UnAuthorizeException(ErrorMessage.USER_NOT_ENROLLED_FOR_COURSE, loggedUser.getUsername(),course.getTitle());
     }
 
     private void throwIfTitleExistInCourse(Lecture lecture, Course course) {

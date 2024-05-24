@@ -1,5 +1,6 @@
 package com.project.virtualteacher.dto;
 
+import com.project.virtualteacher.exception_handling.exceptions.IncorrectInputException;
 import jakarta.validation.constraints.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -10,7 +11,6 @@ public class UserCreateDto extends UserUpdateDto {
     private static final String PASSWORD_PATTERN = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%&* ()-+=^])(?=\\S+$).{8,20}$";
     public static final String PASS_REGEX_ERROR_MESSAGE = "Password must be at least 8 symbols long and contain upper,lower,special characters";
 
-    @NotNull(message = "Username can not be NULL.")
     @Size(min = 8, max = 30,message = "Username must be between 8 and 30 characters. Leading or trailing whitespaces are trimmed.")
     private String username;
 
@@ -29,6 +29,9 @@ public class UserCreateDto extends UserUpdateDto {
     private String pictureUrl;
 
     public void setUsername(String username) {
+        if (username==null){
+            throw new IncorrectInputException("Username can not be NULL");
+        }
         this.username = username.trim();
     }
 }

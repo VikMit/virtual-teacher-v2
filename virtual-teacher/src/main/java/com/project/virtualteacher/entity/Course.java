@@ -2,13 +2,9 @@ package com.project.virtualteacher.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.LocalDate;
-import java.util.HashSet;
 import java.util.Set;
 
 @Entity
@@ -17,7 +13,8 @@ import java.util.Set;
 @AllArgsConstructor
 @Getter
 @Setter
-public class Course {
+@EqualsAndHashCode
+public class Course implements Comparable<Course> {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
@@ -37,7 +34,7 @@ public class Course {
 
     @ManyToOne()
     @JoinColumn(name = "creator_id")
-    private User teacher;
+    private Teacher teacher;
 
     @Column(name = "is_published")
     private boolean isPublished;
@@ -51,6 +48,11 @@ public class Course {
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "user_course", joinColumns = @JoinColumn(name = "course_id"), inverseJoinColumns = @JoinColumn(name = "user_id"))
     @JsonIgnore
-    Set<Student> enrolledStudents = new HashSet<>();
+    Set<Student> enrolledStudents;
 
+
+    @Override
+    public int compareTo(Course o) {
+        return this.getId() - o.getId();
+    }
 }

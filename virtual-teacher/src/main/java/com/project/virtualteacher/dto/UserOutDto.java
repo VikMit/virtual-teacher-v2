@@ -1,7 +1,6 @@
 package com.project.virtualteacher.dto;
 
 import com.project.virtualteacher.entity.Role;
-import com.project.virtualteacher.utility.Mapper;
 import lombok.*;
 
 @Data

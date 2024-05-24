@@ -38,23 +38,24 @@ public class SecurityConfig {
         return http
                 .csrf(AbstractHttpConfigurer::disable).cors(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth.requestMatchers(HttpMethod.GET,
-                                "/api/v1/course/{id}/basic",
+                                "/api/v1/course/{id}/basic-details",
                                 "/api/v1/role/{id}",
-                                "/api/v1/course/basic",
-                                "/api/v1/course/all-public/basic",
-                                "/api/v1/lecture/{id}/public/basic",
+                                "/api/v1/course/basic-details",
+                                "/api/v1/course/all-public/basic-details",
+                                "/api/v1/lecture/{id}/public/basic-details",
                                 "/api/v1/user/verification/{code}",
                                 "/api/v1/user/student/{studentId}").permitAll()
                         .requestMatchers(HttpMethod.POST,
-                                "/api/v1/user/register").permitAll()
+                                "/api/v1/user/register").anonymous()
                         .requestMatchers(HttpMethod.POST,
-                                "/api/v1/topic").authenticated()
+                                "/api/v1/topic",
+                                "/api/v1/course/full-details").authenticated()
                         .requestMatchers(HttpMethod.GET,
                                 "/api/v1/user/{id}",
-                                "/api/v1/user/{id}/basic",
+                                "/api/v1/user/{id}/basic-details",
                                 "/api/v1/course/title",
-                                "/api/v1/course/{courseId}/full",
-                                "/api/v1/course/all/full",
+                                "/api/v1/course/{courseId}/full-details",
+                                "/api/v1/course/full-details",
                                 "/api/v1/lecture/{lectureId}",
                                 "/api/v1/lecture/{lectureId}/assignment",
                                 "/api/v1/user/student/{studentId}",
@@ -70,7 +71,7 @@ public class SecurityConfig {
                                 "/api/v1/course",
                                 "/api/v1/lecture").hasRole("TEACHER")
                         .requestMatchers(HttpMethod.GET,
-                                "/api/v1/course/title/full").authenticated()
+                                "/api/v1/course/title/full-details").authenticated()
                         .requestMatchers(HttpMethod.PUT,
                                 "/api/v1/user/{id}",
                                 "/api/v1/topic/{topicId}").authenticated()

@@ -1,16 +1,19 @@
 package com.project.virtualteacher.service.contracts;
 
+import com.project.virtualteacher.dto.UserCreateDto;
 import com.project.virtualteacher.entity.Student;
 import com.project.virtualteacher.entity.Teacher;
 import com.project.virtualteacher.entity.User;
 import jakarta.mail.MessagingException;
+
+import java.util.Optional;
 
 
 public interface UserService {
 
     User getUserById(int userId, User loggedUser);
 
-    void createUser(User user) throws MessagingException;
+    void createUser(UserCreateDto user) throws MessagingException;
 
     void delete(int id, User loggedUser);
 

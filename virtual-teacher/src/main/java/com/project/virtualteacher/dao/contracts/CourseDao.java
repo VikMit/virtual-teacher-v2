@@ -1,8 +1,10 @@
 package com.project.virtualteacher.dao.contracts;
 
+import com.project.virtualteacher.dto.CourseSearchCriteria;
+import com.project.virtualteacher.dto.PaginationResult;
 import com.project.virtualteacher.entity.Course;
 import com.project.virtualteacher.entity.EnrollStudent;
-import com.project.virtualteacher.entity.User;
+import com.project.virtualteacher.entity.Student;
 
 import java.util.List;
 import java.util.Optional;
@@ -12,7 +14,8 @@ public interface CourseDao {
 
     Course createCourse(Course course);
 
-    Optional<Course> getCourseByTitle(String title);
+    PaginationResult<Course> getCoursesByTitle(String title, int page, int size);
+    PaginationResult<Course> getEnrolledCoursesByTitle(String title, int page, int size, Student student);
 
     Optional<Course> getCourseById(int id);
 
@@ -24,7 +27,7 @@ public interface CourseDao {
 
     Optional<Course> getPublicCourseById(int courseId);
 
-    Optional<Course> getPublicCourseByTitle(String title);
+   // List<Course> getPublicCourseByTitle(String title);
 
     Set<Course> getAllPublic();
 
@@ -34,6 +37,8 @@ public interface CourseDao {
 
     Optional<Course> getCourseByLectureId(int lectureId);
 
-    List<Course> getCoursesByTopic(String topic);
+    Set<Course> getCoursesByTopic(String topic);
+
+    PaginationResult<Course> getAllBySearchCriteria(CourseSearchCriteria searchCriteria, int page, int size);
 }
 

@@ -20,7 +20,8 @@ public final class ErrorMessage {
     public static final String USER_NOT_AUTHORIZED = "User %s not authorized for this resource";
     public static final String ADMIN_BLOCK_PERMIT = "Only ADMIN can block users";
     public static final String ADMIN_UNBLOCK_PERMIT = "Only ADMIN can unblock users";
-    public static final String USER_NOT_ENROLLED = "User with username: %s is not enrolled for course: %s";
+    public static final String USER_NOT_ENROLLED_FOR_COURSE = "User with username: %s is not enrolled for course: %s";
+    public static final String USER_NOT_ENROLLED_FOR_COURSE_ID = "User with username: %s is not enrolled for course with ID: %d";
     public static final String COURSE_DELETE_WITH_ENROLLED_NOT_SUPPORTED = "Course with enrolled students can not be deleted";
     public static final String ROLE_NAME_EXIST = "Role with name: %s exist";
     public static final String USER_ENROLLED = "User already enrolled.";
@@ -34,6 +35,9 @@ public final class ErrorMessage {
     public static final String TOPIC_ID_NOT_EXIST = "Topic with ID: %d not exist.";
     public static final String ADMIN_TEACHER_PERMISSION = "Operation only for TEACHERS and ADMINS.";
     public static final String STUDENT_ID_NOT_FOUND = "Student with ID: %d NOT FOUND";
-    public static final String ADMIN_PERMISSION_REQUIREMENT = "Only user with ADMIN role have permission for this operation.";
+    public static final String ADMIN_REQUIRED = "Only user with ADMIN role have permission for this operation.";
     public static final String TEACHER_ID_NOT_FOUND = "Teacher with ID: %d NOT FOUND";
+    public static final String TEACHER_REQUIRED = "Only user with TEACHER role have permission for this operation.";
+    public static final String USER_REQUIRED = "User required.";
+    public static final String ANONYMOUS_USER_REQUIRED = "Registered users don't have access to this operation.";
 }

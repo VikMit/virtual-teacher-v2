@@ -8,9 +8,14 @@ import java.util.Set;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class CourseFullOutDto extends CourseBaseOutDto {
+public class CourseFullOutDto extends CourseBaseOutDto implements Comparable<CourseFullOutDto> {
 
     private Set<Lecture> lectures;
 
     private Set<UserOutDto> enrolledStudents;
+
+    @Override
+    public int compareTo(CourseFullOutDto o) {
+        return this.getId() - o.getId();
+    }
 }

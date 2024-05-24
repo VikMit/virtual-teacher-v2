@@ -5,21 +5,23 @@ import com.project.virtualteacher.dto.*;
 import com.project.virtualteacher.entity.*;
 import com.project.virtualteacher.exception_handling.error_message.ErrorMessage;
 import com.project.virtualteacher.exception_handling.exceptions.EntityNotExistException;
+import com.project.virtualteacher.utility.contracts.Mapper;
 import org.springframework.stereotype.Component;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 @Component
-public final class Mapper {
+public final class MapperImpl implements Mapper {
 
     private final RoleDao roleDao;
     private final CourseDao courseDao;
     private final TopicDao topicDao;
 
 
-    public Mapper(RoleDao roleDao, UserDao userDao, CourseDao courseDao, TopicDao topicDao) {
+    public MapperImpl(RoleDao roleDao, UserDao userDao, CourseDao courseDao, TopicDao topicDao) {
         this.roleDao = roleDao;
         this.courseDao = courseDao;
         this.topicDao = topicDao;
@@ -31,7 +33,7 @@ public final class Mapper {
         user.setUsername(userCreateDto.getUsername());
         user.setPassword(userCreateDto.getPassword());
         user.setEmail(userCreateDto.getEmail());
-        user.setRole(role);
+        user.setRequestedRole(role);
         if (userCreateDto.getPictureUrl() == null) {
             user.setPictureUrl("Default picture URL");
         } else {
@@ -176,5 +178,17 @@ public final class Mapper {
 
     public TeacherOutDto fromTeacherToTeacherOutDto(Teacher teacher) {
         return new TeacherOutDto(teacher);
+    }
+
+    public PaginationResult<CourseFullOutDto> fromCourseToCourseFullOutPaged(PaginationResult<Course> courses) {
+        PaginationResult<CourseFullOutDto> result = new PaginationResult<>();
+        result.setLastPage(courses.getLastPage());
+        result.setSize(courses.getSize());
+        result.setCurrentPage(courses.getCurrentPage());
+        result.setTotalRecords(courses.getTotalRecords());
+        Set<CourseFullOutDto> coursesFullOut = new TreeSet<>();
+        courses.getData().forEach(course -> coursesFullOut.add(fromCourseToCourseFullOutDto(course)));
+        result.setData(coursesFullOut);
+        return result;
     }
 }

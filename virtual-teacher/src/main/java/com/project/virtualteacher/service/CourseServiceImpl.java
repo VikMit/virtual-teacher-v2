@@ -2,17 +2,17 @@ package com.project.virtualteacher.service;
 
 import com.project.virtualteacher.dao.contracts.CourseStatusDao;
 import com.project.virtualteacher.dao.contracts.UserDao;
-import com.project.virtualteacher.entity.Course;
-import com.project.virtualteacher.entity.CourseStatus;
-import com.project.virtualteacher.entity.EnrollStudent;
-import com.project.virtualteacher.entity.User;
+import com.project.virtualteacher.dto.CourseSearchCriteria;
+import com.project.virtualteacher.dto.PaginationResult;
+import com.project.virtualteacher.entity.*;
 import com.project.virtualteacher.exception_handling.error_message.ErrorMessage;
 import com.project.virtualteacher.exception_handling.exceptions.EntityExistException;
 import com.project.virtualteacher.exception_handling.exceptions.EntityNotExistException;
 import com.project.virtualteacher.exception_handling.exceptions.UnAuthorizeException;
 import com.project.virtualteacher.exception_handling.exceptions.UnsupportedOperationException;
 import com.project.virtualteacher.service.contracts.CourseService;
-import com.project.virtualteacher.utility.ValidatorHelper;
+import com.project.virtualteacher.utility.contracts.CourseValidatorHelper;
+import com.project.virtualteacher.utility.contracts.UserValidatorHelper;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
@@ -23,60 +23,54 @@ import java.util.stream.Collectors;
 public class CourseServiceImpl implements CourseService {
     private final com.project.virtualteacher.dao.contracts.CourseDao courseDao;
     private final UserDao userDao;
-    private final ValidatorHelper validator;
+    private final UserValidatorHelper userValidator;
+    private final CourseValidatorHelper courseValidator;
     private final CourseStatusDao courseStatus;
 
-    public CourseServiceImpl(com.project.virtualteacher.dao.contracts.CourseDao courseDao, UserDao userDao, ValidatorHelper validator, CourseStatusDao courseStatus) {
+    public CourseServiceImpl(com.project.virtualteacher.dao.contracts.CourseDao courseDao, UserDao userDao, UserValidatorHelper userValidator, CourseValidatorHelper courseValidator, CourseStatusDao courseStatus) {
         this.courseDao = courseDao;
         this.userDao = userDao;
-        this.validator = validator;
+        this.userValidator = userValidator;
+        this.courseValidator = courseValidator;
         this.courseStatus = courseStatus;
     }
 
     @Override
     @Transactional
     public Course create(Course course, User loggedUser) {
+        userValidator.throwIfNotTeacher(loggedUser);
         if (!courseDao.isCourseTitleExist(course.getTitle())) {
             String username = loggedUser.getUsername();
-            User creator = userDao.findByUsename(username).orElseThrow(() -> new EntityNotExistException(ErrorMessage.USER_WITH_USERNAME_NOT_FOUND, username));
+            Teacher creator = (Teacher) userDao.findByUsename(username).orElseThrow(() -> new EntityNotExistException(ErrorMessage.USER_WITH_USERNAME_NOT_FOUND, username));
             course.setTeacher(creator);
             return courseDao.createCourse(course);
-        } else {
-            throw new EntityExistException(ErrorMessage.COURSE_TITLE_EXIST, course.getTitle());
         }
+        throw new EntityExistException(ErrorMessage.COURSE_TITLE_EXIST, course.getTitle());
     }
 
     @Override
     public Course getCourseById(int courseId, User loggedUser) {
-
-        if (validator.isTeacherOrAdmin(loggedUser)) {
-            return courseDao.getCourseById(courseId)
-                    .orElseThrow(() -> new EntityNotExistException(ErrorMessage.COURSE_WITH_ID_NOT_FOUND, courseId));
-        } else {
-            return getPublicCourseById(courseId);
+        Course course = courseDao.getCourseById(courseId)
+                .orElseThrow(() -> new EntityNotExistException(ErrorMessage.COURSE_WITH_ID_NOT_FOUND, courseId));
+        if (userValidator.isTeacherOrAdmin(loggedUser) || userValidator.isUserEnrolledForCourse(loggedUser, course)) {
+            return course;
         }
+        throw new UnAuthorizeException(ErrorMessage.USER_NOT_AUTHORIZED, loggedUser.getUsername());
     }
 
     @Override
-    public Course getPublicCourseById(int courseId) {
-        return courseDao.getPublicCourseById(courseId).orElseThrow(() -> new EntityNotExistException(ErrorMessage.COURSE_WITH_ID_NOT_FOUND, courseId));
-    }
+    public PaginationResult<Course> getCoursesByTitle(String title, User loggedUser, int page, int size) {
 
-    @Override
-    public Course getCourseByTitle(String title, User loggedUser) {
-
-        if (validator.isTeacherOrAdmin(loggedUser)){
-            return courseDao.getCourseByTitle(title)
-                    .orElseThrow(() -> new EntityNotExistException(ErrorMessage.COURSE_WITH_TITLE_NOT_FOUND, title));
+        if (userValidator.isTeacherOrAdmin(loggedUser)) {
+            PaginationResult<Course> courses = courseDao.getCoursesByTitle(title, page, size);
+            return courses;
         }
-        return getPublicCourseByTitle(title);
-
+        if (userValidator.isStudent(loggedUser)) {
+            return courseDao.getEnrolledCoursesByTitle(title, page, size, (Student) loggedUser);
+        }
+        throw new UnAuthorizeException(ErrorMessage.USER_NOT_AUTHORIZED, loggedUser.getUsername());
     }
 
-    @Override
-    public Course getPublicCourseByTitle(String title) {
-        return courseDao.getPublicCourseByTitle(title).orElseThrow(() -> new EntityNotExistException(ErrorMessage.PUBLIC_COURSE_WITH_TITLE_NOT_FOUND, title));
-    }
 
     @Override
     public Set<Course> getAllPublic() {
@@ -84,27 +78,26 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
-    public Set<Course> getAll(User loggedUser,int page, int size) {
-        Set<Course> allCourses = courseDao.getAll(page,size);
-        if (validator.isTeacherOrAdmin(loggedUser)) {
+    public Set<Course> getAll(User loggedUser, int page, int size) {
+        Set<Course> allCourses = courseDao.getAll(page, size);
+        if (userValidator.isTeacherOrAdmin(loggedUser)) {
             return allCourses;
         }
-        if (validator.isStudent(loggedUser)) {
+        if (userValidator.isStudent(loggedUser)) {
             User user = userDao.findByUsename(loggedUser.getUsername()).orElseThrow(() -> new EntityNotExistException(ErrorMessage.USER_WITH_USERNAME_NOT_FOUND, loggedUser.getUsername()));
             return allCourses.stream().filter(Course::isPublished).filter(course -> course.getEnrolledStudents().contains(user)).collect(Collectors.toSet());
-        } else {
-            throw new UnAuthorizeException(ErrorMessage.USER_NOT_AUTHORIZED,loggedUser.getUsername());
         }
+        throw new UnAuthorizeException(ErrorMessage.USER_NOT_AUTHORIZED, loggedUser.getUsername());
+
     }
 
     @Override
     @Transactional
     public void delete(int courseId, User loggedUser) {
-        String username = loggedUser.getUsername();
         Course courseToDelete = courseDao.getCourseById(courseId).orElseThrow(() -> new EntityNotExistException(ErrorMessage.COURSE_WITH_ID_NOT_FOUND, courseId));
-        User userFromDB = userDao.findByUsename(username).orElseThrow(() -> new EntityNotExistException(ErrorMessage.USER_WITH_USERNAME_NOT_FOUND, username));
+        courseValidator.throwIfNotCourseCreator(courseToDelete, loggedUser);
         throwIfCourseHasEnrolledStudents(courseToDelete);
-        deleteIfCreator(courseToDelete, userFromDB);
+        deleteIfCreator(courseToDelete, loggedUser);
     }
 
     @Override
@@ -118,38 +111,51 @@ public class CourseServiceImpl implements CourseService {
     }
 
 
+
+    @Override
+    public PaginationResult<Course> getCoursesBySearchCriteria(CourseSearchCriteria searchCriteria, User loggedUser, int page, int size) {
+        if (userValidator.isTeacherOrAdmin(loggedUser)){
+            return courseDao.getAllBySearchCriteria(searchCriteria,page,size);
+        }
+        /*if (validator.isStudent(loggedUser)){
+            return courseDao.getEnrolledBySearchCriteria(searchCriteria,loggedUser,page,size);
+        }*/
+        throw new UnAuthorizeException(ErrorMessage.USER_NOT_AUTHORIZED, loggedUser.getUsername());
+    }
+
+
     @Override
     @Transactional
-    public Course update(int courseToUpdateId, Course updateCourse, User loggedUser) {
+    public Course update(int courseToUpdateId, Course newCourse, User loggedUser) {
         Course courseToUpdate = courseDao.getCourseById(courseToUpdateId).orElseThrow(() -> new EntityNotExistException(ErrorMessage.COURSE_WITH_ID_NOT_FOUND, courseToUpdateId));
-        validator.isCreatorOfCourse(courseToUpdate, loggedUser);
-        validateTitleUniqueIfChanged(updateCourse, courseToUpdate);
-        applyChanges(courseToUpdate, updateCourse);
+        courseValidator.throwIfNotCourseCreator(courseToUpdate, loggedUser);
+        throwIfCourseTitleExist(newCourse, courseToUpdate);
+        applyChanges(courseToUpdate, newCourse);
         return courseDao.update(courseToUpdate);
     }
 
 
-    private void validateTitleUniqueIfChanged(Course updateCourse, Course courseToUpdate) {
-        if (!courseToUpdate.getTitle().equals(updateCourse.getTitle())) {
-            if ((courseDao.getCourseByTitle(updateCourse.getTitle()).isPresent())) {
-                throw new EntityExistException(ErrorMessage.COURSE_TITLE_EXIST, updateCourse.getTitle());
+    private void throwIfCourseTitleExist(Course newCourse, Course courseToUpdate) {
+        if (!courseToUpdate.getTitle().equals(newCourse.getTitle())) {
+            if (courseDao.isCourseTitleExist(newCourse.getTitle())) {
+                throw new EntityExistException(ErrorMessage.COURSE_TITLE_EXIST, newCourse.getTitle());
             }
         }
     }
 
-    private void applyChanges(Course mainCourse, Course updateDetails) {
-        mainCourse.setTitle(updateDetails.getTitle());
-        mainCourse.setStartDate(updateDetails.getStartDate());
-        mainCourse.setPublished(updateDetails.isPublished());
-        mainCourse.setPassingGrade(updateDetails.getPassingGrade());
-        mainCourse.setDescription(updateDetails.getDescription());
+    private void applyChanges(Course courseToUpdate, Course newCourse) {
+        courseToUpdate.setTitle(newCourse.getTitle());
+        courseToUpdate.setStartDate(newCourse.getStartDate());
+        courseToUpdate.setPublished(newCourse.isPublished());
+        courseToUpdate.setPassingGrade(newCourse.getPassingGrade());
+        courseToUpdate.setDescription(newCourse.getDescription());
     }
 
     private Course getCourseIfEnrolled(Course course, User user) {
         if (course.getEnrolledStudents().contains(user)) {
             return course;
         }
-        throw new UnAuthorizeException(ErrorMessage.USER_NOT_ENROLLED, user.getUsername(), course.getTitle());
+        throw new UnAuthorizeException(ErrorMessage.USER_NOT_ENROLLED_FOR_COURSE, user.getUsername(), course.getTitle());
     }
 
     private void deleteIfCreator(Course course, User user) {
@@ -180,4 +186,26 @@ public class CourseServiceImpl implements CourseService {
             throw new UnsupportedOperationException(ErrorMessage.COURSE_DELETE_WITH_ENROLLED_NOT_SUPPORTED);
         }
     }
+
+   /* private static PaginationResult<Course> extractPublicOrEnrolledCourses(User loggedUser, PaginationResult<Course> courses) {
+        int removedRecords = 0;
+        Iterator<Course> iterator = courses.getData().iterator();
+        while (iterator.hasNext()) {
+            Course next = iterator.next();
+            if (!next.isPublished() && !next.getEnrolledStudents().contains(loggedUser)) {
+                iterator.remove();
+                removedRecords++;
+            }
+        }
+        courses.setTotalRecords(courses.getTotalRecords()-removedRecords);
+        courses.setLastPage(getLastPage(courses.getTotalRecords(),courses.getSize()));
+        return courses;
+    }
+    private static int getLastPage(long totalRecords, int pageSize) {
+        int lastPage = (int)totalRecords / pageSize;
+        if (totalRecords % pageSize != 0) {
+            lastPage++;
+        }
+        return lastPage;
+    }*/
 }

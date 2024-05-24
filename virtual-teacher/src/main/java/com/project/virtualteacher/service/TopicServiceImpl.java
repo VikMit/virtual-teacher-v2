@@ -8,35 +8,35 @@ import com.project.virtualteacher.entity.User;
 import com.project.virtualteacher.exception_handling.error_message.ErrorMessage;
 import com.project.virtualteacher.exception_handling.exceptions.EntityNotExistException;
 import com.project.virtualteacher.service.contracts.TopicService;
-import com.project.virtualteacher.utility.ValidatorHelper;
+import com.project.virtualteacher.utility.contracts.UserValidatorHelper;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
+import java.util.Set;
 
 @Service
 public class TopicServiceImpl implements TopicService {
     private final TopicDao topicDao;
-    private final ValidatorHelper validator;
+    private final UserValidatorHelper userValidator;
     private final CourseDao courseDao;
 
-    public TopicServiceImpl(TopicDao topicDao, ValidatorHelper validator, CourseDao courseDao) {
+    public TopicServiceImpl(TopicDao topicDao, UserValidatorHelper userValidator, CourseDao courseDao) {
         this.topicDao = topicDao;
-        this.validator = validator;
+        this.userValidator = userValidator;
         this.courseDao = courseDao;
     }
 
     @Override
     @Transactional
     public Topic create(Topic topic, User user) {
-        validator.throwIfNotTeacherOrAdmin(user);
+        userValidator.throwIfNotTeacherOrAdmin(user);
         return topicDao.create(topic);
     }
 
     @Override
     @Transactional
     public Topic update(int id, Topic topicUpdate, User loggedUser) {
-        validator.throwIfNotTeacherOrAdmin(loggedUser);
+        userValidator.throwIfNotTeacherOrAdmin(loggedUser);
         Topic topicToUpdate = topicDao.getById(id).orElseThrow(() -> new EntityNotExistException(ErrorMessage.TOPIC_ID_NOT_EXIST, id));
         topicToUpdate.setTopic(topicUpdate.getTopic());
         return topicDao.update(topicToUpdate);
@@ -50,14 +50,14 @@ public class TopicServiceImpl implements TopicService {
     @Override
     @Transactional
     public void delete(int id,User loggedUser) {
-        validator.throwIfNotTeacherOrAdmin(loggedUser);
+        userValidator.throwIfNotTeacherOrAdmin(loggedUser);
         Topic topicToDelete = topicDao.getById(id).orElseThrow(() -> new EntityNotExistException(ErrorMessage.TOPIC_ID_NOT_EXIST, id));
-        List<Course> courses = courseDao.getCoursesByTopic(topicToDelete.getTopic());
+        Set<Course> courses = courseDao.getCoursesByTopic(topicToDelete.getTopic());
         removeTopicFromCourses(topicToDelete, courses);
         topicDao.delete(topicToDelete);
     }
 
-    private void removeTopicFromCourses(Topic topic, List<Course> courses) {
+    private void removeTopicFromCourses(Topic topic, Set<Course> courses) {
         courses.forEach(course -> {
             course.getTopics().remove(topic);
             courseDao.update(course);
