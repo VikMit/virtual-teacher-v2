@@ -18,7 +18,7 @@ import java.time.LocalDate;
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name="role_id",
         discriminatorType = DiscriminatorType.INTEGER)
-//@DiscriminatorValue("3")
+@DiscriminatorValue("3")
 
 public class User {
     @Id

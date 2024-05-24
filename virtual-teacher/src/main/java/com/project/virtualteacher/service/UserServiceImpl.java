@@ -13,7 +13,6 @@ import com.project.virtualteacher.exception_handling.exceptions.EntityNotExistEx
 import com.project.virtualteacher.exception_handling.exceptions.UnAuthorizeException;
 import com.project.virtualteacher.service.contracts.MailService;
 import com.project.virtualteacher.service.contracts.UserService;
-import com.project.virtualteacher.utility.MapperImpl;
 import com.project.virtualteacher.utility.contracts.Mapper;
 import com.project.virtualteacher.utility.contracts.UserValidatorHelper;
 import jakarta.mail.MessagingException;
@@ -75,7 +74,7 @@ public class UserServiceImpl implements UserService {
         userValidator.throwIfPassAndConfirmPassNotMatch(newUser);
         User userToCreate = mapper.fromUserCreateDtoToUser(newUser);
         validateUsernameAndEmailNotExist(userToCreate);
-        setInitialUserState(newUser,userToCreate,DEFAULT_ROLE);
+        userToCreate = getInitialUserState(newUser);
         userDao.create(userToCreate);
         mailService.sendConfirmRegistration(userToCreate.getUsername(), userToCreate.getFirstName() + userToCreate.getLastName(), domain + "user/verification/" + userToCreate.getEmailCode(), userToCreate.getEmail());
     }
@@ -180,14 +179,23 @@ public class UserServiceImpl implements UserService {
         return email.transform(String::getBytes);
     }
 
-    private void setInitialUserState(UserCreateDto newUser,User userToCreate,String role){
-       // userToCreate.setRequestedRole(roleDao.findById(newUser.getRoleId()).orElseThrow(() -> new EntityNotExistException(ROLE_ID_NOT_FOUND, newUser.getRoleId())));
-        userToCreate.setRole(roleDao.findByName(role).orElseThrow(() -> new EntityNotExistException(ROLE_NAME_NOT_FOUND, role)));
-        userToCreate.setPassword(encoder.encode(newUser.getPassword()));
-        userToCreate.setBlocked(false);
-        userToCreate.setEmailVerified(false);
+    //TODO refactor
+    private Student getInitialUserState(UserCreateDto newUser){
+        Student student = new Student();
+        student.setUsername(newUser.getUsername());
+        student.setFirstName(newUser.getFirstName());
+        student.setLastName(newUser.getLastName());
+        student.setDob(newUser.getDob());
+        student.setEmail(newUser.getEmail());
+        student.setPictureUrl("DEFAULT");
+        student.setRequestedRole(roleDao.findById(newUser.getRoleId()).orElseThrow(() -> new EntityNotExistException(ROLE_ID_NOT_FOUND, newUser.getRoleId())));
+        student.setRole(roleDao.findByName(DEFAULT_ROLE).orElseThrow(() -> new EntityNotExistException(ROLE_NAME_NOT_FOUND, DEFAULT_ROLE)));
+        student.setPassword(encoder.encode(newUser.getPassword()));
+        student.setBlocked(false);
+        student.setEmailVerified(false);
         byte[] emailToByteArray = convertEmailToByteArr(newUser.getEmail());
-        userToCreate.setEmailCode(String.valueOf(UUID.nameUUIDFromBytes(emailToByteArray)));
+        student.setEmailCode(String.valueOf(UUID.nameUUIDFromBytes(emailToByteArray)));
+        return student;
     }
 
 }
