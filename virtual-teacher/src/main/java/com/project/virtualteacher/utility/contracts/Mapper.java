@@ -4,7 +4,7 @@ import com.project.virtualteacher.dto.*;
 import com.project.virtualteacher.entity.*;
 
 public interface Mapper {
-     User fromUserCreateDtoToUser(UserCreateDto userCreateDto);
+     Student fromUserCreateDtoToStudent(UserCreateDto userCreateDto);
 
      UserOutDto fromUserToUserOutDto(User user);
 

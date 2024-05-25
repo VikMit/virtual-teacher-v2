@@ -19,10 +19,7 @@ import jakarta.mail.MessagingException;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import java.util.UUID;
 
 import static com.project.virtualteacher.exception_handling.error_message.ErrorMessage.*;
 
@@ -31,7 +28,6 @@ import static com.project.virtualteacher.exception_handling.error_message.ErrorM
 public class UserServiceImpl implements UserService {
 
     private final UserDao userDao;
-    private final PasswordEncoder encoder;
     private final RoleDao roleDao;
     private final UserValidatorHelper userValidator;
     private final MailService mailService;
@@ -43,9 +39,8 @@ public class UserServiceImpl implements UserService {
     private static final String DEFAULT_ROLE = "ROLE_STUDENT";
 
     @Autowired
-    public UserServiceImpl(UserDao userDao, PasswordEncoder encoder, RoleDao roleDao, UserValidatorHelper userValidator, MailService mailService, Mapper mapper) {
+    public UserServiceImpl(UserDao userDao, RoleDao roleDao, UserValidatorHelper userValidator, MailService mailService, Mapper mapper) {
         this.userDao = userDao;
-        this.encoder = encoder;
         this.roleDao = roleDao;
         this.userValidator = userValidator;
         this.mailService = mailService;
@@ -72,11 +67,10 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public void createUser(UserCreateDto newUser) throws MessagingException {
         userValidator.throwIfPassAndConfirmPassNotMatch(newUser);
-        User userToCreate = mapper.fromUserCreateDtoToUser(newUser);
-        validateUsernameAndEmailNotExist(userToCreate);
-        userToCreate = getInitialUserState(newUser);
-        userDao.create(userToCreate);
-        mailService.sendConfirmRegistration(userToCreate.getUsername(), userToCreate.getFirstName() + userToCreate.getLastName(), domain + "user/verification/" + userToCreate.getEmailCode(), userToCreate.getEmail());
+        Student newStudent = mapper.fromUserCreateDtoToStudent(newUser);
+        validateUsernameAndEmailNotExist(newStudent);
+        userDao.create(newStudent);
+        mailService.sendConfirmRegistration(newStudent.getUsername(), newStudent.getFirstName() + newStudent.getLastName(), domain + "user/verification/" + newStudent.getEmailCode(), newStudent.getEmail());
     }
 
     @Override
@@ -173,29 +167,6 @@ public class UserServiceImpl implements UserService {
         userDb.setDob(userToUpdate.getDob());
         userDb.setFirstName(userToUpdate.getFirstName());
         userDb.setLastName(userToUpdate.getLastName());
-    }
-
-    private byte[] convertEmailToByteArr(String email) {
-        return email.transform(String::getBytes);
-    }
-
-    //TODO refactor
-    private Student getInitialUserState(UserCreateDto newUser){
-        Student student = new Student();
-        student.setUsername(newUser.getUsername());
-        student.setFirstName(newUser.getFirstName());
-        student.setLastName(newUser.getLastName());
-        student.setDob(newUser.getDob());
-        student.setEmail(newUser.getEmail());
-        student.setPictureUrl("DEFAULT");
-        student.setRequestedRole(roleDao.findById(newUser.getRoleId()).orElseThrow(() -> new EntityNotExistException(ROLE_ID_NOT_FOUND, newUser.getRoleId())));
-        student.setRole(roleDao.findByName(DEFAULT_ROLE).orElseThrow(() -> new EntityNotExistException(ROLE_NAME_NOT_FOUND, DEFAULT_ROLE)));
-        student.setPassword(encoder.encode(newUser.getPassword()));
-        student.setBlocked(false);
-        student.setEmailVerified(false);
-        byte[] emailToByteArray = convertEmailToByteArr(newUser.getEmail());
-        student.setEmailCode(String.valueOf(UUID.nameUUIDFromBytes(emailToByteArray)));
-        return student;
     }
 
 }

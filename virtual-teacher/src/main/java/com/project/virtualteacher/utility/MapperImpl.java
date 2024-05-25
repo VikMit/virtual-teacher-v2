@@ -6,12 +6,17 @@ import com.project.virtualteacher.entity.*;
 import com.project.virtualteacher.exception_handling.error_message.ErrorMessage;
 import com.project.virtualteacher.exception_handling.exceptions.EntityNotExistException;
 import com.project.virtualteacher.utility.contracts.Mapper;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.util.HashSet;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.UUID;
 import java.util.stream.Collectors;
+
+import static com.project.virtualteacher.exception_handling.error_message.ErrorMessage.ROLE_ID_NOT_FOUND;
+import static com.project.virtualteacher.exception_handling.error_message.ErrorMessage.ROLE_NAME_NOT_FOUND;
 
 @Component
 public final class MapperImpl implements Mapper {
@@ -19,27 +24,41 @@ public final class MapperImpl implements Mapper {
     private final RoleDao roleDao;
     private final CourseDao courseDao;
     private final TopicDao topicDao;
+    private final PasswordEncoder encoder;
+
+    private static final String DEFAULT_PICTURE_URL = "DEFAULT PICTURE";
+    private static final String STUDENT_ROLE = "ROLE_STUDENT";
 
 
-    public MapperImpl(RoleDao roleDao, UserDao userDao, CourseDao courseDao, TopicDao topicDao) {
+    public MapperImpl(RoleDao roleDao, UserDao userDao, CourseDao courseDao, TopicDao topicDao, PasswordEncoder encoder) {
         this.roleDao = roleDao;
         this.courseDao = courseDao;
         this.topicDao = topicDao;
+        this.encoder = encoder;
     }
 
-    public User fromUserCreateDtoToUser(UserCreateDto userCreateDto) {
-        User user = fromUserUpdateDtoToUser(userCreateDto);
+    public Student fromUserCreateDtoToStudent(UserCreateDto userCreateDto) {
+
+        Student student = new Student();
         Role role = roleDao.findById(userCreateDto.getRoleId()).orElseThrow(() -> new EntityNotExistException(ErrorMessage.ROLE_ID_NOT_FOUND, userCreateDto.getRoleId()));
-        user.setUsername(userCreateDto.getUsername());
-        user.setPassword(userCreateDto.getPassword());
-        user.setEmail(userCreateDto.getEmail());
-        user.setRequestedRole(role);
+        student.setUsername(userCreateDto.getUsername());
+        student.setFirstName(userCreateDto.getFirstName());
+        student.setLastName(userCreateDto.getLastName());
+        student.setDob(userCreateDto.getDob());
+        student.setEmail(userCreateDto.getEmail());
+        student.setRole(roleDao.findByName(STUDENT_ROLE).orElseThrow(()->new EntityNotExistException(ROLE_NAME_NOT_FOUND,STUDENT_ROLE)));
+        student.setRequestedRole(role);
+        student.setPassword(encoder.encode(userCreateDto.getPassword()));
+        student.setBlocked(false);
+        student.setEmailVerified(false);
+        byte[] emailToByteArray = convertEmailToByteArr(userCreateDto.getEmail());
+        student.setEmailCode(String.valueOf(UUID.nameUUIDFromBytes(emailToByteArray)));
         if (userCreateDto.getPictureUrl() == null) {
-            user.setPictureUrl("Default picture URL");
+            student.setPictureUrl(DEFAULT_PICTURE_URL);
         } else {
-            user.setPictureUrl(userCreateDto.getPictureUrl());
+            student.setPictureUrl(userCreateDto.getPictureUrl());
         }
-        return user;
+        return student;
     }
 
     public UserOutDto fromUserToUserOutDto(User user) {
@@ -190,5 +209,9 @@ public final class MapperImpl implements Mapper {
         courses.getData().forEach(course -> coursesFullOut.add(fromCourseToCourseFullOutDto(course)));
         result.setData(coursesFullOut);
         return result;
+    }
+
+    private byte[] convertEmailToByteArr(String email) {
+        return email.transform(String::getBytes);
     }
 }
