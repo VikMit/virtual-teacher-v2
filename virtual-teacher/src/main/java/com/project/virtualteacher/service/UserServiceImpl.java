@@ -36,8 +36,6 @@ public class UserServiceImpl implements UserService {
     @Value("${app.domain.address}")
     private String domain;
 
-    private static final String DEFAULT_ROLE = "ROLE_STUDENT";
-
     @Autowired
     public UserServiceImpl(UserDao userDao, RoleDao roleDao, UserValidatorHelper userValidator, MailService mailService, Mapper mapper) {
         this.userDao = userDao;
